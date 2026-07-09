@@ -7,7 +7,7 @@
 - **Last Updated:** 2026-07-08
 
 ## 2. Purpose
-This document translates the conceptual Domain Model into a concrete relational database blueprint designed specifically for PostgreSQL and Supabase. It serves as the authoritative guide for generating subsequent SQL migrations, ORM models (e.g., Prisma, Drizzle), and API contracts.
+This document translates the conceptual Domain Model into a concrete logical relational database blueprint. It serves as the authoritative guide for generating subsequent SQL migrations, ORM models, and API contracts. Note: Detailed technology choices (e.g., specific RDBMS, indexing types) are deferred to the Technology Decisions document.
 
 ## 3. Relationship to Previous Documents
 - **DOMAIN_MODEL.md:** Defined the abstract business entities. This document maps those entities to physical database tables, defining columns, types, and constraints.
@@ -15,15 +15,15 @@ This document translates the conceptual Domain Model into a concrete relational 
 - **PRD:** Outlines the access models (Anonymous Fans vs. Authenticated Staff) which directly informs the RLS strategy in this document.
 
 ## 4. Database Design Philosophy
-- **Relational Database (PostgreSQL):** Chosen for strict ACID compliance, robust foreign key constraints, and advanced JSONB support, ensuring data integrity for critical operations while allowing flexibility for AI payloads.
-- **Supabase Integration:** The schema heavily relies on Supabase's native GoTrue auth (mapped to the `users` table) and native Row Level Security (RLS) for multi-tenant data isolation at the database layer.
+- **Relational Model:** Chosen for strict ACID compliance, robust foreign key constraints, and JSON support, ensuring data integrity for critical operations while allowing flexibility for AI payloads.
+- **Authentication & Security:** The schema anticipates integration with an external identity provider (mapped to the `users` table) and relies on Row Level Security (RLS) concepts for multi-tenant data isolation at the database layer.
 - **Identifiers (UUIDs):** `uuid` (UUIDv4) is used for all primary keys. This prevents enumeration attacks (critical for anonymous fan sessions) and simplifies distributed data generation.
 - **Timestamps & Auditability:** Every table includes `created_at` and `updated_at`. Operational tables use `created_by`. Soft deletes (`deleted_at`) are preferred for historical accuracy.
-- **Normalization Strategy:** Designed for 3rd Normal Form (3NF) to avoid anomalies. However, deliberate denormalization using `JSONB` is applied to high-velocity telemetry data and flexible AI reasoning metadata to avoid excessive joins.
+- **Normalization Strategy:** Designed for 3rd Normal Form (3NF) to avoid anomalies. However, deliberate denormalization using document/JSON columns is applied to high-velocity telemetry data and flexible AI reasoning metadata to avoid excessive joins.
 - **Append-Only History:** Entities like `telemetry_snapshots` and incident updates are append-only to maintain a perfect audit trail of stadium conditions.
 
 ## 5. Enumerations
-PostgreSQL custom ENUM types ensure data consistency at the database level.
+Custom ENUM types ensure data consistency at the database level.
 
 - **`user_role`**: `fan`, `volunteer`, `security`, `ops_manager`, `admin`. Ensures strict RBAC mapping.
 - **`incident_status`**: `reported`, `verified`, `assigned`, `resolved`, `closed`. Maps the incident lifecycle.
@@ -52,10 +52,10 @@ PostgreSQL custom ENUM types ensure data consistency at the database level.
 ## 7. Table Definitions
 
 ### `users`
-- **Purpose:** Represents authenticated staff and persistent profiles. Integrates with Supabase Auth (`auth.users`).
+- **Purpose:** Represents authenticated staff and persistent profiles. Integrates with an external identity provider.
 - **Primary Key:** `id` (uuid)
 - **Columns:**
-  - `id` (uuid, PK, references `auth.users.id`)
+  - `id` (uuid, PK)
   - `role` (`user_role`, required, default: `fan`)
   - `full_name` (text, nullable)
   - `preferred_language` (`language_code`, required, default: `en`)
@@ -71,7 +71,7 @@ PostgreSQL custom ENUM types ensure data consistency at the database level.
   - `user_id` (uuid, nullable, FK to `users.id`) - Null for anonymous fans.
   - `device_fingerprint` (text, nullable) - For anonymous session continuity.
   - `active_language` (`language_code`, required, default: `en`)
-  - `last_known_location` (jsonb, nullable) - {lat, lng, zone_id}
+  - `last_known_location` (json, nullable) - {lat, lng, zone_id}
   - `expires_at` (timestamptz, required)
   - `created_at` (timestamptz, required, default: now())
 
@@ -83,7 +83,7 @@ PostgreSQL custom ENUM types ensure data consistency at the database level.
   - `name` (text, required)
   - `description` (text, nullable)
   - `capacity` (integer, required)
-  - `polygon_coordinates` (jsonb, required) - GeoJSON representation for UI mapping.
+  - `polygon_coordinates` (json, required) - GeoJSON representation for UI mapping.
 
 ### `pois`
 - **Purpose:** Points of Interest (Gates, Concessions, Restrooms).
@@ -94,7 +94,7 @@ PostgreSQL custom ENUM types ensure data consistency at the database level.
   - `name` (text, required)
   - `type` (text, required) - e.g., 'restroom', 'food'
   - `is_accessible` (boolean, required, default: false)
-  - `coordinates` (jsonb, required) - {lat, lng}
+  - `coordinates` (json, required) - {lat, lng}
 
 ### `incidents`
 - **Purpose:** Tracks operational anomalies.
@@ -130,7 +130,7 @@ PostgreSQL custom ENUM types ensure data consistency at the database level.
   - `zone_id` (uuid, required, FK to `zones.id`)
   - `metric_type` (text, required) - e.g., 'crowd_density', 'queue_time'
   - `metric_value` (numeric, required)
-  - `raw_payload` (jsonb, nullable) - Original sensor payload for debugging.
+  - `raw_payload` (json, nullable) - Original sensor payload for debugging.
   - `recorded_at` (timestamptz, required, default: now())
 
 ### `conversations`
@@ -139,7 +139,7 @@ PostgreSQL custom ENUM types ensure data consistency at the database level.
 - **Columns:**
   - `id` (uuid, PK)
   - `session_id` (uuid, required, FK to `sessions.id`)
-  - `messages` (jsonb, required) - Array of {role: 'user'|'assistant', content: text, timestamp}
+  - `messages` (json, required) - Array of {role: 'user'|'assistant', content: text, timestamp}
   - `created_at` (timestamptz, required, default: now())
   - `updated_at` (timestamptz, required, default: now())
 
@@ -163,7 +163,7 @@ PostgreSQL custom ENUM types ensure data consistency at the database level.
   - `incident_id` (uuid, nullable, FK to `incidents.id`)
   - `zone_id` (uuid, nullable, FK to `zones.id`)
   - `suggested_action` (text, required)
-  - `reasoning_metadata` (jsonb, required) - Explanation of AI decision.
+  - `reasoning_metadata` (json, required) - Explanation of AI decision.
   - `confidence_score` (integer, required) - 0 to 100.
   - `status` (`recommendation_status`, required, default: `generated`)
   - `reviewed_by` (uuid, nullable, FK to `users.id`)
@@ -193,13 +193,13 @@ PostgreSQL custom ENUM types ensure data consistency at the database level.
 
 ## 9. Indexing Strategy
 - **Primary Keys:** Automatically indexed.
-- **Foreign Keys:** B-Tree indexes on all FK columns (`zone_id`, `session_id`, `incident_id`) to prevent table scans during joins.
-- **Time-Series Data:** BRIN (Block Range Index) on `telemetry_snapshots.recorded_at` for massive space savings and fast time-range queries on append-only data.
-- **Filtering Columns:** B-Tree index on `incidents.status` and `incidents.severity` as Ops dashboards frequently filter by these.
-- **JSONB Search:** GIN (Generalized Inverted Index) on `conversations.messages` if full-text search within chats is required (deferred for MVP unless performance demands it).
+- **Foreign Keys:** Standard indexes (e.g., B-Tree) on all FK columns (`zone_id`, `session_id`, `incident_id`) to prevent table scans during joins.
+- **Time-Series Data:** Specialized time-series indexing (e.g., Block Range Index) on `telemetry_snapshots.recorded_at` for massive space savings and fast time-range queries on append-only data.
+- **Filtering Columns:** Standard indexes on `incidents.status` and `incidents.severity` as Ops dashboards frequently filter by these.
+- **Document Search:** Inverted index (e.g., GIN) on `conversations.messages` if full-text search within chats is required (deferred for MVP unless performance demands it).
 
 ## 10. Row Level Security (RLS)
-Conceptually designed to leverage Supabase RLS policies:
+Conceptually designed to leverage database Row Level Security (RLS) policies:
 
 - **`users`**:
   - Read: Authenticated user can read own profile. Ops/Admin can read all.
@@ -221,29 +221,29 @@ Conceptually designed to leverage Supabase RLS policies:
   - Write: Admin only.
 
 ## 11. Auditing
-- **Timestamps:** Standard `created_at` and `updated_at` (managed via Postgres triggers) exist on all mutable tables.
+- **Timestamps:** Standard `created_at` and `updated_at` (managed via database triggers or application logic) exist on all mutable tables.
 - **Soft Deletes:** Not explicitly modeled with `deleted_at` to save MVP complexity, except where operational history is paramount. Closed incidents are simply marked `status = 'closed'`, never deleted.
 - **AI Traceability:** The `recommendations` table inherently audits AI behavior. `reasoning_metadata` captures the exact context provided to the LLM, and `reviewed_by` logs which human accepted the AI's advice.
 
 ## 12. AI Data Storage
 - **Persisted:** `recommendations` (including confidence and reasoning) are saved permanently for operational audits. `conversations` are saved to maintain context during an active session.
-- **Not Persisted (Ephemeral):** The raw, massive string prompts sent to the LLM are NOT stored in Postgres (they belong in application logs like Datadog/LangSmith) to prevent database bloat.
-- **JSONB Usage:** `reasoning_metadata` uses JSONB to accommodate varying explanation structures from different LLM models without schema migrations.
+- **Not Persisted (Ephemeral):** The raw, massive string prompts sent to the LLM are NOT stored in the primary database (they belong in application logs) to prevent database bloat.
+- **JSON Usage:** `reasoning_metadata` uses JSON columns to accommodate varying explanation structures from different LLM models without schema migrations.
 
 ## 13. Data Retention
-- **Temporary Sessions:** Anonymous fan `sessions` and associated `conversations` should be purged via a pg_cron job 24 hours after `expires_at`.
+- **Temporary Sessions:** Anonymous fan `sessions` and associated `conversations` should be purged via a scheduled job 24 hours after `expires_at`.
 - **Operational Data:** `incidents`, `recommendations`, and `telemetry_snapshots` are retained indefinitely for post-tournament analysis.
 - **Knowledge Base:** Static, retained indefinitely.
 
 ## 14. Performance
-- **Read-Heavy vs Write-Heavy:** `pois` and `zones` are heavily read and rarely updated, making them perfect candidates for application-level caching (Redis) to relieve Postgres.
+- **Read-Heavy vs Write-Heavy:** `pois` and `zones` are heavily read and rarely updated, making them perfect candidates for application-level caching to relieve the primary database.
 - **Partitioning:** If telemetry volume scales to millions of rows per match, `telemetry_snapshots` should be partitioned by range on `recorded_at` (e.g., daily partitions). Deferred for MVP.
-- **Connection Pooling:** Supabase PgBouncer is required to handle thousands of concurrent read requests from Fan mobile apps.
+- **Connection Pooling:** A robust connection pooler is required to handle thousands of concurrent read requests from Fan mobile apps.
 
 ## 15. Database Risks
 - **Storage Growth:** `telemetry_snapshots` will grow extremely fast. Mitigation: Aggregation jobs summarizing per-minute data into hourly averages post-match.
-- **JSONB Overuse:** Using JSONB for `conversations.messages` prevents easy SQL querying of individual messages. Mitigation: Acceptable trade-off since individual message querying isn't a PRD requirement; whole conversation retrieval is.
-- **RLS Overhead:** Complex RLS policies on large tables (like `incidents`) can degrade performance. Mitigation: Keep RLS policies simple, relying on JWT claims rather than subqueries.
+- **JSON Overuse:** Using JSON for `conversations.messages` prevents easy querying of individual messages. Mitigation: Acceptable trade-off since individual message querying isn't a PRD requirement; whole conversation retrieval is.
+- **RLS Overhead:** Complex RLS policies on large tables (like `incidents`) can degrade performance. Mitigation: Keep RLS policies simple, relying on token claims rather than subqueries.
 
 ## 16. Consistency Review
 - **PRD:** Fully supports anonymous fans (via `sessions`) vs authenticated staff (via `users`), fulfilling the MVP access model.
@@ -253,8 +253,8 @@ Conceptually designed to leverage Supabase RLS policies:
 - **Domain Model:** 1:1 conceptual mapping of all identified Aggregates and Entities into physical tables.
 
 ## 17. Executive Summary
-- **Database Philosophy:** A PostgreSQL-first design leveraging Supabase features (Auth, RLS, JSONB) to enforce strict security boundaries at the data layer, treating AI outputs as auditable, non-authoritative records.
+- **Database Philosophy:** A relational database-first design leveraging robust Authentication, RLS, and JSON support to enforce strict security boundaries at the data layer, treating AI outputs as auditable, non-authoritative records.
 - **Core Tables:** `sessions` (Fan context), `users` (Staff IAM), `incidents` (Ops reality), `telemetry_snapshots` (Simulated sensors), and `recommendations` (AI outputs).
 - **Major Relationships:** The schema centers around `zones` (physical geography) and `sessions` (user interaction windows), securely bridging them via AI `conversations` and Ops `incidents`.
-- **RLS Strategy:** Strict isolation. Fans access read-only routing data; Staff access restricted operational mutations. Enforced natively via Supabase row-level policies.
-- **Future Scalability:** Designed for 3NF normalization to start, with identified paths for BRIN indexing and table partitioning (`telemetry_snapshots`) when scaling to tournament-level data volumes.
+- **RLS Strategy:** Strict isolation. Fans access read-only routing data; Staff access restricted operational mutations. Enforced natively via database row-level policies.
+- **Future Scalability:** Designed for 3NF normalization to start, with identified paths for time-series indexing and table partitioning (`telemetry_snapshots`) when scaling to tournament-level data volumes.
