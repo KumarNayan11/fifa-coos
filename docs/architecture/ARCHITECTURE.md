@@ -1,10 +1,12 @@
 # FIFACoOS - System Architecture Document
 
 ## 1. Document Information
-- **Version:** 1.0 (Initial Draft)
-- **Status:** Under Review
+- **Version:** 1.0
+- **Status:** Approved (Frozen)
 - **Author:** Principal Architecture Team
-- **Last Updated:** 2026-07-08
+- **Last Updated:** Architecture Synchronization Review
+- **Depends On:** None
+- **Supersedes:** None
 
 ## 2. Architecture Overview
 FIFACoOS is a web-based, AI-enabled operational platform. The architecture follows a server-first, modular monolith pattern designed to cleanly separate presentation, business logic, artificial intelligence processing, and data ingestion. By treating the AI reasoning engine as an independent, loosely coupled subsystem, the architecture ensures that the platform remains highly deterministic and reliable while leveraging Generative AI strictly for complex synthesis and decision support.
@@ -38,9 +40,9 @@ The system employs a layered architecture:
 
 ## 6. Major System Components
 - **Fan Interface:** Mobile-optimized, anonymous entry point.
-- **Ops Command Interface:** Desktop-optimized, authenticated dashboard for real-time visualization.
+- **Ops Command Center:** Desktop-optimized, authenticated dashboard for real-time visualization.
 - **Unified Intelligence Engine (UIE):** The central AI processing module handling all natural language requests and contextual synthesis.
-- **Simulated Telemetry Service:** Ingests and provides mock data (crowd density, queues, incidents) to simulate real-world stadium sensors.
+- **Simulated Telemetry Engine:** Ingests and provides mock data (crowd density, queues, incidents) to simulate real-world stadium sensors.
 
 ## 7. User Roles & Entry Points
 - **Fans:** Enter via a mobile web route. Unauthenticated. Access limited to public context (wayfinding, generic policies).
@@ -78,7 +80,7 @@ The AI is treated as an independent, isolated subsystem.
 *Rationale:* This pipeline isolates the non-deterministic nature of AI between strict deterministic boundaries (Context Gathering and Response Validation).
 
 ## 10. Data Flow
-- **Telemetry Flow:** Simulated sensors -> Ingestion Service -> Central State Store.
+- **Telemetry Flow:** Simulated sensors -> Simulated Telemetry Engine -> Central State Store.
 - **User Flow:** Client UI -> API Layer -> Domain/AI Layer -> reads from Central State Store -> Response.
 - *Security Note:* Fan requests to the State Store are filtered at the API layer to exclude sensitive operational telemetry.
 
@@ -115,7 +117,7 @@ The AI is treated as an independent, isolated subsystem.
 
 ## 17. Scalability Strategy
 - The application layer must be entirely stateless, allowing horizontal scaling.
-- The Simulated Telemetry service operates asynchronously to prevent blocking the main request threads.
+- The Simulated Telemetry Engine operates asynchronously to prevent blocking the main request threads.
 - The AI Subsystem is designed to handle API rate limits gracefully with backoff strategies.
 
 ## 18. Accessibility Considerations

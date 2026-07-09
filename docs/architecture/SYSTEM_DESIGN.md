@@ -1,10 +1,12 @@
 # FIFACoOS - System Design Document
 
 ## 1. Document Information
-- **Version:** 1.0 (Initial Draft)
-- **Status:** Approved for Component Design
+- **Version:** 1.0
+- **Status:** Approved (Frozen)
 - **Author:** Principal Architecture Team
-- **Last Updated:** 2026-07-08
+- **Last Updated:** Architecture Synchronization Review
+- **Depends On:** ARCHITECTURE.md, PRD.md
+- **Supersedes:** None
 
 ## 2. Purpose
 This document bridges the gap between the high-level `ARCHITECTURE.md` and low-level implementation. It describes *how* the system behaves internally, component responsibilities, interaction models, request lifecycles, and failure handling strategies. It serves as the primary blueprint for the engineering team before defining specific APIs, schemas, or folder structures.
@@ -41,9 +43,9 @@ graph TD
     end
     
     subgraph "Domain Layer"
-        E --> F[Stadium Ops Module]
-        E --> G[Wayfinding Module]
-        E --> H[Policy & Rules Module]
+        E --> F[Operations Service]
+        E --> G[Navigation Service]
+        E --> H[Knowledge Service]
     end
     
     subgraph "Intelligence Layer"
@@ -81,11 +83,11 @@ graph TD
 - **Dependencies:** Domain Modules, UIE.
 - **Failure Scenarios:** Handles timeouts from downstream services, returning graceful degradation payloads.
 
-### 8.4. Domain Modules (Ops, Wayfinding, Policy)
-- **Responsibility:** Own the strict business rules. Read/write to the State Store. 
+### 8.4. Domain Services (Ops, Navigation, Knowledge)
+- **Responsibility:** Own the strict business rules. Read/write to the Central State Store. 
   - *Ops:* Manages incident logic and crowd limits.
-  - *Wayfinding:* Manages graph-based deterministic routing.
-  - *Policy:* Retrieves static SOPs and rules.
+  - *Navigation:* Manages graph-based deterministic routing.
+  - *Knowledge:* Retrieves static SOPs and rules.
 - **Inputs:** Queries or mutations from the Orchestrator.
 - **Outputs:** Domain objects (e.g., a "Route", an "Incident").
 - **Dependencies:** State Store.
@@ -105,17 +107,17 @@ graph TD
 - **Dependencies:** State Store.
 
 ## 9. Component Interaction Model
-Components interact synchronously for client requests to simplify MVP delivery. The Orchestrator acts as the mediator. Domain modules do not call the UIE directly; they supply state to the Orchestrator, which decides when to involve the UIE. The UIE acts as a pure function: `UIE(Query, Context) => Decision`.
+Components interact synchronously for client requests to simplify MVP delivery. The Orchestrator acts as the mediator. Domain services do not call the UIE directly; they supply state to the Orchestrator, which decides when to involve the UIE. The UIE acts as a pure function: `UIE(Query, Context) => Decision`.
 
 ## 10. End-to-End Request Lifecycles
 
 ### 10.1. Fan Requesting Navigation (AI Assisted)
 1. **Client** sends: `"Where is the nearest medical tent? I am at Gate A."`
 2. **API Gateway** accepts the anonymous request.
-3. **Orchestrator** fetches current stadium POIs from the **Wayfinding Module**.
+3. **Orchestrator** fetches current stadium POIs from the **Navigation Service**.
 4. **Orchestrator** sends query + POI list to **UIE**.
 5. **UIE** determines the intent is `navigate` and the destination is `Medical Tent 1` (closest to Gate A).
-6. **Orchestrator** asks **Wayfinding Module** for the deterministic path from Gate A to Medical Tent 1.
+6. **Orchestrator** asks **Navigation Service** for the deterministic path from Gate A to Medical Tent 1.
 7. Response is returned to the **Client**.
 
 ### 10.2. Fan Requesting Multilingual Assistance
@@ -158,8 +160,8 @@ sequenceDiagram
 ### 10.5. Accessibility Assistance
 1. **Fan Client** requests an "Accessible route to Seat 12B".
 2. **UIE** maps this to `navigate_accessible` intent.
-3. **Orchestrator** queries the **Wayfinding Module** with the `accessible: true` flag.
-4. **Wayfinding Module** runs a deterministic graph search excluding stairs/steep inclines.
+3. **Orchestrator** queries the **Navigation Service** with the `accessible: true` flag.
+4. **Navigation Service** runs a deterministic graph search excluding stairs/steep inclines.
 5. Safe route is returned.
 
 ## 11. AI Processing Pipeline
@@ -196,10 +198,10 @@ The MVP utilizes **Synchronous HTTP/REST** for all client-to-server interactions
 ## 14. Failure Handling
 - **AI Unavailable (Rate limits, API down):** UIE intercepts the error and returns a standard fallback object. The Fan UI displays static maps and emergency numbers. The Ops UI displays raw (unsummarized) incident feeds.
 - **Invalid Requests:** API Gateway rejects malformed requests before they hit the Domain Layer, saving compute.
-- **Missing Operational Data:** Domain modules return empty state arrays rather than throwing fatal exceptions, allowing the UI to render empty states gracefully.
+- **Missing Operational Data:** Domain services return empty state arrays rather than throwing fatal exceptions, allowing the UI to render empty states gracefully.
 
 ## 15. Security Boundaries
-- **Public Access (Fans):** Strictly limited to the Wayfinding and Public FAQ domains. Cannot query or mutate the Ops Domain. The context assembled for the UIE *never* includes security incidents.
+- **Public Access (Fans):** Strictly limited to the Navigation and Knowledge domains. Cannot query or mutate the Ops Domain. The context assembled for the UIE *never* includes security incidents. To provide real-time concession wait times, the Orchestrator securely fetches POI telemetry using a service identity and exposes only sanitized wait times to Fans.
 - **Authenticated Access (Staff/Vols):** RBAC dictates which endpoints can be reached. The IAM sits before the Orchestrator, ensuring no unauthenticated request touches business logic.
 - **AI Access Limitations:** The AI operates in a sandbox. It has zero permissions to read from or write to the database. It only sees what the Orchestrator explicitly hands it, and its outputs are strictly validated before being returned to the user.
 

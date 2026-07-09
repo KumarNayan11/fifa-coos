@@ -1,10 +1,12 @@
 # FIFACoOS - AI Architecture Document
 
 ## 1. Document Information
-- **Version:** 1.0 (Initial Draft)
-- **Status:** Approved for Component Design
+- **Version:** 1.0
+- **Status:** Approved (Frozen)
 - **Author:** Principal AI Architecture Team
-- **Last Updated:** 2026-07-08
+- **Last Updated:** Architecture Synchronization Review
+- **Depends On:** SYSTEM_DESIGN.md
+- **Supersedes:** None
 
 ## 2. Purpose
 This document defines the comprehensive architecture of the Artificial Intelligence subsystem for FIFACoOS. It explains how intelligence is orchestrated, validated, secured, and presented. It serves as the blueprint for building the Unified Intelligence Engine (UIE) described in the System Design, ensuring the AI behaves as an enterprise-grade Operational Intelligence Engine rather than a generic conversational chatbot.
@@ -68,7 +70,7 @@ graph TD
 - **Context Aggregator:** 
   - *Purpose:* Merges static knowledge, dynamic telemetry, and temporary context.
 - **Knowledge Retrieval:** 
-  - *Purpose:* Fetches relevant static SOPs/policies based on the intent.
+  - *Purpose:* Fetches relevant static SOPs/policies based on the intent. Deterministic knowledge retrieval is performed by the Knowledge Service using structured knowledge sources before contextual information is passed to the Unified Intelligence Engine (UIE).
 - **Prompt Composer:** 
   - *Purpose:* Assembles the final LLM prompt using a modular template strategy.
 - **Safety Layer:** 

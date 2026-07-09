@@ -1,10 +1,12 @@
 # FIFACoOS - Database Schema Design
 
 ## 1. Document Information
-- **Version:** 1.0 (Initial Draft)
-- **Status:** Under Review
+- **Version:** 1.0
+- **Status:** Approved (Frozen)
 - **Author:** Principal Data Architecture Team
-- **Last Updated:** 2026-07-08
+- **Last Updated:** Architecture Synchronization Review
+- **Depends On:** SYSTEM_DESIGN.md
+- **Supersedes:** None
 
 ## 2. Purpose
 This document translates the conceptual Domain Model into a concrete logical relational database blueprint. It serves as the authoritative guide for generating subsequent SQL migrations, ORM models, and API contracts. Note: Detailed technology choices (e.g., specific RDBMS, indexing types) are deferred to the Technology Decisions document.
@@ -128,13 +130,14 @@ Custom ENUM types ensure data consistency at the database level.
 - **Columns:**
   - `id` (uuid, PK)
   - `zone_id` (uuid, required, FK to `zones.id`)
+  - `poi_id` (uuid, nullable, FK to `pois.id`)
   - `metric_type` (text, required) - e.g., 'crowd_density', 'queue_time'
   - `metric_value` (numeric, required)
   - `raw_payload` (json, nullable) - Original sensor payload for debugging.
   - `recorded_at` (timestamptz, required, default: now())
 
 ### `conversations`
-- **Purpose:** Stores chat histories between users and the AI Copilot.
+- **Purpose:** Stores chat histories between users and the Unified Intelligence Engine (UIE).
 - **Primary Key:** `id` (uuid)
 - **Columns:**
   - `id` (uuid, PK)
@@ -209,7 +212,7 @@ Conceptually designed to leverage database Row Level Security (RLS) policies:
   - Write/Update: Ops Manager, Security.
 - **`telemetry_snapshots`**:
   - Read: Ops Manager, Security, Admin.
-  - Write: Service Role only (Telemetry Engine bypasses RLS).
+  - `Write`: Service Role only (Simulated Telemetry Engine bypasses RLS).
 - **`zones` & `pois`**:
   - Read: Public (Anonymous & Authenticated).
   - Write/Update: Admin only.
@@ -248,7 +251,7 @@ Conceptually designed to leverage database Row Level Security (RLS) policies:
 ## 16. Consistency Review
 - **PRD:** Fully supports anonymous fans (via `sessions`) vs authenticated staff (via `users`), fulfilling the MVP access model.
 - **Architecture:** Supports the stateless application tier by moving session tracking and RBAC enforcement to the database layer.
-- **System Design:** `telemetry_snapshots` table perfectly matches the append-only simulated telemetry engine requirement.
+- **System Design:** `telemetry_snapshots` table perfectly matches the append-only Simulated Telemetry Engine requirement.
 - **AI Architecture:** AI recommendations are stored with `confidence_score` and `reasoning_metadata`, satisfying the "Explainable AI" and validation requirements.
 - **Domain Model:** 1:1 conceptual mapping of all identified Aggregates and Entities into physical tables.
 

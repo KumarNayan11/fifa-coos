@@ -2,9 +2,11 @@
 
 ## 1. Document Information
 - **Version:** 1.0
-- **Status:** Proposed
+- **Status:** Approved (Frozen)
 - **Author:** Principal Security Architecture Team
-- **Last Updated:** 2026-07-09
+- **Last Updated:** Architecture Synchronization Review
+- **Depends On:** SYSTEM_DESIGN.md, AI_ARCHITECTURE.md, API_DESIGN.md, DATABASE_SCHEMA.md
+- **Supersedes:** None
 
 ## 2. Purpose
 This document defines the comprehensive, implementation-independent security architecture for the FIFACoOS Smart Stadium platform. It establishes the principles, boundaries, and strategies required to protect the platform's confidentiality, integrity, availability, and privacy across all tiers, including the integrated AI subsystem.
@@ -13,7 +15,7 @@ This document defines the comprehensive, implementation-independent security arc
 This document aligns with and enforces the requirements set forth in:
 - **PRD:** Enforces access tiers (Anonymous Fans vs. Authenticated Staff) and privacy mandates.
 - **SYSTEM_DESIGN.md:** Applies security controls to the stateless application tiers and real-time infrastructure.
-- **AI_ARCHITECTURE.md:** Provides the security envelope and guardrails for the AI Copilot.
+- **AI_ARCHITECTURE.md:** Provides the security envelope and guardrails for the Unified Intelligence Engine (UIE).
 - **DATABASE_SCHEMA.md:** Reinforces the logical isolation (e.g., Row Level Security) and auditability concepts.
 - **API_DESIGN.md:** Dictates the security mechanisms (authentication, rate limiting) for the defined API contracts.
 
@@ -37,7 +39,7 @@ This document aligns with and enforces the requirements set forth in:
 The system is divided into logical trust zones:
 - **Untrusted Zone:** Public Internet (Fan Mobile App).
 - **Semi-Trusted Zone:** Edge CDN, WAF, API Gateway.
-- **Trusted Zone:** Application Services, AI Copilot Engine, Internal Event Bus.
+- **Trusted Zone:** Application Services, Unified Intelligence Engine (UIE), Internal Event Bus.
 - **Highly Trusted Zone:** Core Database, Secrets Management, Telemetry Data Store.
 
 ```mermaid
@@ -54,7 +56,7 @@ flowchart TD
     
     subgraph Trusted [Trusted Zone]
         Services[Application Services]
-        AI[AI Copilot Engine]
+        AI[Unified Intelligence Engine (UIE)]
     end
     
     subgraph HighlyTrusted [Highly Trusted Zone]
@@ -81,7 +83,7 @@ flowchart TD
 
 ### Attack Surfaces
 - Public API endpoints (REST/WebSockets).
-- AI Copilot natural language interface (Prompt Injection).
+- Unified Intelligence Engine (UIE) natural language interface (Prompt Injection).
 - Telemetry ingestion endpoints.
 - Staff dashboard interfaces.
 
@@ -91,7 +93,7 @@ flowchart TD
 Authentication is decoupled from authorization. The platform relies on modern, token-based authentication mechanisms, isolating user identity from core application logic.
 
 ### User Tiers
-- **Anonymous Fan Access:** Ephemeral, device-bound session tokens. No Personally Identifiable Information (PII) is required or collected. Sessions are scoped to the duration of the event.
+- **Anonymous Fan Access:** Ephemeral, device-bound session tokens. Device fingerprints shall be transformed into a non-reversible cryptographic representation before storage. No Personally Identifiable Information (PII) is required or collected. Sessions are scoped to the duration of the event.
 - **Authenticated Staff (Operations, Security, Volunteers):** Strongly authenticated identities.
 
 ### Identity Lifecycle
@@ -106,7 +108,7 @@ Authentication is decoupled from authorization. The platform relies on modern, t
 Authorization is strictly enforced at the API Gateway and Application layers, and backed by database-level Row Level Security (RLS).
 
 ### Defined Roles
-- **Fan (Anonymous):** Read-only access to public zones, POIs, and personal navigation requests.
+- **Fan (Anonymous):** Read-only access to public zones, POIs, and personal navigation requests. Fans access wait times exclusively via sanitized Orchestrator endpoints, with no direct read access to telemetry records.
 - **Volunteer:** Read access to general incident status; write access to report incidents.
 - **Security/Operations Staff:** Read/write access to sensitive incidents, telemetry analytics, and AI recommendations.
 - **Administrator:** Full system configuration access; cannot view personal fan session data.
