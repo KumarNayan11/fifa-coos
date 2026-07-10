@@ -2,13 +2,13 @@
 
 ## 1. Document Information
 **Document Name:** Master Implementation Plan
-**Version:** 1.0.0
+**Version:** 2.0.0
 **Phase:** Engineering Roadmap
 **Status:** DRAFT (Pending Technology Decisions)
 **Roles Assumed:** Technical Program Manager, Principal Software Architect, Engineering Manager, Staff Software Engineer, Release Manager, Technical Writer
 
 ## 2. Purpose
-This Implementation Plan serves as the master execution roadmap for the FIFACoOS project. It translates the frozen Architecture v1.0 into an actionable, phased engineering strategy, guiding development from repository initialization to the final PromptWars competition submission.
+This Implementation Plan serves as the master execution blueprint for the FIFACoOS project. It translates the frozen Architecture v1.0 into an actionable, phased engineering strategy tailored to the PromptWars competition goals. It guides development from an empty repository through vertical slice integration to the final competition submission.
 
 ## 3. Relationship to Architecture Documents
 The architectural design phase is completed and frozen as Architecture v1.0. This implementation plan strictly adheres to the following authoritative documents:
@@ -23,223 +23,185 @@ The architectural design phase is completed and frozen as Architecture v1.0. Thi
 
 *Note: If implementation work conflicts with the architecture, the conflict must be reported to the architecture board. The design must not be silently altered.*
 
-## 4. Development Philosophy
-* **Correctness before optimization:** Build it right, then build it fast.
-* **Working vertical slices over isolated components:** Deliver end-to-end functionality as early as possible.
-* **Incremental delivery:** Small, frequent, verifiable releases.
-* **Continuous testing:** Automated tests validate every commit.
-* **Continuous documentation:** Documentation is code and evolves with the implementation.
-* **Maintainability:** Code must be readable, modular, and easy to extend.
-* **Accessibility:** Inclusive design is not an afterthought; it is integrated from day one.
-* **Security by default:** Secure patterns are applied proactively, zero-trust mindset.
-* **AI as an integrated subsystem:** AI is treated as a core dependency and first-class citizen, not a bolt-on feature.
+## 4. Implementation Principles
+* **Architecture First:** Adhere strictly to the frozen architecture. Deviations require an Architecture Decision Record (ADR).
+* **Vertical Slice Development:** Deliver end-to-end user journeys (e.g., Fan asking for navigation) rather than isolated API or DB layers.
+* **Documentation as Code:** Documentation (API specs, runbooks) evolves seamlessly alongside the implementation.
+* **Security by Default:** Apply zero-trust patterns proactively. Ensure secure handling of operational access and PII data sanitization before LLM processing.
+* **Accessibility by Design:** WCAG compliance, voice-ready architecture, and screen-reader optimizations are integrated from day one.
+* **AI as Decision Support:** AI is the core engine for Fan Copilot and Ops Recommendations, treated as a mission-critical subsystem with strict fallbacks.
+* **Incremental Delivery:** Small, verifiable PRs that continuously add measurable value.
+* **Continuous Verification:** Every commit is validated by automated unit, integration, and accessibility tests.
 
-## 5. Guiding Engineering Principles
-1. Avoid building infrastructure before it is needed.
-2. Deliver user-visible functionality as early as possible.
-3. Keep pull requests small, atomic, and focused on a single concern.
-4. If it's not tested, it's considered broken.
-5. Defer technology decisions to the `TECHNOLOGY_DECISIONS.md` phase.
+## 5. Definition of Ready (DoR)
+Before implementation begins on any feature or vertical slice, the following must be verified:
+1. **Architecture Complete:** The feature aligns with the frozen architecture.
+2. **Requirements Understood:** The user journey and edge cases are clearly defined in the PRD.
+3. **Dependencies Resolved:** Upstream API endpoints, UI designs, or data models required for the slice are identified.
+4. **Acceptance Criteria Defined:** Clear, testable objectives are established for the slice.
+5. **Security Considerations Identified:** RBAC, data masking, and LLM prompt injection safeguards are specified.
+6. **Testing Strategy Defined:** Test cases for unit, integration, and E2E validation are outlined.
+7. **Documentation References Available:** Relevant sections in API_DESIGN.md or AI_ARCHITECTURE.md are referenced.
 
-## 6. Overall Roadmap
-The roadmap is structured to deliver value incrementally, starting with repository setup, establishing the foundation, and systematically adding vertical slices until final hardening.
+## 6. Definition of Done (DoD)
+A feature is NOT complete until it satisfies the following:
+1. **Architecture Compliance:** Fully aligns with frozen architecture documents.
+2. **Business Logic Implemented:** Meets all acceptance criteria defined in the DoR/PRD.
+3. **Security Requirements Met:** Passes static analysis; operational endpoints secured via RBAC; PII sanitized for LLMs.
+4. **Accessibility Verified:** Automated A11y tests (e.g., axe-core) pass; manual screen-reader flow verified.
+5. **Tests Written:** Unit, Integration, and AI Prompt Evaluation tests written and passing. Coverage targets met.
+6. **Documentation Updated:** API specs, component docs, and living documentation updated.
+7. **Code Reviewed:** Approved by at least one peer (or AI Staff SWE equivalent).
+8. **No Critical Defects:** Zero known P0/P1 issues.
+9. **CI/CD Passed:** Builds successfully and deploys to the staging environment.
+
+## 7. Overall Roadmap
 
 ```mermaid
 gantt
-    title FIFACoOS Overall Implementation Roadmap
+    title FIFACoOS Vertical Slice Roadmap
     dateFormat  YYYY-MM-DD
-    section Foundation
+    section Setup & Foundation
     Phase 0: Repo Init           :a1, 2026-07-10, 2d
-    Phase 1: Foundation          :a2, after a1, 5d
-    section Core Features
-    Phase 2: Auth & Flows        :a3, after a2, 7d
-    Phase 3: Core Domain Services:a4, after a3, 10d
-    section Advanced Features
-    Phase 4: AI Integration      :a5, after a4, 10d
-    Phase 5: Ops Dashboard       :a6, after a5, 7d
-    section Refinement
-    Phase 6: A11y & Multilingual :a7, after a6, 5d
-    Phase 7: Quality & Hardening :a8, after a7, 7d
-    Phase 8: Final Submission    :a9, after a8, 3d
+    Phase 1: Platform Foundation :a2, after a1, 4d
+    section Copilots & Workflows
+    Phase 2: Fan Copilot Slice   :a3, after a2, 7d
+    Phase 3: Ops Command Center  :a4, after a3, 7d
+    Phase 4: Volunteer Assistant :a5, after a4, 5d
+    section Refinement & Delivery
+    Phase 5: A11y & Multilingual :a6, after a5, 5d
+    Phase 6: Quality Hardening   :a7, after a6, 5d
+    Phase 7: Comp Readiness      :a8, after a7, 3d
 ```
+
+## 8. Engineering Milestone Table
+
+| Phase | Goal | Major Deliverables | Dependencies | Exit Criteria | Complexity |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **0** | Repository Initialization | CI/CD, Git hooks, Linter config | None | `main` branch protected, CI green | Low |
+| **1** | Platform Foundation | Shared UI, Routing, Base Layout, DB/Telemetry scaffolding | Phase 0 | Shell app deployed, theme ready | Low |
+| **2** | Fan Copilot Slice | Anonymous fan flow, Smart Navigation, Wait times, AI retrieval | Phase 1 | Fan asks "Where is Gate B?" & gets routed | High |
+| **3** | Ops Command Center | Authenticated Ops dashboard, Incident reporting, AI Decision Support | Phase 1, Phase 2 | Ops receives incident & AI recommendation | High |
+| **4** | Volunteer Assistant | Authenticated Volunteer view, FAQs, Policy retrieval | Phase 2, Phase 3 | Volunteer queries policy via AI | Medium |
+| **5** | A11y & Multilingual | Voice-ready UI, i18n, Screen reader optimization | Phase 4 | 100% WCAG automated score, translated UI | Medium |
+| **6** | Quality Hardening | Performance tuning, Sec review, AI accuracy evaluation | Phase 5 | Zero P0/P1 bugs, Lighthouse > 90 | High |
+| **7** | Competition Readiness | Demo scripts, Demo environment, Submission assets | Phase 6 | End-to-end demo recorded & polished | Low |
 
 ---
 
-## 7. Project Phases
+## 9. Project Phases & Checklists
 
 ### Phase 0: Repository Initialization
 * **Objective:** Establish the foundational version control, CI/CD pipelines, and initial project scaffolding.
-* **Deliverables:** Git repository, CI/CD workflows, initial folder structure, dependency management setup, and linter/formatter configurations.
-* **Features:** None (Developer tooling only).
-* **Dependencies:** None.
-* **Architecture Docs:** `ARCHITECTURE.md`, `TESTING_STRATEGY.md`
-* **Expected Outputs:** A buildable "Hello World" application with passing CI.
-* **Testing Requirements:** CI runs successfully on PR creation.
-* **Documentation Updates:** `README.md`, `CONTRIBUTING.md`.
-* **Definition of Done:** Main branch is protected, CI enforces linting/tests, folder structure matches `SYSTEM_DESIGN.md`.
-* **Major Risks:** Paralysis by analysis on initial configuration.
-* **Mitigations:** Use standard boilerplate; refine later if necessary.
-* **Estimated Complexity:** Low.
+* **Deliverables:** Git repository, CI/CD workflows, dependency management, linter/formatter rules.
+* **Checklist:**
+  * [ ] Git repository structure created matching `SYSTEM_DESIGN.md`.
+  * [ ] CI/CD pipeline configured for linting and testing.
+  * [ ] Code formatting and linting rules enforced.
+  * [ ] Dependency package managers initialized.
+  * [ ] Phase approved.
 
-### Phase 1: Foundation
-* **Objective:** Implement core routing, state management architecture, API client scaffolding, and database connection.
-* **Deliverables:** Scaffolded frontend and backend, base database migrations.
-* **Features:** Shared UI components library, health check API endpoint.
-* **Dependencies:** Phase 0.
-* **Architecture Docs:** `SYSTEM_DESIGN.md`, `DATABASE_SCHEMA.md`
-* **Expected Outputs:** A deployed shell application with database connectivity.
-* **Testing Requirements:** Unit tests for base components, API contract tests for health check.
-* **Documentation Updates:** Component guidelines, API documentation setup.
-* **Definition of Done:** Frontend shell renders, backend health endpoint returns 200 OK connected to DB.
-* **Major Risks:** Integration issues between frontend, backend, and DB.
-* **Mitigations:** Focus purely on vertical "Hello World" connection, no business logic yet.
-* **Estimated Complexity:** Medium.
+### Phase 1: Platform Foundation
+* **Objective:** Scaffold the core frontend shell, routing, state management, and mock data adapters for the Unified Intelligence Engine.
+* **Deliverables:** Shared UI Component library, Design System tokens, Base layouts, API client scaffolding.
+* **Checklist:**
+  * [ ] Design system tokens (colors, typography, spacing) implemented.
+  * [ ] Shared accessible UI components (Buttons, Modals, Inputs) built.
+  * [ ] Core application routing and layout shell completed.
+  * [ ] Telemetry simulation adapters stubbed.
+  * [ ] Phase approved.
 
-### Phase 2: Authentication & User Flows
-* **Objective:** Secure the application and implement user identity.
-* **Deliverables:** Registration, Login, Password Reset, RBAC implementation, JWT/Session handling.
-* **Features:** User authentication, protected routes, basic user profile.
-* **Dependencies:** Phase 1.
-* **Architecture Docs:** `SECURITY.md`, `API_DESIGN.md`
-* **Expected Outputs:** Secure login system with differentiated roles (e.g., Admin, User).
-* **Testing Requirements:** Authentication integration tests, security fuzzing on auth endpoints, E2E login flow tests.
-* **Documentation Updates:** Auth sequence diagrams, security audit logs.
-* **Definition of Done:** Users can securely authenticate; unauthorized access is blocked at API and UI levels.
-* **Major Risks:** Security vulnerabilities (XSS, CSRF, Token leakage).
-* **Mitigations:** Strict adherence to `SECURITY.md` guidelines, utilize proven Auth provider/libraries.
-* **Estimated Complexity:** High.
+### Phase 2: Fan Copilot Vertical Slice
+* **Objective:** Deliver a complete, end-to-end journey for an anonymous fan requesting stadium assistance.
+* **Deliverables:** Fan Copilot UI, Anonymous Session Management, Smart Navigation Service, POI Search, Wait Time Retrieval.
+* **Checklist:**
+  * [ ] Anonymous fan session initialization.
+  * [ ] Conversational UI interface for Fan Copilot.
+  * [ ] Knowledge Retrieval integrated for stadium FAQs.
+  * [ ] Smart Navigation service integration (e.g., routing to gates/concessions).
+  * [ ] AI connected to process fan queries and return structured responses.
+  * [ ] Phase approved.
 
-### Phase 3: Core Domain Services
-* **Objective:** Implement the primary business logic for FIFACoOS.
-* **Deliverables:** CRUD operations for core domain entities (e.g., Tournaments, Teams, Players, Matches).
-* **Features:** Dashboard layouts, data tables, forms for entity management.
-* **Dependencies:** Phase 2.
-* **Architecture Docs:** `DATABASE_SCHEMA.md`, `API_DESIGN.md`, `PRD.md`
-* **Expected Outputs:** Functional application where users can manage core data points.
-* **Testing Requirements:** Extensive unit tests for business logic, integration tests for DB interactions.
-* **Documentation Updates:** API Spec (Swagger/OpenAPI) updated with core endpoints.
-* **Definition of Done:** Core CRUD workflows are functional via UI and verified by automated tests.
-* **Major Risks:** Scope creep, overly complex database queries.
-* **Mitigations:** Stick strictly to MVP features defined in `PRD.md`, utilize query pagination from day 1.
-* **Estimated Complexity:** Very High.
+### Phase 3: Operations Command Center Vertical Slice
+* **Objective:** Deliver the operational dashboard where staff monitor telemetry and receive AI decision support for incidents.
+* **Deliverables:** Authenticated Ops Login, Incident Dashboard, Telemetry Visualization, AI Recommendations Engine.
+* **Checklist:**
+  * [ ] RBAC Authentication for Operations Role implemented.
+  * [ ] Real-time (or simulated) incident dashboard UI completed.
+  * [ ] Telemetry ingestion endpoint wired to dashboard.
+  * [ ] AI Decision Support integrated to recommend incident mitigations.
+  * [ ] Security validation on operational endpoints.
+  * [ ] Phase approved.
 
-### Phase 4: AI Integration
-* **Objective:** Integrate AI features as defined in the AI Architecture.
-* **Deliverables:** AI prompt pipelines, context management, integration with external LLM providers.
-* **Features:** AI Assistants, automated data insights, smart scheduling/suggestions.
-* **Dependencies:** Phase 3.
-* **Architecture Docs:** `AI_ARCHITECTURE.md`, `SECURITY.md`
-* **Expected Outputs:** Core workflows are enhanced by AI capabilities.
-* **Testing Requirements:** AI response validation tests, rate-limiting tests, PII sanitization tests.
-* **Documentation Updates:** AI prompt registries, AI fallback strategies documentation.
-* **Definition of Done:** AI features return accurate, contextual data and fail gracefully on timeout/errors.
-* **Major Risks:** High latency, prompt injection, unpredictable LLM outputs.
-* **Mitigations:** Implement strict timeout handling, fallback to deterministic UI, use rigid prompt templates.
-* **Estimated Complexity:** High.
+### Phase 4: Volunteer Assistant Vertical Slice
+* **Objective:** Deliver a tailored AI assistant for stadium volunteers to access operational policies and FAQs.
+* **Deliverables:** Authenticated Volunteer Login, Knowledge Access UI, Role-specific prompt templates.
+* **Checklist:**
+  * [ ] RBAC Authentication for Volunteer Role implemented.
+  * [ ] Volunteer Copilot UI tailored for rapid information retrieval.
+  * [ ] AI connected to volunteer-specific policy knowledge base.
+  * [ ] Phase approved.
 
-### Phase 5: Operations Dashboard
-* **Objective:** Provide administrative visibility into system health and user activity.
-* **Deliverables:** Admin panels, analytics, system metric aggregations.
-* **Features:** User management dashboard, audit logs view, AI token usage metrics.
-* **Dependencies:** Phase 3, Phase 4.
-* **Architecture Docs:** `SYSTEM_DESIGN.md`, `PRD.md`
-* **Expected Outputs:** Functional ops dashboard restricted to Admin roles.
-* **Testing Requirements:** RBAC enforcement tests, large dataset rendering tests.
-* **Documentation Updates:** Operations manual.
-* **Definition of Done:** Admins can view aggregated system data and perform operational overrides.
-* **Major Risks:** Performance degradation with large audit tables.
-* **Mitigations:** Implement aggressive pagination and read-replicas/caching for analytics if necessary.
-* **Estimated Complexity:** Medium.
+### Phase 5: Accessibility & Multilingual Experience
+* **Objective:** Elevate the application to meet global inclusivity standards required for a FIFA-level event.
+* **Deliverables:** i18n implementation, ARIA tag audit, Keyboard navigation flows, Voice-ready text processing.
+* **Checklist:**
+  * [ ] Internationalization (i18n) framework integrated.
+  * [ ] Core application strings translated into at least two languages.
+  * [ ] Automated accessibility audit passed (axe-core).
+  * [ ] Keyboard-only navigation verified for Copilots and Dashboard.
+  * [ ] Phase approved.
 
-### Phase 6: Accessibility & Multilingual Features
-* **Objective:** Ensure the application meets global inclusivity standards.
-* **Deliverables:** i18n implementation, ARIA tag audit and implementation, keyboard navigation enhancements.
-* **Features:** Language switcher, screen-reader optimized flows, high-contrast themes.
-* **Dependencies:** Phase 3.
-* **Architecture Docs:** `PRD.md` (Accessibility Requirements)
-* **Expected Outputs:** Fully WCAG compliant application with at least two supported languages.
-* **Testing Requirements:** Automated a11y testing (e.g., axe-core), manual screen reader testing.
-* **Documentation Updates:** i18n dictionary management guide.
-* **Definition of Done:** 100% automated a11y score, all strings externalized and translated.
-* **Major Risks:** UI breakage due to text expansion in different languages.
-* **Mitigations:** Use flexible CSS layouts (Flexbox/Grid), avoid hardcoded heights/widths.
-* **Estimated Complexity:** Medium.
-
-### Phase 7: Quality & Hardening
+### Phase 6: Quality Hardening
 * **Objective:** Stabilize, optimize, and secure the application for final delivery.
-* **Deliverables:** Performance optimization, dependency updates, security patching, comprehensive E2E tests.
-* **Features:** N/A (Non-functional requirements focus).
-* **Dependencies:** Phases 1-6.
-* **Architecture Docs:** `SECURITY.md`, `TESTING_STRATEGY.md`
-* **Expected Outputs:** A production-ready, highly stable artifact.
-* **Testing Requirements:** Load testing, penetration testing, full E2E regression suite.
-* **Documentation Updates:** Final review of all architecture documents against implementation.
-* **Definition of Done:** Zero P0/P1 bugs, Lighthouse scores > 90, all security gates passed.
-* **Major Risks:** Discovery of deep architectural flaws late in the cycle.
-* **Mitigations:** The incremental vertical slice strategy (Phases 1-6) should catch these early.
-* **Estimated Complexity:** High.
+* **Deliverables:** Performance optimization, dependency updates, security patching, comprehensive E2E tests, AI evaluation.
+* **Checklist:**
+  * [ ] End-to-end (E2E) regression tests executed and passing.
+  * [ ] Lighthouse performance scores verified (>90).
+  * [ ] AI response guardrails and latency bounds validated.
+  * [ ] PII sanitization verified on Copilot inputs.
+  * [ ] Phase approved.
 
-### Phase 8: Final Submission
-* **Objective:** Package the application for the PromptWars competition.
-* **Deliverables:** Submission assets, final demo environment, demonstration scripts, video recordings.
-* **Features:** Feature freeze.
-* **Dependencies:** Phase 7.
-* **Expected Outputs:** A complete, polished submission package.
-* **Testing Requirements:** Final sanity checks on the demo environment.
-* **Documentation Updates:** Submission README, Demo Guide.
-* **Definition of Done:** All submission criteria met and uploaded.
+### Phase 7: Competition Readiness
+* **Objective:** Package the application and demonstrations for the PromptWars competition.
+* **Deliverables:** Submission assets, final demo environment, demonstration scripts.
+* **Checklist:**
+  * [ ] Demo environment seeded with simulation data.
+  * [ ] Walkthrough scripts for all primary personas written.
+  * [ ] Final submission documentation and videos generated.
+  * [ ] Phase approved.
 
 ---
 
-## 8. Feature Implementation Order
-1. **Health Check / Connectivity:** Proves infrastructure.
-2. **Authentication / Registration:** Prerequisites for any personalized data.
-3. **Core Entity Creation (CRUD - Create):** Allows data population.
-4. **Core Entity Listing/Viewing (CRUD - Read):** Proves data persistence and UI rendering.
-5. **Core Entity Edits/Deletions (CRUD - Update/Delete):** Completes domain basics.
-6. **AI Insights Generation:** Builds on top of existing core data.
-7. **Admin Dashboard:** Aggregates all previously built features.
-
-*Why this order?* It minimizes risk by tackling foundational, high-risk items (auth, database connectivity) first. Business logic relies on auth, and AI relies on business data. This avoids parallel work that creates mock dependencies.
-
-## 9. Vertical Slice Strategy
-Instead of building the entire Database, then the entire API, then the entire UI (Horizontal slicing), we will build Vertical Slices.
-*Example:* For "Tournament Creation":
-1. Create Tournament DB table.
-2. Create `POST /tournaments` API endpoint.
-3. Create frontend Tournament Creation Form.
-4. Write E2E test for the flow.
-*Result:* A usable feature is delivered, mitigating integration risks early.
+## 10. Feature Implementation Order
+1. **Foundation & Shared UI:** Required to build any user interface quickly and consistently.
+2. **Fan Copilot (Anonymous Flow):** Highest visibility feature. Proves the AI integration, knowledge retrieval, and UI conversational mechanics without being blocked by complex auth.
+3. **Authentication (RBAC):** Prerequisites for Operations and Volunteer roles. Implementing this *after* the anonymous fan flow ensures we don't block the highest priority user journey.
+4. **Operations Command Center:** Builds upon the core UI and AI services, adding complexity via telemetry, incident tracking, and RBAC.
+5. **Volunteer Assistant:** A straightforward extension of the Fan Copilot and Auth systems.
+6. **Accessibility & i18n:** Best applied holistically once the core DOM structure and components are stable.
 
 ---
 
-## 10. Competition Submissions (PromptWars)
-* **Milestone 1: Foundation & Auth MVP**
-  * *Objectives:* Prove architecture viability.
-  * *Features Completed:* Repo init, CI/CD, DB connection, User Auth.
-  * *Expected Demo:* User registering, logging in, viewing an empty dashboard.
-* **Milestone 2: Core Domain Completion**
-  * *Objectives:* Showcase the primary business value.
-  * *Features Completed:* CRUD for core entities.
-  * *Expected Demo:* User logging in, creating entities, managing data successfully.
-* **Final Submission: AI & Polish**
-  * *Objectives:* Deliver the "Wow" factor.
-  * *Features Completed:* AI Integration, Analytics, Accessibility, fully hardened.
-  * *Expected Demo:* End-to-end user journey highlighted by seamless AI interactions and premium UI/UX.
+## 11. Competition Submissions (PromptWars)
 
----
+* **Submission 1: The Fan Experience**
+  * *Objectives:* Demonstrate the core AI capability and conversational UI.
+  * *Features Completed:* Anonymous Fan flow, Fan Copilot, Knowledge Retrieval.
+  * *Demo Scenario:* Fan asks, "Where is Gate B?" and receives accessibility-aware routing and current wait-time information.
+  * *Success Criteria:* AI returns accurate, context-aware navigational data in under 2 seconds.
 
-## 11. Definition of Done (DoD)
-A feature is NOT complete until it satisfies the following:
-1. **Architecture Compliance:** Aligns with frozen architecture documents.
-2. **Business Logic Implemented:** Meets all acceptance criteria in the PRD.
-3. **Security Requirements Met:** Passes static analysis, no exposed secrets, proper RBAC checks.
-4. **Accessibility Verified:** Passes automated A11y tests.
-5. **Tests Written:** Unit and Integration tests written and passing. Coverage targets met.
-6. **Documentation Updated:** API specs, component docs, and changelogs updated.
-7. **Code Reviewed:** Approved by at least one peer (or AI Staff SWE equivalent).
-8. **No Critical Defects:** Zero known P0/P1 issues.
-9. **CI/CD Passed:** Builds successfully and deploys to staging environment.
+* **Submission 2: The Command Center**
+  * *Objectives:* Showcase the Unified Intelligence Engine handling operational data.
+  * *Features Completed:* Ops Authentication, Incident Dashboard, AI Decision Support, Telemetry Simulation.
+  * *Demo Scenario:* A simulated crowd crush incident at Gate B triggers an alert. The Operations dashboard displays the incident, and the AI recommends redirecting fans to Gate C.
+  * *Success Criteria:* Real-time data visualization combined with logical, actionable AI recommendations.
+
+* **Submission 3: The Complete FIFACoOS Experience**
+  * *Objectives:* Deliver the final, hardened, accessible, and multilingual product.
+  * *Features Completed:* Volunteer Assistant, full i18n, WCAG compliance, Performance optimization.
+  * *Demo Scenario:* End-to-end journey touching all three personas (Fan, Ops, Volunteer), switching languages seamlessly, and navigating via keyboard/screen reader.
+  * *Success Criteria:* A flawless, premium demonstration that highlights the architecture's resilience and inclusivity.
 
 ---
 
@@ -247,147 +209,109 @@ A feature is NOT complete until it satisfies the following:
 
 ```mermaid
 graph TD
-    A[Phase 0: Repo Init] --> B[Phase 1: Foundation]
-    B --> C[Phase 2: Auth & User Flows]
-    C --> D[Phase 3: Core Domain Services]
-    D --> E[Phase 4: AI Integration]
-    D --> F[Phase 6: A11y & Multilingual]
-    E --> G[Phase 5: Ops Dashboard]
-    F --> H[Phase 7: Quality & Hardening]
-    G --> H
-    H --> I[Phase 8: Final Submission]
+    A[Phase 0: Repo Init] --> B[Phase 1: Platform Foundation]
+    B --> C[Phase 2: Fan Copilot Vertical Slice]
+    C --> D[Phase 3: Ops Command Center]
+    C --> E[Phase 4: Volunteer Assistant]
+    D --> F[Phase 5: A11y & Multilingual]
+    E --> F
+    F --> G[Phase 6: Quality Hardening]
+    G --> H[Phase 7: Competition Readiness]
     
     style A fill:#f9f,stroke:#333,stroke-width:2px
-    style I fill:#bbf,stroke:#333,stroke-width:2px
+    style H fill:#bbf,stroke:#333,stroke-width:2px
 ```
 
 ---
 
-## 13. Git Workflow
-* **Branching Strategy:** Trunk-based development with short-lived feature branches (`feature/`, `bugfix/`, `chore/`).
-* **Commit Philosophy:** Conventional Commits (e.g., `feat: add user login`, `fix: resolve JWT expiration bug`).
-* **Pull Request Philosophy:** Small, atomic PRs. PRs must have descriptions linking to tracking issues/requirements.
-* **Merge Strategy:** Squash and merge to maintain a clean, linear history on the `main` branch.
-* **Version Tagging:** Semantic Versioning (`vMAJOR.MINOR.PATCH`) applied via automated tags on main branch releases.
-
-## 14. Commit Strategy
-Meaningful, atomic commit examples:
-* *Phase 0:* `chore: initialize repository with linting config`
-* *Phase 1:* `feat(db): establish connection pooling strategy`
-* *Phase 2:* `feat(auth): implement JWT token generation`
-* *Phase 3:* `feat(api): add POST endpoint for tournament creation`
-* *Phase 4:* `feat(ai): integrate LLM provider for prompt evaluation`
+## 13. Git Workflow & Commit Strategy
+* **Branching Strategy:** Trunk-based development with short-lived feature branches (`feature/fan-copilot`, `fix/incident-dashboard`).
+* **Commit Philosophy:** Conventional Commits (`feat: add smart navigation service`, `fix: sanitize PII in copilot input`).
+* **Pull Request Philosophy:** Small, atomic PRs linked to specific Vertical Slices.
+* **Merge Strategy:** Squash and merge to `main`.
+* **Version Tagging:** Semantic Versioning (`vMAJOR.MINOR.PATCH`).
 
 ---
 
-## 15. Documentation Strategy
-* **Frozen Documents (Do NOT Modify without Architecture Board Approval):** `PRD.md`, `ARCHITECTURE.md`, `SYSTEM_DESIGN.md`, `DATABASE_SCHEMA.md`.
-* **Living Documents (Evolve during coding):** `API_DESIGN.md` (Swagger), Component Storybooks, `CHANGELOG.md`, inline code documentation, `IMPLEMENTATION_PLAN.md` (this file, to check off phases).
-* **When to Update:** Documentation updates are part of the Definition of Done for every PR.
+## 14. Documentation Strategy
+* **Frozen Documents (Change strictly via Architecture Decision Records):**
+  * `PRD.md`, `ARCHITECTURE.md`, `SYSTEM_DESIGN.md`, `DATABASE_SCHEMA.md`, `AI_ARCHITECTURE.md`, `SECURITY.md`, `TESTING_STRATEGY.md`.
+* **Living Documents (Evolve continuously during implementation):**
+  * `README.md`, Developer Guide, `IMPLEMENTATION_PLAN.md` (checklists updated), `API_DESIGN.md` (as endpoints materialize), Change Log, Deployment Guide, Runbooks, Testing Reports.
 
 ---
 
-## 16. Testing Strategy Integration
-* **Phase 1-3:** Focus on Unit Tests for logic, and Integration Tests for API-Database boundaries.
-* **Phase 4 (AI):** Mock LLM responses for unit tests. Run scheduled integration tests against live LLM endpoints to validate schema adherence.
-* **Phase 5-6:** Focus on UI component tests and A11y automation.
-* **Phase 7:** Full E2E suite execution (Cypress/Playwright). Security fuzzing and performance load testing.
+## 15. Testing Strategy Integration
+* **Phase 1-2:** Focus on UI component unit tests, and prompt evaluation tests for the Fan Copilot.
+* **Phase 3-4:** Integration tests for RBAC, API endpoint security tests, and mock telemetry ingestion tests.
+* **Phase 5:** Automated accessibility suites (axe) and visual regression testing for i18n layouts.
+* **Phase 6:** Full E2E suite execution (Cypress/Playwright) simulating complete competition demo flows.
 
 ---
 
-## 17. Risk Management
+## 16. Risk Management
 | Risk | Mitigation Strategy |
 | :--- | :--- |
-| **Scope Creep** | Strict adherence to PRD. Push new ideas to a "Post-V1 Backlog". |
-| **AI Instability / Latency** | Implement aggressive caching, strict timeouts, and UI fallbacks (graceful degradation). |
-| **Performance Bottlenecks** | Monitor N+1 queries early. Implement pagination on all list endpoints by default. |
-| **Integration Complexity** | Use vertical slices to force early integration between frontend, backend, and DB. |
-| **Technical Debt** | Enforce linting/formatting in CI. Do not bypass the Definition of Done. |
-| **Schedule Risk** | Cut scope (stretch goals), never cut quality or testing. |
+| **AI Hallucinations in Navigation** | Use strictly grounded Retrieval-Augmented Generation (RAG) and hardcoded map coordinates for fallback. |
+| **Telemetry Simulation Complexity** | Stub telemetry with static JSON payloads initially. Only build complex event generators if time permits in Phase 6. |
+| **Accessibility Retrofitting** | Enforce A11y checks in Phase 1 Shared UI components. Do not wait until Phase 5 to fix fundamental DOM issues. |
+| **Scope Creep in Dashboard** | Limit Ops dashboard to 2 specific incident types (e.g., Crowd Density, Medical). Reject generic metrics. |
+| **LLM Latency** | Implement streaming responses in the Copilot UI to improve perceived performance. |
 
 ---
 
-## 18. Quality Gates
+## 17. Quality Gates
 Mandatory gates before progressing to the next phase:
 1. **Build Gate:** `main` branch builds successfully without warnings.
-2. **Architecture Gate:** Implementation aligns with `SYSTEM_DESIGN.md`.
-3. **Test Gate:** 100% test pass rate in CI.
-4. **Documentation Gate:** All modified APIs and components are documented.
-5. **Security Gate:** Static Application Security Testing (SAST) reports zero critical/high vulnerabilities.
+2. **Architecture Gate:** Implementation strictly aligns with `SYSTEM_DESIGN.md` and `AI_ARCHITECTURE.md`.
+3. **Test Gate:** Target test coverage achieved in CI. AI Evaluation passes baseline accuracy.
+4. **Documentation Gate:** All living documents (API specs, runbooks) are current.
+5. **Security Gate:** SAST reports zero critical/high vulnerabilities. PII stripping confirmed.
 
 ---
 
-## 19. Technology Decision Placeholders
+## 18. Technology Decision Placeholders
 *(Note: No technologies are chosen here. They will be resolved in `TECHNOLOGY_DECISIONS.md`)*
-* `[FRONTEND_FRAMEWORK]` - Framework for building the user interface.
-* `[BACKEND_FRAMEWORK]` - Framework for REST/GraphQL API.
-* `[DATABASE_PLATFORM]` - Relational/NoSQL database provider.
-* `[AUTH_PROVIDER]` - Identity and Access Management solution.
-* `[TESTING_FRAMEWORK]` - E2E, Unit, and Integration test runners.
-* `[LLM_PROVIDER]` - Provider for AI/ML capabilities.
-* `[DEPLOYMENT_PLATFORM]` - Cloud hosting and CI/CD execution platform.
+* `[FRONTEND_FRAMEWORK]` - Framework for building the conversational and dashboard interfaces.
+* `[BACKEND_FRAMEWORK]` - Framework for REST/GraphQL and AI orchestration.
+* `[AUTH_PROVIDER]` - Provider for RBAC, Operations/Volunteer Auth, and Anonymous sessions.
+* `[DATABASE_PLATFORM]` - Storage for incidents, configurations, and knowledge base.
+* `[LLM_PROVIDER]` - Engine powering Fan Copilot and AI Decision Support.
+* `[KNOWLEDGE_RETRIEVAL_STRATEGY]` - Vector database or search engine for RAG.
+* `[MAPS_PROVIDER]` - Engine for rendering stadium Smart Navigation.
+* `[TELEMETRY_SIMULATION_STRATEGY]` - Architecture for mocking real-time stadium events.
+* `[I18N_LIBRARY]` - Framework for localization and multilingual support.
+* `[A11Y_FRAMEWORK]` - Tools for auditing and enforcing WCAG compliance.
+* `[STATE_MANAGEMENT]` - Solution for managing Copilot session state and real-time dashboard data.
+* `[DEPLOYMENT_PLATFORM]` - Cloud hosting environment for the demo.
+* `[OBSERVABILITY_PLATFORM]` - Tooling for application logs and AI token metrics.
+* `[TESTING_FRAMEWORK]` - Runners for Unit, E2E, and AI evaluations.
 
 ---
 
-## 20. Post-Implementation Activities
-Following the completion of features (Phase 7/8):
-* **Performance Profiling:** Flame graphs and memory leak detection.
-* **Security Audit:** Third-party dependency vulnerability scanning and penetration testing.
-* **Release Preparation:** Production environment provisioning and configuration verification.
-* **Demo Rehearsal:** End-to-end dry runs of the competition submission script.
-
----
-
-## 21. Diagrams
-
-### Release Pipeline Flow
-```mermaid
-graph LR
-    A[Local Dev] -->|Commit| B(Feature Branch)
-    B -->|Pull Request| C{CI Gates}
-    C -->|Pass| D[Code Review]
-    C -->|Fail| B
-    D -->|Approved| E(Merge to Main)
-    E --> F{CD Pipeline}
-    F --> G[Deploy to Staging]
-    G --> H[E2E Tests]
-    H -->|Pass| I[Deploy to Prod/Demo]
-```
-
----
-
-## 22. Final Review
-* **Implementation Feasibility:** High. Incremental vertical slices reduce "big bang" integration failure.
-* **Architecture Alignment:** Strictly enforced via Quality Gates and DoD.
-* **Risk Exposure:** Managed via phased rollout and early AI integration.
-* **Scope Control:** MVP is heavily isolated in Phases 1-3.
-* **Developer Experience:** Prioritized via early CI/CD setup and clear commit strategies.
-
-=============================================================================
-
-## 23. Executive Summary
+## 19. Executive Summary
 **Overall Implementation Philosophy:** 
-The FIFACoOS implementation favors correctness, working vertical slices, and security by default. We build incrementally, ensuring that at any point after Phase 1, the application is in a buildable, testable, and demonstrable state.
+The FIFACoOS implementation favors working vertical slices over isolated infrastructure layers. We prioritize the Fan, Operations, and Volunteer experiences, ensuring that every engineering phase delivers tangible, competition-ready value aligned perfectly with the frozen Architecture v1.0.
 
 **Major Milestones:**
-1. Foundation & Connectivity (Phase 1)
-2. Secure User Access (Phase 2)
-3. Core Domain Functionality (Phase 3)
-4. AI Subsystem Integration (Phase 4)
-5. Final Hardening & Submission (Phases 7-8)
+1. Platform Foundation (Phase 1)
+2. Fan Copilot Vertical Slice (Phase 2)
+3. Operations Command Center (Phase 3)
+4. Volunteer Assistant (Phase 4)
+5. Competition Readiness & Demo (Phase 7)
 
 **Critical Path:**
-Repository Setup -> Database Connectivity -> Authentication -> Core CRUD -> AI Integration. Without Auth, there is no domain data; without domain data, AI has no context.
+Foundation -> Fan Copilot -> Ops Authentication -> Incident Management -> Quality Hardening.
 
 **Highest Implementation Risks:**
-1. AI unpredictability/latency affecting core UX.
-2. Security vulnerabilities in user data segregation.
+1. Unpredictable LLM outputs misguiding fans (mitigated by strict RAG grounding).
+2. Over-engineering the telemetry simulation (mitigated by starting with static mocks).
 
 **Expected Engineering Workflow:**
-Trunk-based development utilizing short-lived feature branches, small atomic commits, and rigorous automated Quality Gates enforced in CI/CD. No feature bypasses the Definition of Done.
+Trunk-based development with short-lived feature branches, atomic commits, and rigorous Quality Gates enforcing the Definition of Done.
 
-**Frozen Documents:**
-* `PRD.md`, `ARCHITECTURE.md`, `SYSTEM_DESIGN.md`, `DATABASE_SCHEMA.md`, `AI_ARCHITECTURE.md`, `SECURITY.md`, `TESTING_STRATEGY.md`.
+**Frozen Documents (Do NOT Modify):**
+`PRD.md`, `ARCHITECTURE.md`, `SYSTEM_DESIGN.md`, `DATABASE_SCHEMA.md`, `AI_ARCHITECTURE.md`, `SECURITY.md`, `TESTING_STRATEGY.md`.
 
-**Evolving Documents:**
-* `API_DESIGN.md` (as endpoints materialize), `IMPLEMENTATION_PLAN.md` (tracking progress), Component guidelines, and Changelogs.
+**Evolving Living Documents:**
+`README.md`, `IMPLEMENTATION_PLAN.md`, `API_DESIGN.md`, Developer Guides, and Test Reports.
