@@ -332,7 +332,271 @@ graph TD
 
 ---
 
-## 25. Executive Summary
+## 25. Daily Development Workflow
+
+This section outlines the standard daily routine every developer follows to ensure consistency and momentum.
+
+### Morning Routine
+- **Pull latest changes:** Ensure your local branch is up to date with `main`.
+- **Review `IMPLEMENTATION_PLAN.md`:** Understand the current phase and pending tasks.
+- **Review `PHASE_CHECKLISTS.md`:** (If applicable) Verify phase boundaries.
+- **Review current feature requirements:** Re-read the PRD or technical spec for the task.
+- **Read relevant architecture documents:** Refresh context on boundaries and patterns.
+- **Define today's objective:** Pick a single, achievable vertical slice.
+
+### Development Cycle
+- **Select one small implementation task:** Avoid large, sprawling tasks.
+- **Gather AI context:** Open the relevant files so your AI assistant has context.
+- **Explain implementation before coding:** Write out or discuss the plan with the AI before generating code.
+- **Implement only one logical slice:** Do not build the whole feature at once (e.g., build the database schema first, validate it, then move to backend, then UI).
+- **Run validation continuously:** Keep the dev server running and type-checker active.
+
+### Quality Checks
+- **Type checking:** Run `npm run typecheck` (or equivalent).
+- **Linting:** Run `npm run lint`.
+- **Unit tests:** Run tests relevant to your slice.
+- **Manual verification:** Test the UI locally.
+- **Accessibility verification:** Check keyboard navigation and contrast.
+
+### Documentation
+- **Update implementation notes:** Add any gotchas discovered to a local scratchpad or artifact.
+- **Update README if required:** Only if you added new env vars or scripts.
+- **Update CHANGELOG if applicable:** Note the feature completion.
+
+### End of Day
+- **Self review:** Look at your own diff before committing.
+- **Final validation:** Ensure all tests pass.
+- **Commit:** Write a clear, semantic commit message.
+- **Push:** Push to remote.
+- **Update phase checklist:** Mark completed items in `IMPLEMENTATION_PLAN.md` or `task.md`.
+
+```mermaid
+graph TD
+    A[Morning: Review Docs & Objectives] --> B[Dev Cycle: Select Small Task]
+    B --> C[Explain to AI & Implement]
+    C --> D[Continuous Quality Checks]
+    D --> E{Issues Found?}
+    E -- Yes --> C
+    E -- No --> F[Update Documentation]
+    F --> G[End of Day: Self Review & Commit]
+```
+
+---
+
+## 26. AI Development Workflow
+
+The standard operating procedure for every AI-assisted implementation session.
+
+**Why this workflow exists:** AI is a powerful accelerator but is prone to hallucination, breaking architectural boundaries, and introducing subtle security flaws. This workflow ensures human oversight at every critical juncture.
+
+**Common AI mistakes:**
+- Bypassing Zod validation.
+- Generating Client Components when Server Components are better.
+- Embedding business logic directly into React components.
+- Ignoring existing utility functions.
+
+**Human responsibilities:** The developer is the architect and reviewer. The AI is the typist. You are responsible for the final code quality.
+
+### Standard AI Workflow
+
+```mermaid
+graph TD
+    A[Step 1: Review Architecture] --> B[Step 2: Review Current Phase]
+    B --> C[Step 3: Review Existing Code]
+    C --> D[Step 4: Explain Intended Implementation]
+    D --> E[Step 5: Request Small Incremental Changes]
+    E --> F[Step 6: Validate AI Output]
+    F --> G[Step 7: Run Tests]
+    G --> H[Step 8: Review Security]
+    H --> I[Step 9: Review Accessibility]
+    I --> J[Step 10: Commit]
+```
+
+---
+
+## 27. Standard Prompt Templates
+
+Use these templates to guide the AI assistant predictably.
+
+### Feature Implementation Prompt
+```text
+Context: I am implementing [Feature Name].
+Current Phase: Phase [X] from IMPLEMENTATION_PLAN.md.
+Architecture References: Must comply with [ARCHITECTURE.md / SYSTEM_DESIGN.md].
+Technology References: Use [Next.js App Router, Prisma, Tailwind, etc.].
+Acceptance Criteria: [List exactly what the feature must do].
+Constraints: [List things the AI MUST NOT do].
+Expected Deliverables: [e.g., Zod schema, Server Action, UI Component].
+Validation Requirements: Provide strict validation for all inputs.
+```
+
+### Bug Fix Prompt
+```text
+Observed Behaviour: [Describe the bug clearly].
+Expected Behaviour: [Describe what should happen].
+Architecture References: Refer to [Specific Document].
+Files: The bug is likely in [List Files].
+Constraints: Do not change the underlying architecture.
+Deliverables: Fix the bug and provide a unit test if applicable.
+```
+
+### Refactoring Prompt
+```text
+Task: Refactor the provided code.
+Constraints:
+- No behavioural changes.
+- No architecture modifications.
+- Improve readability.
+- Improve maintainability.
+- Maintain existing tests.
+Focus on: [e.g., extracting magic strings, breaking down a large component].
+```
+
+### Review Prompt
+```text
+Task: Review the provided code. Review only. No rewriting.
+Identify:
+- Architecture risks (does it break our patterns?)
+- Security concerns (RLS, validation, secrets?)
+- Performance issues (N+1 queries, unnecessary re-renders?)
+- Accessibility issues (missing ARIA, bad contrast?)
+- Testing gaps (what is missing tests?)
+- Maintainability issues (is it readable?)
+```
+
+### Documentation Prompt
+```text
+Task: Update the documentation based on the following code changes.
+Ensure the tone matches the existing Developer Guide and is concise.
+```
+
+---
+
+## 28. Development Session Checklists
+
+### Beginning of Development Session
+- [ ] Current phase identified
+- [ ] Relevant documents reviewed
+- [ ] Acceptance criteria understood
+- [ ] Architecture references reviewed
+- [ ] AI context prepared (relevant files opened)
+- [ ] Dependencies understood
+- [ ] Branch created
+
+### End of Development Session
+- [ ] Tests passing
+- [ ] Typecheck passing (`npm run typecheck`)
+- [ ] Lint passing (`npm run lint`)
+- [ ] Accessibility checked (keyboard, contrast)
+- [ ] Documentation updated
+- [ ] Commit completed
+- [ ] Phase checklist updated
+- [ ] Remaining work documented (if stopping mid-feature)
+
+---
+
+## 29. Engineering Safety Rules
+
+These rules are strict boundaries designed to prevent systemic failures.
+
+**NEVER:**
+- **bypass Zod validation:** *Why:* Zod is the primary defense against malformed client data and AI hallucinations.
+- **bypass Supabase RLS:** *Why:* Row-Level Security is the ultimate authorization barrier; bypassing it exposes data globally.
+- **trust LLM output:** *Why:* LLMs are non-deterministic and can introduce subtle bugs or security flaws.
+- **hardcode secrets:** *Why:* Massive security risk. Always use environment variables.
+- **commit `.env`:** *Why:* Leaks secrets to the repository history.
+- **use `any` without justification:** *Why:* Defeats TypeScript's purpose and causes runtime errors.
+- **disable TypeScript:** *Why:* Removes our safety net.
+- **move business logic into UI:** *Why:* Makes code untestable and creates monolithic components.
+- **duplicate domain logic:** *Why:* Leads to inconsistent state when rules change.
+- **modify frozen architecture directly:** *Why:* Architecture changes require review and an ADR to ensure systemic stability.
+- **introduce new dependencies without justification:** *Why:* Bloats the application and increases the security attack surface.
+- **merge failing tests:** *Why:* Breaks the baseline of a healthy `main` branch.
+
+---
+
+## 30. Decision Tree
+
+Use this tree to determine where code should live, maintaining architectural consistency.
+
+```mermaid
+graph TD
+    A[Where should this code live?] --> B{Is it UI?}
+    B -- Yes --> C[components/ or features/domain/components/]
+    B -- No --> D{Is it business logic?}
+    
+    D -- Yes --> E[features/domain/services/ or actions/]
+    D -- No --> F{Is it a shared utility?}
+    
+    F -- Yes --> G[lib/]
+    F -- No --> H{Is it database logic?}
+    
+    H -- Yes --> I[features/domain/services/ (Data Access Layer)]
+    H -- No --> J{Is it AI Orchestration?}
+    
+    J -- Yes --> K[features/ai/services/]
+    J -- No --> L{Is it configuration?}
+    
+    L -- Yes --> M[Root config files or lib/env.ts]
+```
+
+---
+
+## 31. Feature Folder Example
+
+This demonstrates a standard feature structure following domain-driven design.
+
+```text
+features/
+└── navigation/
+    ├── actions/       # Server Actions for mutations (e.g., saveRoute)
+    ├── components/    # UI specific to this feature (e.g., WayfinderMap)
+    ├── hooks/         # Client hooks (e.g., useNavigationState)
+    ├── services/      # Core business logic / DB access (e.g., routeCalculator)
+    ├── types/         # Domain-specific TypeScript interfaces
+    ├── utils/         # Pure helper functions (e.g., formatDistance)
+    ├── validation/    # Zod schemas (e.g., routeRequestSchema)
+    ├── tests/         # Unit and integration tests co-located
+    └── index.ts       # Public API (Barrel file) for the feature
+```
+
+- **Responsibility:** Each folder strictly isolates concerns. The UI components call the hooks, the hooks call the actions, the actions use the validation schemas and services.
+
+---
+
+## 32. AI Review Checklist
+
+Before accepting AI-generated code verify:
+- [ ] **Architecture preserved:** (Doesn't bypass boundaries or layers)
+- [ ] **Naming conventions followed:** (camelCase, PascalCase, etc.)
+- [ ] **Business logic deterministic:** (No LLMs used for core state)
+- [ ] **Types complete:** (No `any` or implicit typings)
+- [ ] **Validation implemented:** (Zod schemas present for new boundaries)
+- [ ] **Tests added:** (Generated code includes test coverage)
+- [ ] **Security preserved:** (RLS respected, inputs sanitized)
+- [ ] **Accessibility preserved:** (ARIA, semantic HTML, keyboard support)
+- [ ] **Performance acceptable:** (No obvious N+1 or heavy client renders)
+- [ ] **No unnecessary complexity introduced:** (Code is simple and readable)
+
+---
+
+## 33. Solo Developer Best Practices
+
+Being a solo developer using AI requires strict discipline to avoid becoming overwhelmed by the codebase.
+
+- **Working in small vertical slices:** Deliver one tiny feature end-to-end completely (including UI and DB) rather than building all DB tables at once.
+- **Frequent commits:** Commit every time a test passes or a logical slice works.
+- **Avoiding context switching:** Finish the current slice before moving to a new domain.
+- **Keeping documentation synchronized:** Update docs immediately; a solo dev easily forgets 'why' after a week.
+- **Reviewing AI output carefully:** Do not blindly copy-paste; you are the sole maintainer.
+- **Using ADRs correctly:** Document *why* you made a major technical shift so future you (or new team members) understand the context.
+- **Maintaining implementation momentum:** Favor "done and working" over "perfectly abstracted."
+- **Avoiding perfectionism:** Stick to the MVP requirements.
+- **Balancing speed and quality:** Use AI for speed, but rely on strict TypeScript and Tests for quality assurance.
+
+---
+
+## 34. Executive Summary
 
 - **Engineering Philosophy:** We build for quality, determinism, and maintainability. Architecture constraints are non-negotiable.
 - **Most Important Rules:** Strictly separate UI from business logic. Always validate data at the boundaries using Zod. Never trust generative AI for core application state.
