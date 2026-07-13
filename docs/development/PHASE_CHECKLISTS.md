@@ -30,7 +30,7 @@ Do not duplicate the 'why' or the high-level features from the implementation pl
 | **1:** Platform Foundation | Not Started | | | Solo Dev | Core shared layers | Medium |
 | **2:** Fan Copilot | Not Started | | | Solo Dev | Critical MVP slice | High |
 | **3:** Ops Command Center | Not Started | | | Solo Dev | Dashboard & RBAC | Medium |
-| **4:** Volunteer Assistant | Not Started | | | Solo Dev | RAG integration | Medium |
+| **4:** Volunteer Assistant | Not Started | | | Solo Dev | Deterministic Knowledge Service | Medium |
 | **5:** Polish | Not Started | | | Solo Dev | UI/UX & A11y | Low |
 | **6:** Hardening | Not Started | | | Solo Dev | Security & Perf | High |
 | **7:** PromptWars Submit | Not Started | | | Solo Dev | Packaging | Medium |
@@ -43,9 +43,8 @@ Do not duplicate the 'why' or the high-level features from the implementation pl
 ```mermaid
 gantt
     title FIFACoOS Implementation Timeline
-    dateFormat  YYYY-MM-DD
     section Setup
-    Phase 0: Init           :a1, 2026-07-12, 1d
+    Phase 0: Init           :a1, 1d
     Phase 1: Foundation     :a2, after a1, 3d
     section Core
     Phase 2: Fan Copilot    :a3, after a2, 5d
@@ -214,7 +213,7 @@ graph LR
 
 **Common Risks & Mitigation:**
 - *Risk:* LLM hallucinating directions. *Mitigation:* Strict Zod validation; fallback to DB queries.
-- *AI Mistake:* Generating non-streaming standard fetch calls for AI instead of `useChat`.
+- *AI Mistake:* Generating non-streaming standard fetch calls for AI instead of approved AI SDK chat abstraction.
 
 **Exit Criteria & Quality Gate:**
 - [ ] AI correctly streams responses.
