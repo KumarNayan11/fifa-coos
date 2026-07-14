@@ -1,0 +1,22 @@
+# Dependencies
+node_modules
+
+# Build outputs
+.next
+out
+build
+
+# Coverage & test artifacts
+coverage
+playwright-report
+test-results
+
+# Lock files
+pnpm-lock.yaml
+
+# Generated files
+src/generated
+prisma/migrations
+
+# Misc
+.vercel

@@ -44,13 +44,29 @@ Any contributor (human or AI) submitting a pull request is responsible for updat
 ## Changelog History
 
 ### [Unreleased]
-*Pending implementation updates.*
+
+#### Added
+
+- Prettier configuration (`.prettierrc`, `.prettierignore`)
+- EditorConfig (`.editorconfig`)
+- Husky pre-commit hook with lint-staged
+- lint-staged configuration for ESLint + Prettier on staged files
+- `.nvmrc` locking Node.js ≥ 24
+- `.vscode/settings.json` for editor consistency
+- Package scripts: `typecheck`, `format`, `format:check`, `test`, `test:watch`, `test:ui`, `test:e2e`
+- README development setup instructions
+
+#### Changed
+
+- Moved `prisma` CLI from dependencies to devDependencies
+- Added `playwright-report` and `test-results` to `.gitignore`
 
 ---
 
 ### [v0.1.0] - 2026-07-13
 
 #### Added
+
 - Repository initialized
 - Architecture completed (Frozen)
 - Planning completed
@@ -61,31 +77,37 @@ Any contributor (human or AI) submitting a pull request is responsible for updat
 ---
 
 ### [v0.2.0] - (Reserved)
+
 **Platform Foundation**
 
 ---
 
 ### [v0.3.0] - (Reserved)
+
 **Fan Copilot**
 
 ---
 
 ### [v0.4.0] - (Reserved)
+
 **Operations Command Center**
 
 ---
 
 ### [v0.5.0] - (Reserved)
+
 **Volunteer Assistant**
 
 ---
 
 ### [v0.6.0] - (Reserved)
+
 **Accessibility & Polish**
 
 ---
 
 ### [v1.0.0] - (Reserved)
+
 **PromptWars Submission**
 
 ========================================================
@@ -98,23 +120,30 @@ For every future release, use the following template:
 ### [vX.Y.Z] - YYYY-MM-DD
 
 #### Added
+
 - New features or capabilities
 
 #### Changed
+
 - Modifications to existing functionality
 
 #### Fixed
+
 - Bug fixes and error resolutions
 
 #### Security
+
 - Security enhancements and vulnerability patches
 
 #### Documentation
+
 - Updates to user or developer documentation
 
 #### Performance
+
 - Optimizations and performance improvements
 
 #### Known Issues
+
 - Any outstanding issues identified in this release
 ```
