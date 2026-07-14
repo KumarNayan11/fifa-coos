@@ -47,6 +47,25 @@ Any contributor (human or AI) submitting a pull request is responsible for updat
 
 #### Added
 
+- **Phase 1: Platform Foundation**
+- Feature-oriented folder structure (`features/`, `hooks/`, `services/`, `types/`, `styles/`, `config/`, `components/shared/`)
+- Design token system (`src/styles/design-tokens.ts`) — colors, spacing, typography, layout, transitions, z-index
+- Centralized configuration: app metadata, navigation, constants, environment helper, feature flags
+- Configuration barrel export (`src/config/index.ts`)
+- Foundational UI components: Button, Card, Container, PageHeader, Section, Badge, Divider, Loading/Skeleton, EmptyState
+- Professional landing page with project status, tech stack, feature placeholders
+- Enhanced root layout with proper metadata, viewport, theme-color, providers wrapper
+- Custom Not Found (404) page
+- Global Error boundary page
+- Root loading page with skeleton placeholders
+- Providers wrapper (`src/app/providers.tsx`) — ready for future Theme, Auth, Query, AI providers
+- Helper utilities (`src/lib/helpers.ts`) — capitalize, truncate, formatDate, delay, generateId, safeJsonParse
+- Metadata utility (`src/lib/metadata.ts`) — consistent SEO metadata generation
+- Organized `public/` directory (`icons/`, `images/`, `logos/`, `illustrations/`)
+- Updated README with technology stack table, project structure, and expanded docs links
+
+#### Changed (Phase 0 tooling — previously staged)
+
 - Prettier configuration (`.prettierrc`, `.prettierignore`)
 - EditorConfig (`.editorconfig`)
 - Husky pre-commit hook with lint-staged
@@ -54,10 +73,6 @@ Any contributor (human or AI) submitting a pull request is responsible for updat
 - `.nvmrc` locking Node.js ≥ 24
 - `.vscode/settings.json` for editor consistency
 - Package scripts: `typecheck`, `format`, `format:check`, `test`, `test:watch`, `test:ui`, `test:e2e`
-- README development setup instructions
-
-#### Changed
-
 - Moved `prisma` CLI from dependencies to devDependencies
 - Added `playwright-report` and `test-results` to `.gitignore`
 

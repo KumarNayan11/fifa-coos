@@ -1,0 +1,4 @@
+# Features
+# Domain-organized feature modules (e.g., incidents, wayfinding).
+# Each feature contains its own components, hooks, services, types, and utils.
+# See: DEVELOPER_GUIDE.md Section 6 - Repository Organization

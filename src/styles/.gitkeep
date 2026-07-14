@@ -1,0 +1,4 @@
+# Styles
+# Design tokens and global style utilities.
+# Tailwind/shadcn theme variables live in app/globals.css.
+# See: DEVELOPER_GUIDE.md Section 6 - Repository Organization

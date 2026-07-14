@@ -1,0 +1,3 @@
+# Global React Hooks
+# Feature-specific hooks go in features/<domain>/hooks/.
+# See: DEVELOPER_GUIDE.md Section 6 - Repository Organization
