@@ -26,6 +26,8 @@ export interface ChatMessage {
   content: string;
   /** When the message was created */
   timestamp: Date;
+  /** Suggested POI IDs returned by the AI */
+  suggestedPOIs?: string[];
 }
 
 // ---------------------------------------------------------------------------

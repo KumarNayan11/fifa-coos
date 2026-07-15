@@ -48,28 +48,18 @@ export function useFanChat(): UseFanChatReturn {
         }));
 
         // 2. Call the Server Action
-        const stream = await chat(history);
+        console.log("Calling Server Action...");
+        const finalResponse = await chat(history);
+        console.log("Server Action returned:", finalResponse);
 
-        // 3. Read the streamable object natively using for await
-        let finalResponse: Partial<FanCopilotResponse> = {};
-
-        for await (const partialObject of stream) {
-          if (partialObject) {
-            finalResponse = partialObject;
-            // Update streaming text for the UI
-            if (partialObject.response) {
-              setStreamingText(partialObject.response);
-            }
-          }
-        }
-
-        // 4. Stream complete — add assistant message to history
+        // 3. Add assistant message to history
         if (finalResponse.response) {
           const assistantMessage: ChatMessage = {
             id: "msg_ai_" + generateId(),
             role: "assistant",
             content: finalResponse.response,
             timestamp: new Date(),
+            suggestedPOIs: finalResponse.suggestedPOIs,
           };
           setMessages((prev) => [...prev, assistantMessage]);
         }

@@ -13,7 +13,7 @@
  * @see TECHNOLOGY_DECISIONS.md §5.6 — Vercel AI SDK + Gemini
  */
 
-import { streamObject } from "ai";
+import { generateObject } from "ai";
 import { google } from "@ai-sdk/google";
 
 import { fanCopilotResponseSchema } from "../types/ai.schemas";
@@ -25,7 +25,7 @@ import type { POI, KnowledgeArticle } from "../types/fan.types";
 // Model Configuration
 // ---------------------------------------------------------------------------
 
-const MODEL_ID = "gemini-2.5-flash-preview-05-20";
+const MODEL_ID = "gemini-2.5-flash";
 
 // ---------------------------------------------------------------------------
 // System Prompt Composer (AI_ARCHITECTURE.md §11)
@@ -126,12 +126,12 @@ export interface AIMessage {
  * Pipeline steps:
  * 1. searchKnowledge() — deterministic context gathering
  * 2. composeSystemPrompt() — modular prompt assembly
- * 3. streamObject() — LLM invocation with automatic Zod validation
+ * 3. generateObject() — LLM invocation with automatic Zod validation
  *
  * @param messages - Conversation history
- * @returns A streamable object result with Zod-validated schema
+ * @returns A result with Zod-validated schema
  */
-export function processFanQuery(messages: AIMessage[]) {
+export async function processFanQuery(messages: AIMessage[]) {
   // Extract the latest user message for knowledge search
   const latestMessage = messages.filter((m) => m.role === "user").at(-1)?.content ?? "";
 
@@ -141,8 +141,8 @@ export function processFanQuery(messages: AIMessage[]) {
   // Step 2: Compose the modular system prompt
   const systemPrompt = composeSystemPrompt(faqs, pois);
 
-  // Step 3: Invoke LLM with streamObject + Zod schema validation
-  return streamObject({
+  // Step 3: Invoke LLM with generateObject + Zod schema validation
+  return generateObject({
     model: google(MODEL_ID),
     schema: fanCopilotResponseSchema,
     system: systemPrompt,
