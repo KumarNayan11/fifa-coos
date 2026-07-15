@@ -47,6 +47,18 @@ Any contributor (human or AI) submitting a pull request is responsible for updat
 
 #### Added
 
+- **Phase 2: Fan Copilot**
+- Domain-driven structure (`src/features/fan/`) for Chat UI, Knowledge Services, and AI Pipeline
+- Deterministic static knowledge base (FAQs, POIs, Stadium data) without RAG/Embeddings
+- Strict AI response validation using Zod schemas (`fanCopilotResponseSchema`)
+- Integration with Vercel AI SDK and Google Gemini 2.5 Flash via native Next.js Server Action AsyncGenerators
+- Fallback service for AI failure or low confidence (`< 50`) using keyword matching
+- `NavigationService` with abstracted `MapProvider` interface (StaticMapProvider for now)
+- `WaitTimeService` with abstracted `WaitTimeProvider` interface (StaticWaitTimeProvider for now)
+- Dedicated chat UI components: Message Bubble, Chat Input, Chat Container, Quick Actions, POI Card, Wait Time Badge
+- Fan layout and landing pages (`/fan`, `/fan/copilot`)
+- Client-side hook (`use-fan-chat.ts`) for managing conversational state and iterating `asyncGenerator` streams
+
 - **Phase 1: Platform Foundation**
 - Feature-oriented folder structure (`features/`, `hooks/`, `services/`, `types/`, `styles/`, `config/`, `components/shared/`)
 - Design token system (`src/styles/design-tokens.ts`) — colors, spacing, typography, layout, transitions, z-index

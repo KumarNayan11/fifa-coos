@@ -21,8 +21,8 @@ export const APP_CONFIG = {
 
   /** Current implementation phase */
   phase: {
-    current: 1,
-    name: "Platform Foundation",
+    current: 2,
+    name: "Fan Copilot",
     status: "In Progress" as const,
   },
 
@@ -63,8 +63,8 @@ export const TECH_STACK = [
  */
 export const IMPLEMENTATION_PHASES = [
   { phase: 0, name: "Repository Init", status: "complete" as const },
-  { phase: 1, name: "Platform Foundation", status: "in-progress" as const },
-  { phase: 2, name: "Fan Copilot", status: "not-started" as const },
+  { phase: 1, name: "Platform Foundation", status: "complete" as const },
+  { phase: 2, name: "Fan Copilot", status: "in-progress" as const },
   { phase: 3, name: "Ops Command Center", status: "not-started" as const },
   { phase: 4, name: "Volunteer Assistant", status: "not-started" as const },
   { phase: 5, name: "Polish & A11y", status: "not-started" as const },

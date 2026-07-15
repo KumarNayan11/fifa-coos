@@ -10,10 +10,10 @@
 
 export const FEATURE_FLAGS = {
   /** Phase 2 — Fan Copilot */
-  FAN_COPILOT_ENABLED: false,
+  FAN_COPILOT_ENABLED: true,
 
   /** Phase 2 — AI Chat Streaming */
-  AI_STREAMING_ENABLED: false,
+  AI_STREAMING_ENABLED: true,
 
   /** Phase 2 — Mapbox Navigation */
   MAPS_ENABLED: false,

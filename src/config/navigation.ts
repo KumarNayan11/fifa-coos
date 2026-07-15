@@ -45,7 +45,7 @@ export const NAV_ITEMS = [
     href: ROUTES.fan.root,
     phase: 2,
     icon: "MessageCircle" as const,
-    available: false,
+    available: true,
   },
   {
     label: "Operations Center",
