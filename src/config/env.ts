@@ -40,7 +40,7 @@ export function isTest(): boolean {
 export function getEnvVar(key: string, fallback?: string): string {
   const value = process.env[key] ?? fallback;
 
-  if (value === undefined) {
+  if (value === undefined || value === "") {
     throw new Error(
       `Missing required environment variable: ${key}. ` +
         `Please check your .env file and ensure ${key} is set.`,
@@ -49,3 +49,22 @@ export function getEnvVar(key: string, fallback?: string): string {
 
   return value;
 }
+
+// ---------------------------------------------------------------------------
+// Authentication (Phase 3 MVP)
+// ---------------------------------------------------------------------------
+
+/**
+ * Operations user credentials for Phase 3 MVP.
+ */
+export const env = {
+  get OPS_USERNAME() {
+    return getEnvVar("OPS_USERNAME");
+  },
+  get OPS_PASSWORD() {
+    return getEnvVar("OPS_PASSWORD");
+  },
+  get SESSION_SECRET() {
+    return getEnvVar("SESSION_SECRET");
+  },
+};
