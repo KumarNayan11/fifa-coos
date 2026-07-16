@@ -638,3 +638,14 @@ Being a solo developer using AI requires strict discipline to avoid becoming ove
 - **Developer Expectations:** Write clean, typed, accessible, and tested code. Leave the codebase better than you found it.
 - **Quality Expectations:** Zero tolerance for type errors, unhandled exceptions, or accessibility violations in the `main` branch.
 - **Readiness:** With this guide established, the team is fully aligned on standard operating procedures. Implementation may commence immediately.
+
+---
+
+## 35. Dashboard Architecture & Data Fetching
+
+To maintain a clean separation of concerns and maximize performance, dashboard implementation follows strict data fetching rules:
+
+- **Data Fetching via Server Components:** Dashboard pages must be built as Next.js Server Components. They securely own the responsibility of invoking data fetching services (e.g., `DashboardService`) and handling top-level authorization (via `requireOps()`).
+- **Aggregation Outside the UI:** UI components (e.g., `MetricCard`, `IncidentOverviewPanel`) must never query Prisma directly. All database interactions, including complex aggregations (counts, group bys) and relationship eager-loading, must be centralized in dedicated service classes.
+- **Typed ViewModels (DTOs):** Services must return typed Data Transfer Objects (DTOs) rather than raw Prisma entity types. This prevents database-specific types from leaking into presentation layers and provides a stable API for UI components even if the underlying schema changes.
+- **Optimized Queries:** Services should use parallel fetching (`Promise.all`), explicit limits, and aggregate functions (`select`, `groupBy`, `count`) to avoid N+1 query problems and minimize latency.
