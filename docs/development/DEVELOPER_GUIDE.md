@@ -1,23 +1,27 @@
 # FIFACoOS - Developer Guide
 
 ## 1. Document Information
+
 - **Version:** 1.0
 - **Status:** Active
 - **Author:** Principal Software Engineer / Code Quality Lead
 - **Target Audience:** All developers, engineers, and AI coding assistants contributing to FIFACoOS.
 
 ## 2. Purpose
-This document serves as the authoritative operational handbook for the FIFACoOS project. It defines exactly *how* the project is developed. While architecture documents explain the *what* and *why*, this guide establishes the standard operating procedures, coding conventions, and quality expectations that every developer (human and AI) must follow throughout implementation. 
+
+This document serves as the authoritative operational handbook for the FIFACoOS project. It defines exactly _how_ the project is developed. While architecture documents explain the _what_ and _why_, this guide establishes the standard operating procedures, coding conventions, and quality expectations that every developer (human and AI) must follow throughout implementation.
 
 ## 3. Relationship to Architecture Documents
+
 This Developer Guide is subordinate to and governed by the frozen architecture documents (`ARCHITECTURE.md`, `SYSTEM_DESIGN.md`, `AI_ARCHITECTURE.md`, `TECHNOLOGY_DECISIONS.md`, etc.). It does not make architectural decisions; it enforces them. If a guideline here conflicts with the frozen architecture, the architecture document takes precedence.
 
 ## 4. Engineering Philosophy
+
 - **Architecture First:** The agreed-upon architecture is non-negotiable. Code must map cleanly to the established domain models and boundaries.
 - **Server-First Development:** Default to server-side execution. Next.js Server Components and Server Actions are the primary means of rendering and mutating data. Opt-in to client-side logic only when absolutely necessary for interactivity.
 - **Vertical Slice Development:** Build complete features end-to-end (Database -> Backend -> UI) rather than horizontal layers. This ensures features are immediately testable and usable.
 - **Feature-Based Development:** Organize code by business domain (e.g., "wayfinding", "incidents") rather than by technical type, maximizing cohesion and discoverability.
-- **Documentation as Code:** Living documentation must reside in the repository and evolve alongside the codebase. 
+- **Documentation as Code:** Living documentation must reside in the repository and evolve alongside the codebase.
 - **Accessibility by Design:** Accessibility is not an afterthought. Every UI component must be accessible (keyboard navigation, screen readers, contrast) from the first commit.
 - **Security by Default:** Zero-trust principles apply everywhere. Always validate inputs, enforce Row-Level Security, and handle secrets appropriately.
 - **AI as Decision Support:** AI is a tool to accelerate development, not a replacement for engineering rigor. All AI outputs must be validated, deterministic fallbacks provided, and business logic strictly separated from generative models.
@@ -26,6 +30,7 @@ This Developer Guide is subordinate to and governed by the frozen architecture d
 - **Small Incremental Changes:** Merge small, focused, atomic pull requests to reduce risk and simplify code review.
 
 ## 5. Developer Responsibilities
+
 - Adhere strictly to the coding standards and architectural boundaries.
 - Write tests for every feature.
 - Ensure accessibility and security requirements are met for every commit.
@@ -36,15 +41,16 @@ This Developer Guide is subordinate to and governed by the frozen architecture d
 ---
 
 ## 6. Repository Organization
-The repository follows a feature-based modular monolith structure. 
+
+The repository follows a feature-based modular monolith structure.
 
 - `src/` or Root: Next.js standard directories.
-- `app/`: Next.js App Router definitions. Contains pages, layouts, route handlers, and server-side entry points. *Ownership: Frontend / Routing.*
+- `app/`: Next.js App Router definitions. Contains pages, layouts, route handlers, and server-side entry points. _Ownership: Frontend / Routing._
 - `components/`: Reusable UI components.
   - `components/ui/`: Primitive, domain-agnostic components (shadcn/ui, buttons, inputs).
   - `components/shared/`: Complex components used across multiple domains.
-- `features/`: The core of the application. Organized by domain (e.g., `features/incidents`, `features/wayfinding`). Each feature contains its own domain-specific components, hooks, utilities, and services. *Ownership: Feature Teams/Domain.*
-- `lib/`: Application-wide utilities, configurations, and core setup (e.g., Prisma client, Supabase client, shared validation helpers). *Ownership: Core Engineering.*
+- `features/`: The core of the application. Organized by domain (e.g., `features/incidents`, `features/wayfinding`). Each feature contains its own domain-specific components, hooks, utilities, and services. _Ownership: Feature Teams/Domain._
+- `lib/`: Application-wide utilities, configurations, and core setup (e.g., Prisma client, Supabase client, shared validation helpers). _Ownership: Core Engineering._
 - `services/`: Shared business logic and external integrations that span multiple features.
 - `hooks/`: Global React hooks. (Feature-specific hooks go in `features/`).
 - `types/`: Global TypeScript definitions. (Feature-specific types go in `features/`).
@@ -54,6 +60,7 @@ The repository follows a feature-based modular monolith structure.
 - `scripts/`: Build, database seeding, and deployment scripts.
 
 ### Folder Organization Rules
+
 - **Shared code** belongs in `components/ui/`, `components/shared/`, or `lib/`.
 - **Business logic** belongs in `features/<domain>/services/` or `features/<domain>/actions/`. Keep it out of UI components.
 - **AI logic** belongs in dedicated services (e.g., `features/ai/`) and must be isolated from UI rendering.
@@ -65,6 +72,7 @@ The repository follows a feature-based modular monolith structure.
 ---
 
 ## 7. Naming Conventions
+
 Consistency is critical for maintainability.
 
 - **Files & Folders:** `kebab-case`. Examples: `user-profile.tsx`, `features/incident-management/`.
@@ -80,19 +88,20 @@ Consistency is critical for maintainability.
 ---
 
 ## 8. Import Conventions
+
 - **Absolute Imports:** Always use absolute imports configured via path aliases. Never use complex relative paths (`../../../`).
-- **Path Aliases:** Use `@/` for the `src` or root directory. 
+- **Path Aliases:** Use `@/` for the `src` or root directory.
   - `import { Button } from '@/components/ui/button'`
   - `import { createIncident } from '@/features/incidents/actions'`
-- **Import Ordering:** 
+- **Import Ordering:**
   1. Standard library / Framework imports (e.g., `react`, `next`)
   2. Third-party packages (e.g., `zod`, `lucide-react`)
   3. Absolute internal imports (`@/...`)
   4. Relative imports (only for co-located files like CSS or local components)
 - **Avoiding Circular Dependencies:** Keep the dependency graph unidirectional. Features can import from `lib` and `components`, but `lib` and `components` should not import from `features`.
-- **Barrel Exports (`index.ts`):** 
-  - *When to use:* To expose a clean public API for a module (e.g., exporting specific hooks and components from a `feature/`).
-  - *When not to use:* Do not create massive global barrel files that re-export everything; this breaks tree-shaking and causes circular dependency nightmares.
+- **Barrel Exports (`index.ts`):**
+  - _When to use:_ To expose a clean public API for a module (e.g., exporting specific hooks and components from a `feature/`).
+  - _When not to use:_ Do not create massive global barrel files that re-export everything; this breaks tree-shaking and causes circular dependency nightmares.
 
 ---
 
@@ -105,7 +114,7 @@ Consistency is critical for maintainability.
 - **Composition:** Build complex UIs by composing small, single-responsibility components rather than creating monolithic, prop-heavy components.
 - **Error Handling:** Use `try/catch` for async operations. Always provide meaningful error messages and log errors appropriately. Use Next.js Error Boundaries for UI fallbacks.
 - **Validation:** All inputs (API endpoints, Server Actions, forms) and LLM outputs MUST be validated using Zod schemas. Never trust client data or AI generation.
-- **Comments:** Code should be self-documenting through clear naming. Use comments to explain *why* something is done, not *what* is done (unless the logic is necessarily complex). Use JSDoc for public APIs and complex functions.
+- **Comments:** Code should be self-documenting through clear naming. Use comments to explain _why_ something is done, not _what_ is done (unless the logic is necessarily complex). Use JSDoc for public APIs and complex functions.
 - **Magic Numbers/Strings:** Extract literal numbers and strings with domain meaning into named constants.
 - **Configuration:** Keep environment-specific settings in `.env` files. Validate env variables at startup (e.g., using `t3-env`).
 
@@ -114,7 +123,7 @@ Consistency is critical for maintainability.
 ## 10. Next.js Guidelines
 
 - **Server Components (RSC):** The default. Use for data fetching, rendering static UI, and SEO. They reduce client bundle size and improve performance.
-- **Client Components:** Opt-in using `"use client"`. Use *only* when interactivity is required (e.g., `useState`, `useEffect`, event listeners, browser APIs).
+- **Client Components:** Opt-in using `"use client"`. Use _only_ when interactivity is required (e.g., `useState`, `useEffect`, event listeners, browser APIs).
 - **Server Actions:** Use for data mutations (POST, PUT, DELETE). They provide secure, RPC-like endpoints directly in the framework. Always validate inputs inside the action.
 - **Route Handlers (`api/...`):** Use for external API endpoints, webhooks, or when streaming non-UI data is required. Prefer Server Actions for internal mutations.
 - **Metadata:** Define metadata export in `layout.tsx` or `page.tsx` for SEO and social sharing.
@@ -129,13 +138,13 @@ Consistency is critical for maintainability.
 
 AI is a core feature, but it must be heavily constrained.
 
-- **Never trust LLM output:** LLMs hallucinate. 
+- **Never trust LLM output:** LLMs hallucinate.
 - **Always validate:** Every JSON output from an LLM must be parsed and validated through a Zod schema before being used by the application.
 - **Keep prompts deterministic:** Inject clear, factual context into prompts. Limit the LLM's freedom to invent facts.
 - **Separate prompts from business logic:** Prompts belong in dedicated AI services, not embedded inside UI components or core business functions.
 - **Log AI failures:** Track validation failures and prompt errors to improve the system over time.
 - **Always provide deterministic fallbacks:** If the AI fails, times out, or generates invalid data, the system must degrade gracefully with a predefined, deterministic response.
-- **AI Development Philosophy:** Use AI as a flexible natural language interface and summarization engine, layered *on top* of a rock-solid, traditional, deterministic application architecture.
+- **AI Development Philosophy:** Use AI as a flexible natural language interface and summarization engine, layered _on top_ of a rock-solid, traditional, deterministic application architecture.
 
 ---
 
@@ -144,8 +153,9 @@ AI is a core feature, but it must be heavily constrained.
 - **Prisma Usage:** Use Prisma as the primary ORM for type-safe database access. Maintain the `schema.prisma` as the single source of truth for the domain model.
 - **Transactions:** Use Prisma transactions `$transaction` when multiple writes must succeed or fail together to maintain data integrity.
 - **Migrations:** Never modify the database directly. Always use Prisma migrations (`prisma migrate dev`).
-- **RLS Awareness:** Prisma queries run with a service role context by default on the backend. When implementing user-facing queries, ensure you are either passing the user context to Supabase securely or explicitly applying authorization checks *before* querying Prisma, as Prisma does not enforce Supabase RLS policies directly. 
-- **Data Validation:** Validate data *before* it hits the database (using Zod in Server Actions) and rely on database constraints (foreign keys, unique indexes) as the final defense.
+- **RLS Awareness:** Prisma queries run with a service role context by default on the backend. When implementing user-facing queries, ensure you are either passing the user context to Supabase securely or explicitly applying authorization checks _before_ querying Prisma, as Prisma does not enforce Supabase RLS policies directly.
+- **RLS Policy Testing:** All RLS policies must be accompanied by tests in `src/__tests__/rls.test.ts` to verify authorization boundaries (e.g., verifying `anon` cannot read incidents, `volunteer` can only insert). Ensure these align with the `SECURITY.md` and `DATABASE_SCHEMA.md` documents.
+- **Data Validation:** Validate data _before_ it hits the database (using Zod in Server Actions) and rely on database constraints (foreign keys, unique indexes) as the final defense.
 - **Query Organization:** Encapsulate database queries in service files (e.g., `features/users/user.service.ts`). Do not write Prisma queries directly inside React components.
 - **Avoiding N+1:** Use Prisma's `include` carefully. For complex relational data, ensure you are fetching efficiently and not causing N+1 query problems in loops.
 
@@ -180,6 +190,7 @@ AI is a core feature, but it must be heavily constrained.
 ## 15. Testing Expectations
 
 For every feature, the following testing tiers are expected:
+
 - **Unit Tests:** Test pure functions, complex domain logic, utilities, and validation schemas in isolation.
 - **Integration Tests:** Test the interaction between Server Actions and the database, and complex UI component compositions.
 - **Accessibility Tests:** Automated checks (e.g., axe-core) integrated into the testing pipeline.
@@ -192,6 +203,7 @@ For every feature, the following testing tiers are expected:
 ## 16. Documentation Policy
 
 Documentation must be kept current. Update the appropriate documents when:
+
 - **README changes:** When setup instructions, environment variables, or core commands change.
 - **Architecture changes:** When fundamental system boundaries or data flows change (requires an Architecture Decision Record - ADR).
 - **Technology Decisions change:** When a new framework, library, or core technology is introduced or replaced.
@@ -219,7 +231,7 @@ This section defines the Standard Operating Procedure for developers collaborati
 - **Do Not Redesign Architecture:** AI assistants must not unilaterally change the architecture, data models, or technology stack. If a change seems necessary, the AI must flag it for human review and request an ADR.
 - **Maintain Naming Consistency:** Instruct the AI to follow the exact naming conventions defined in this guide.
 - **Request Incremental Changes:** Ask the AI to build features step-by-step (e.g., "Build the Zod schema first", "Now build the Server Action", "Now build the UI"). Avoid asking for a massive, multi-file feature in a single prompt.
-- **Require Explanations:** When the AI generates complex logic, require it to explain *why* it chose that approach.
+- **Require Explanations:** When the AI generates complex logic, require it to explain _why_ it chose that approach.
 - **Validate Generated Code:** The human developer is ultimately responsible for the code. Always review the AI's output for logical flaws, security vulnerabilities, and adherence to standards.
 - **Review Security Implications:** Explicitly verify that the AI has not introduced security flaws (e.g., SQL injection, bypassing RLS, exposing secrets).
 - **Review Accessibility:** Ensure the AI generated semantic HTML and appropriate ARIA attributes.
@@ -231,6 +243,7 @@ This section defines the Standard Operating Procedure for developers collaborati
 ## 19. Code Review Checklist
 
 Before approving a PR, reviewers must verify:
+
 - [ ] **Architecture Compliance:** Does this code align with the established boundaries and design patterns?
 - [ ] **Naming:** Do files, variables, and components follow conventions?
 - [ ] **Testing:** Are there adequate tests? Do they pass?
@@ -246,6 +259,7 @@ Before approving a PR, reviewers must verify:
 ## 20. Pull Request Checklist
 
 Authors must include and complete this checklist in their PR descriptions:
+
 ```markdown
 - [ ] I have read and followed the `DEVELOPER_GUIDE.md`.
 - [ ] I have added/updated tests for my changes.
@@ -260,6 +274,7 @@ Authors must include and complete this checklist in their PR descriptions:
 ## 21. Definition of Done (DoD)
 
 A feature is considered "Done" when:
+
 - **Code Complete:** The feature meets all acceptance criteria.
 - **Tests Passing:** Unit, integration, and E2E tests pass in the CI pipeline.
 - **Documentation Updated:** Relevant documentation (README, API docs) reflects the new state.
@@ -273,21 +288,23 @@ A feature is considered "Done" when:
 ## 22. Common Anti-Patterns
 
 Avoid these practices; they will be flagged during code review.
-- **Business Logic inside Components:** *Why:* Makes components hard to test and re-use. Extract logic to hooks or services.
-- **Large Files (>300 lines):** *Why:* Hard to read, navigate, and maintain. Violates SRP. Break them down.
-- **Copy-Paste Code:** *Why:* Creates maintenance nightmares. Extract into shared utilities or components.
-- **Hidden State:** *Why:* Makes data flow unpredictable. Elevate state or use clear state management patterns.
-- **Overusing `useEffect`:** *Why:* Often leads to race conditions and unnecessary re-renders. Prefer derived state or Server Components.
-- **Ignoring Validation:** *Why:* A massive security and stability risk. Always use Zod at boundaries.
-- **Ignoring Accessibility:** *Why:* Excludes users and violates project requirements. It's harder to retrofit later.
-- **Using `any`:** *Why:* Defeats the purpose of TypeScript and hides potential runtime crashes.
-- **Mixing Concerns:** *Why:* E.g., querying the database directly inside a UI component. Blurs architectural boundaries and hinders testing.
+
+- **Business Logic inside Components:** _Why:_ Makes components hard to test and re-use. Extract logic to hooks or services.
+- **Large Files (>300 lines):** _Why:_ Hard to read, navigate, and maintain. Violates SRP. Break them down.
+- **Copy-Paste Code:** _Why:_ Creates maintenance nightmares. Extract into shared utilities or components.
+- **Hidden State:** _Why:_ Makes data flow unpredictable. Elevate state or use clear state management patterns.
+- **Overusing `useEffect`:** _Why:_ Often leads to race conditions and unnecessary re-renders. Prefer derived state or Server Components.
+- **Ignoring Validation:** _Why:_ A massive security and stability risk. Always use Zod at boundaries.
+- **Ignoring Accessibility:** _Why:_ Excludes users and violates project requirements. It's harder to retrofit later.
+- **Using `any`:** _Why:_ Defeats the purpose of TypeScript and hides potential runtime crashes.
+- **Mixing Concerns:** _Why:_ E.g., querying the database directly inside a UI component. Blurs architectural boundaries and hinders testing.
 
 ---
 
 ## 23. Onboarding Checklist
 
 Welcome to the team! Follow these steps to get started:
+
 1. [ ] **Read the Architecture:** Review `ARCHITECTURE.md` and `SYSTEM_DESIGN.md` to understand the big picture.
 2. [ ] **Read the Implementation Plan:** Review `IMPLEMENTATION_PLAN.md` to understand current priorities.
 3. [ ] **Review this Guide:** Read this `DEVELOPER_GUIDE.md` thoroughly.
@@ -302,6 +319,7 @@ Welcome to the team! Follow these steps to get started:
 ## 24. Mermaid Diagrams
 
 ### Development Workflow
+
 ```mermaid
 graph TD
     A[Pick Task] --> B[Create Branch]
@@ -317,6 +335,7 @@ graph TD
 ```
 
 ### AI Code Generation Flow
+
 ```mermaid
 graph TD
     A[Developer Prompt] --> B{AI Context}
@@ -337,6 +356,7 @@ graph TD
 This section outlines the standard daily routine every developer follows to ensure consistency and momentum.
 
 ### Morning Routine
+
 - **Pull latest changes:** Ensure your local branch is up to date with `main`.
 - **Review `IMPLEMENTATION_PLAN.md`:** Understand the current phase and pending tasks.
 - **Review `PHASE_CHECKLISTS.md`:** (If applicable) Verify phase boundaries.
@@ -345,6 +365,7 @@ This section outlines the standard daily routine every developer follows to ensu
 - **Define today's objective:** Pick a single, achievable vertical slice.
 
 ### Development Cycle
+
 - **Select one small implementation task:** Avoid large, sprawling tasks.
 - **Gather AI context:** Open the relevant files so your AI assistant has context.
 - **Explain implementation before coding:** Write out or discuss the plan with the AI before generating code.
@@ -352,6 +373,7 @@ This section outlines the standard daily routine every developer follows to ensu
 - **Run validation continuously:** Keep the dev server running and type-checker active.
 
 ### Quality Checks
+
 - **Type checking:** Run `npm run typecheck` (or equivalent).
 - **Linting:** Run `npm run lint`.
 - **Unit tests:** Run tests relevant to your slice.
@@ -359,11 +381,13 @@ This section outlines the standard daily routine every developer follows to ensu
 - **Accessibility verification:** Check keyboard navigation and contrast.
 
 ### Documentation
+
 - **Update implementation notes:** Add any gotchas discovered to a local scratchpad or artifact.
 - **Update README if required:** Only if you added new env vars or scripts.
 - **Update CHANGELOG if applicable:** Note the feature completion.
 
 ### End of Day
+
 - **Self review:** Look at your own diff before committing.
 - **Final validation:** Ensure all tests pass.
 - **Commit:** Write a clear, semantic commit message.
@@ -390,6 +414,7 @@ The standard operating procedure for every AI-assisted implementation session.
 **Why this workflow exists:** AI is a powerful accelerator but is prone to hallucination, breaking architectural boundaries, and introducing subtle security flaws. This workflow ensures human oversight at every critical juncture.
 
 **Common AI mistakes:**
+
 - Bypassing Zod validation.
 - Generating Client Components when Server Components are better.
 - Embedding business logic directly into React components.
@@ -419,6 +444,7 @@ graph TD
 Use these templates to guide the AI assistant predictably.
 
 ### Feature Implementation Prompt
+
 ```text
 Context: I am implementing [Feature Name].
 Current Phase: Phase [X] from IMPLEMENTATION_PLAN.md.
@@ -431,6 +457,7 @@ Validation Requirements: Provide strict validation for all inputs.
 ```
 
 ### Bug Fix Prompt
+
 ```text
 Observed Behaviour: [Describe the bug clearly].
 Expected Behaviour: [Describe what should happen].
@@ -441,6 +468,7 @@ Deliverables: Fix the bug and provide a unit test if applicable.
 ```
 
 ### Refactoring Prompt
+
 ```text
 Task: Refactor the provided code.
 Constraints:
@@ -453,6 +481,7 @@ Focus on: [e.g., extracting magic strings, breaking down a large component].
 ```
 
 ### Review Prompt
+
 ```text
 Task: Review the provided code. Review only. No rewriting.
 Identify:
@@ -465,6 +494,7 @@ Identify:
 ```
 
 ### Documentation Prompt
+
 ```text
 Task: Update the documentation based on the following code changes.
 Ensure the tone matches the existing Developer Guide and is concise.
@@ -475,6 +505,7 @@ Ensure the tone matches the existing Developer Guide and is concise.
 ## 28. Development Session Checklists
 
 ### Beginning of Development Session
+
 - [ ] Current phase identified
 - [ ] Relevant documents reviewed
 - [ ] Acceptance criteria understood
@@ -484,6 +515,7 @@ Ensure the tone matches the existing Developer Guide and is concise.
 - [ ] Branch created
 
 ### End of Development Session
+
 - [ ] Tests passing
 - [ ] Typecheck passing (`npm run typecheck`)
 - [ ] Lint passing (`npm run lint`)
@@ -500,18 +532,19 @@ Ensure the tone matches the existing Developer Guide and is concise.
 These rules are strict boundaries designed to prevent systemic failures.
 
 **NEVER:**
-- **bypass Zod validation:** *Why:* Zod is the primary defense against malformed client data and AI hallucinations.
-- **bypass Supabase RLS:** *Why:* Row-Level Security is the ultimate authorization barrier; bypassing it exposes data globally.
-- **trust LLM output:** *Why:* LLMs are non-deterministic and can introduce subtle bugs or security flaws.
-- **hardcode secrets:** *Why:* Massive security risk. Always use environment variables.
-- **commit `.env`:** *Why:* Leaks secrets to the repository history.
-- **use `any` without justification:** *Why:* Defeats TypeScript's purpose and causes runtime errors.
-- **disable TypeScript:** *Why:* Removes our safety net.
-- **move business logic into UI:** *Why:* Makes code untestable and creates monolithic components.
-- **duplicate domain logic:** *Why:* Leads to inconsistent state when rules change.
-- **modify frozen architecture directly:** *Why:* Architecture changes require review and an ADR to ensure systemic stability.
-- **introduce new dependencies without justification:** *Why:* Bloats the application and increases the security attack surface.
-- **merge failing tests:** *Why:* Breaks the baseline of a healthy `main` branch.
+
+- **bypass Zod validation:** _Why:_ Zod is the primary defense against malformed client data and AI hallucinations.
+- **bypass Supabase RLS:** _Why:_ Row-Level Security is the ultimate authorization barrier; bypassing it exposes data globally.
+- **trust LLM output:** _Why:_ LLMs are non-deterministic and can introduce subtle bugs or security flaws.
+- **hardcode secrets:** _Why:_ Massive security risk. Always use environment variables.
+- **commit `.env`:** _Why:_ Leaks secrets to the repository history.
+- **use `any` without justification:** _Why:_ Defeats TypeScript's purpose and causes runtime errors.
+- **disable TypeScript:** _Why:_ Removes our safety net.
+- **move business logic into UI:** _Why:_ Makes code untestable and creates monolithic components.
+- **duplicate domain logic:** _Why:_ Leads to inconsistent state when rules change.
+- **modify frozen architecture directly:** _Why:_ Architecture changes require review and an ADR to ensure systemic stability.
+- **introduce new dependencies without justification:** _Why:_ Bloats the application and increases the security attack surface.
+- **merge failing tests:** _Why:_ Breaks the baseline of a healthy `main` branch.
 
 ---
 
@@ -524,19 +557,19 @@ graph TD
     A[Where should this code live?] --> B{Is it UI?}
     B -- Yes --> C[components/ or features/domain/components/]
     B -- No --> D{Is it business logic?}
-    
+
     D -- Yes --> E[features/domain/services/ or actions/]
     D -- No --> F{Is it a shared utility?}
-    
+
     F -- Yes --> G[lib/]
     F -- No --> H{Is it database logic?}
-    
+
     H -- Yes --> I[features/domain/services/ (Data Access Layer)]
     H -- No --> J{Is it AI Orchestration?}
-    
+
     J -- Yes --> K[features/ai/services/]
     J -- No --> L{Is it configuration?}
-    
+
     L -- Yes --> M[Root config files or lib/env.ts]
 ```
 
@@ -567,6 +600,7 @@ features/
 ## 32. AI Review Checklist
 
 Before accepting AI-generated code verify:
+
 - [ ] **Architecture preserved:** (Doesn't bypass boundaries or layers)
 - [ ] **Naming conventions followed:** (camelCase, PascalCase, etc.)
 - [ ] **Business logic deterministic:** (No LLMs used for core state)
@@ -589,7 +623,7 @@ Being a solo developer using AI requires strict discipline to avoid becoming ove
 - **Avoiding context switching:** Finish the current slice before moving to a new domain.
 - **Keeping documentation synchronized:** Update docs immediately; a solo dev easily forgets 'why' after a week.
 - **Reviewing AI output carefully:** Do not blindly copy-paste; you are the sole maintainer.
-- **Using ADRs correctly:** Document *why* you made a major technical shift so future you (or new team members) understand the context.
+- **Using ADRs correctly:** Document _why_ you made a major technical shift so future you (or new team members) understand the context.
 - **Maintaining implementation momentum:** Favor "done and working" over "perfectly abstracted."
 - **Avoiding perfectionism:** Stick to the MVP requirements.
 - **Balancing speed and quality:** Use AI for speed, but rely on strict TypeScript and Tests for quality assurance.
