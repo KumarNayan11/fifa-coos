@@ -37,16 +37,16 @@ describe("Auth Utilities", () => {
 
   describe("JWT Session Management", () => {
     it("should create and successfully verify a valid JWT session", async () => {
-      const token = await createSession(USER_ROLES.OPS);
+      const token = await createSession(USER_ROLES.OPS_MANAGER);
       expect(typeof token).toBe("string");
 
       const session = await verifySession(token);
       expect(session).not.toBeNull();
-      expect(session?.role).toBe(USER_ROLES.OPS);
+      expect(session?.role).toBe(USER_ROLES.OPS_MANAGER);
     });
 
     it("should reject a tampered JWT", async () => {
-      const token = await createSession(USER_ROLES.OPS);
+      const token = await createSession(USER_ROLES.OPS_MANAGER);
 
       // Tamper with the token (changing the signature part)
       const tamperedToken = token.slice(0, -5) + "abcde";
@@ -61,7 +61,7 @@ describe("Auth Utilities", () => {
       const secretKey = new TextEncoder().encode("test_super_secret_key_1234567890");
 
       const expiredToken = await new SignJWT({
-        role: USER_ROLES.OPS,
+        role: USER_ROLES.OPS_MANAGER,
         expires: pastDate.toISOString(),
       })
         .setProtectedHeader({ alg: "HS256" })

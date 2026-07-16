@@ -65,13 +65,14 @@ export const DEFAULT_LOCALE = "en" as const;
 // ---------------------------------------------------------------------------
 
 /**
- * User roles as defined in ARCHITECTURE.md Section 7.
+ * User roles as defined in DATABASE_SCHEMA.md.
  * These map to Supabase auth custom claims.
  */
 export const USER_ROLES = {
   FAN: "fan",
-  OPS: "ops",
   VOLUNTEER: "volunteer",
+  SECURITY: "security",
+  OPS_MANAGER: "ops_manager",
   ADMIN: "admin",
 } as const;
 

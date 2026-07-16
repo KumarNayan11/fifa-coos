@@ -60,7 +60,7 @@ describe("Middleware Route Protection", () => {
     const secretKey = new TextEncoder().encode(process.env.SESSION_SECRET);
     const expires = new Date(Date.now() + 1000000).toISOString();
 
-    const validToken = await new SignJWT({ role: USER_ROLES.OPS, expires })
+    const validToken = await new SignJWT({ role: USER_ROLES.OPS_MANAGER, expires })
       .setProtectedHeader({ alg: "HS256" })
       .sign(secretKey);
 

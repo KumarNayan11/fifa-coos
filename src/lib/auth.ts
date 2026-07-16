@@ -119,8 +119,8 @@ export async function requireRole(allowedRoles: UserRole[]) {
 
 /**
  * 8. requireOps
- * Convenience wrapper for Ops and Admin roles.
+ * Convenience wrapper for Ops Manager, Security, and Admin roles.
  */
 export async function requireOps() {
-  return requireRole(["ops", "admin"]);
+  return requireRole(["ops_manager", "security", "admin"]);
 }

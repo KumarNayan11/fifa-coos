@@ -1,13 +1,247 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
+}
+
+// ---------------------------------------------------------------------------
+// ENUMS
+// ---------------------------------------------------------------------------
+
+enum UserRole {
+  fan
+  volunteer
+  security
+  ops_manager
+  admin
+}
+
+enum IncidentStatus {
+  reported
+  verified
+  assigned
+  resolved
+  closed
+}
+
+enum Severity {
+  low
+  medium
+  high
+  critical
+}
+
+enum NavigationRequestStatus {
+  created
+  calculated
+  presented
+  completed
+  archived
+}
+
+enum RecommendationStatus {
+  generated
+  validated
+  presented
+  accepted
+  dismissed
+  expired
+}
+
+enum LanguageCode {
+  en
+  es
+  fr
+  hi
+}
+
+enum AccessibilityRequirement {
+  none
+  wheelchair
+  low_vision
+  deaf
+}
+
+// ---------------------------------------------------------------------------
+// MODELS
+// ---------------------------------------------------------------------------
+
+model User {
+  id                    String                     @id @default(uuid()) @db.Uuid
+  role                  UserRole                   @default(fan)
+  full_name             String?
+  preferred_language    LanguageCode               @default(en)
+  accessibility_profile AccessibilityRequirement[]
+  created_at            DateTime                   @default(now()) @db.Timestamptz
+  updated_at            DateTime                   @default(now()) @updatedAt @db.Timestamptz
+
+  sessions             Session[]
+  incident_assignments IncidentAssignment[]
+  recommendations      Recommendation[]
+
+  @@map("users")
+}
+
+model Session {
+  id                  String       @id @default(uuid()) @db.Uuid
+  user_id             String?      @db.Uuid
+  device_fingerprint  String?
+  active_language     LanguageCode @default(en)
+  last_known_location Json?
+  expires_at          DateTime     @db.Timestamptz
+  created_at          DateTime     @default(now()) @db.Timestamptz
+
+  user                User?               @relation(fields: [user_id], references: [id], onDelete: SetNull)
+  conversations       Conversation[]
+  reported_incidents  Incident[]
+  navigation_requests NavigationRequest[]
+
+  @@map("sessions")
+}
+
+model Zone {
+  id                  String  @id @default(uuid()) @db.Uuid
+  name                String
+  description         String?
+  capacity            Int
+  polygon_coordinates Json
+
+  pois                Poi[]
+  incidents           Incident[]
+  telemetry_snapshots TelemetrySnapshot[]
+  recommendations     Recommendation[]
+
+  @@map("zones")
+}
+
+model Poi {
+  id            String  @id @default(uuid()) @db.Uuid
+  zone_id       String  @db.Uuid
+  name          String
+  type          String
+  is_accessible Boolean @default(false)
+  coordinates   Json
+
+  zone Zone @relation(fields: [zone_id], references: [id], onDelete: Restrict)
+
+  incidents            Incident[]
+  telemetry_snapshots  TelemetrySnapshot[]
+  origin_requests      NavigationRequest[] @relation("OriginPoi")
+  destination_requests NavigationRequest[] @relation("DestinationPoi")
+
+  @@map("pois")
+}
+
+model Incident {
+  id                  String         @id @default(uuid()) @db.Uuid
+  title               String
+  description         String
+  status              IncidentStatus @default(reported)
+  severity            Severity
+  zone_id             String         @db.Uuid
+  poi_id              String?        @db.Uuid
+  reported_by_session String?        @db.Uuid
+  created_at          DateTime       @default(now()) @db.Timestamptz
+  updated_at          DateTime       @default(now()) @updatedAt @db.Timestamptz
+  closed_at           DateTime?      @db.Timestamptz
+
+  zone    Zone     @relation(fields: [zone_id], references: [id], onDelete: Restrict)
+  poi     Poi?     @relation(fields: [poi_id], references: [id], onDelete: SetNull)
+  session Session? @relation(fields: [reported_by_session], references: [id], onDelete: SetNull)
+
+  assignments     IncidentAssignment[]
+  recommendations Recommendation[]
+
+  @@index([status])
+  @@index([severity])
+  @@map("incidents")
+}
+
+model IncidentAssignment {
+  id          String    @id @default(uuid()) @db.Uuid
+  incident_id String    @db.Uuid
+  user_id     String    @db.Uuid
+  assigned_at DateTime  @default(now()) @db.Timestamptz
+  released_at DateTime? @db.Timestamptz
+
+  incident Incident @relation(fields: [incident_id], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@map("incident_assignments")
+}
+
+model TelemetrySnapshot {
+  id           String   @id @default(uuid()) @db.Uuid
+  zone_id      String   @db.Uuid
+  poi_id       String?  @db.Uuid
+  metric_type  String
+  metric_value Decimal
+  raw_payload  Json?
+  recorded_at  DateTime @default(now()) @db.Timestamptz
+
+  zone Zone @relation(fields: [zone_id], references: [id], onDelete: Restrict)
+  poi  Poi? @relation(fields: [poi_id], references: [id], onDelete: SetNull)
+
+  @@index([recorded_at])
+  @@map("telemetry_snapshots")
+}
+
+model Conversation {
+  id         String   @id @default(uuid()) @db.Uuid
+  session_id String   @db.Uuid
+  messages   Json
+  created_at DateTime @default(now()) @db.Timestamptz
+  updated_at DateTime @default(now()) @updatedAt @db.Timestamptz
+
+  session Session @relation(fields: [session_id], references: [id], onDelete: Cascade)
+
+  @@map("conversations")
+}
+
+model NavigationRequest {
+  id                     String                  @id @default(uuid()) @db.Uuid
+  session_id             String                  @db.Uuid
+  origin_poi_id          String?                 @db.Uuid
+  destination_poi_id     String?                 @db.Uuid
+  requires_accessibility Boolean                 @default(false)
+  status                 NavigationRequestStatus
+  created_at             DateTime                @default(now()) @db.Timestamptz
+
+  session         Session @relation(fields: [session_id], references: [id], onDelete: Cascade)
+  origin_poi      Poi?    @relation("OriginPoi", fields: [origin_poi_id], references: [id], onDelete: SetNull)
+  destination_poi Poi?    @relation("DestinationPoi", fields: [destination_poi_id], references: [id], onDelete: SetNull)
+
+  @@map("navigation_requests")
+}
+
+model Recommendation {
+  id                 String               @id @default(uuid()) @db.Uuid
+  incident_id        String?              @db.Uuid
+  zone_id            String?              @db.Uuid
+  suggested_action   String
+  reasoning_metadata Json
+  confidence_score   Int
+  status             RecommendationStatus @default(generated)
+  reviewed_by        String?              @db.Uuid
+  created_at         DateTime             @default(now()) @db.Timestamptz
+  updated_at         DateTime             @default(now()) @updatedAt @db.Timestamptz
+
+  incident Incident? @relation(fields: [incident_id], references: [id], onDelete: Cascade)
+  zone     Zone?     @relation(fields: [zone_id], references: [id], onDelete: Cascade)
+  reviewer User?     @relation(fields: [reviewed_by], references: [id], onDelete: SetNull)
+
+  @@map("recommendations")
+}
+
+model KnowledgeArticle {
+  id               String     @id @default(uuid()) @db.Uuid
+  title            String
+  content_markdown String
+  applicable_roles UserRole[]
+  created_at       DateTime   @default(now()) @db.Timestamptz
+  updated_at       DateTime   @default(now()) @updatedAt @db.Timestamptz
+
+  @@map("knowledge_articles")
 }

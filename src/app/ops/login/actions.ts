@@ -18,7 +18,7 @@ export async function loginAction(prevState: unknown, formData: FormData) {
     return { error: "Invalid username or password" };
   }
 
-  const token = await createSession(USER_ROLES.OPS);
+  const token = await createSession(USER_ROLES.OPS_MANAGER);
   await setCookie(token);
 
   // Successfully authenticated

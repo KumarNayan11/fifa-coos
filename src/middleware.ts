@@ -45,7 +45,7 @@ export async function middleware(request: NextRequest) {
     }
 
     const role = payload.role as string;
-    const allowedRoles = ["ops", "admin"];
+    const allowedRoles = ["ops_manager", "security", "admin"];
 
     if (!allowedRoles.includes(role)) {
       // Authenticated but unauthorized
