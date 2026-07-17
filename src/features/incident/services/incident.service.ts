@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { IncidentStatus, Severity, Incident } from "@prisma/client";
+import { IncidentStatus, Incident } from "@prisma/client";
 import {
   createIncidentSchema,
   updateIncidentSchema,

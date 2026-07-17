@@ -20,8 +20,15 @@ vi.mock("@/features/dashboard/services/dashboard.service", () => ({
   },
 }));
 
+vi.mock("@/features/telemetry/services/telemetry.service", () => ({
+  TelemetryService: {
+    getDashboardTelemetry: vi.fn().mockResolvedValue(null),
+  },
+}));
+
 vi.mock("next/navigation", () => ({
   redirect: vi.fn(),
+  useRouter: () => ({ refresh: vi.fn() }),
 }));
 
 vi.mock("@/components/ui/page-header", () => ({

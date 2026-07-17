@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { IncidentStatus, Severity } from "@prisma/client";
+import { Severity } from "@prisma/client";
 
 export const createIncidentSchema = z.object({
   title: z.string().min(3).max(100),
