@@ -1,6 +1,7 @@
 import { RecentIncidentDTO } from "../types";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import Link from "next/link";
 
 interface IncidentOverviewPanelProps {
   incidents: RecentIncidentDTO[];
@@ -47,6 +48,9 @@ export function IncidentOverviewPanel({ incidents }: IncidentOverviewPanelProps)
                 <th scope="col" className="px-4 py-3">
                   Assigned To
                 </th>
+                <th scope="col" className="px-4 py-3 text-right">
+                  Action
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -79,6 +83,14 @@ export function IncidentOverviewPanel({ incidents }: IncidentOverviewPanelProps)
                     ) : (
                       <span className="italic text-gray-400">Unassigned</span>
                     )}
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <Link
+                      href={`/ops/incidents/${incident.id}`}
+                      className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                    >
+                      Inspect
+                    </Link>
                   </td>
                 </tr>
               ))}

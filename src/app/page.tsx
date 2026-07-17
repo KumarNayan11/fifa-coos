@@ -20,6 +20,7 @@ import {
   ArrowRight,
   ExternalLink,
 } from "lucide-react";
+import Link from "next/link";
 
 import { Container } from "@/components/ui/container";
 import { Badge } from "@/components/ui/badge";
@@ -95,16 +96,24 @@ export default function HomePage() {
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {NAV_ITEMS.map((item) => {
               const Icon = ICON_MAP[item.icon as keyof typeof ICON_MAP];
-              return (
+
+              const CardContent = (
                 <Card
-                  key={item.label}
-                  className="group relative overflow-hidden transition-shadow hover:shadow-md"
+                  className={`group relative overflow-hidden transition-shadow ${
+                    item.available ? "hover:shadow-md hover:border-indigo-200" : "opacity-75"
+                  }`}
                 >
                   <CardHeader>
                     <div className="mb-3 flex items-center gap-3">
                       {Icon && (
-                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted">
-                          <Icon className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
+                        <div
+                          className={`flex h-10 w-10 items-center justify-center rounded-lg ${
+                            item.available
+                              ? "bg-indigo-50 text-indigo-600"
+                              : "bg-muted text-muted-foreground"
+                          }`}
+                        >
+                          <Icon className="h-5 w-5" aria-hidden="true" />
                         </div>
                       )}
                       <Badge variant="outline" className="text-[10px]">
@@ -115,12 +124,31 @@ export default function HomePage() {
                     <CardDescription>{item.description}</CardDescription>
                   </CardHeader>
                   <CardFooter>
-                    <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
-                      Coming Soon
-                      <ArrowRight className="h-3 w-3" aria-hidden="true" />
-                    </span>
+                    {item.available ? (
+                      <span className="inline-flex items-center gap-1 text-xs font-medium text-indigo-600">
+                        Open Module
+                        <ArrowRight className="h-3 w-3" aria-hidden="true" />
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+                        Coming Soon
+                        <ArrowRight className="h-3 w-3" aria-hidden="true" />
+                      </span>
+                    )}
                   </CardFooter>
                 </Card>
+              );
+
+              return (
+                <div key={item.label}>
+                  {item.available ? (
+                    <Link href={item.href} className="block">
+                      {CardContent}
+                    </Link>
+                  ) : (
+                    CardContent
+                  )}
+                </div>
               );
             })}
           </div>

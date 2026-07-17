@@ -36,29 +36,40 @@ export default function OpsLayout({ children }: { children: React.ReactNode }) {
               <span>Dashboard</span>
             </Link>
 
-            <div
-              className="flex items-center space-x-2 px-3 py-2 text-sm font-medium rounded-md text-gray-400 cursor-not-allowed"
-              title="Not yet implemented"
+            <Link
+              href="/ops"
+              className="flex items-center space-x-2 px-3 py-2 text-sm font-medium rounded-md text-gray-700 hover:bg-gray-50"
             >
               <AlertTriangle className="h-5 w-5" />
               <span>Incidents</span>
-            </div>
+            </Link>
 
-            <div
-              className="flex items-center space-x-2 px-3 py-2 text-sm font-medium rounded-md text-gray-400 cursor-not-allowed"
-              title="Not yet implemented"
+            <Link
+              href="/ops"
+              className="flex items-center space-x-2 px-3 py-2 text-sm font-medium rounded-md text-gray-700 hover:bg-gray-50"
             >
               <Activity className="h-5 w-5" />
               <span>Telemetry</span>
-            </div>
+            </Link>
 
-            <div
-              className="flex items-center space-x-2 px-3 py-2 text-sm font-medium rounded-md text-gray-400 cursor-not-allowed"
-              title="Not yet implemented"
+            <Link
+              href="/ops"
+              className="flex items-center space-x-2 px-3 py-2 text-sm font-medium rounded-md text-gray-700 hover:bg-gray-50"
+              title="Coming Soon"
             >
               <Users className="h-5 w-5" />
-              <span>Volunteers</span>
-            </div>
+              <span>AI Copilot</span>
+            </Link>
+
+            <hr className="my-2 border-gray-200" />
+
+            <Link
+              href="/"
+              className="flex items-center space-x-2 px-3 py-2 text-sm font-medium rounded-md text-gray-700 hover:bg-gray-50"
+            >
+              <LayoutDashboard className="h-5 w-5" />
+              <span>Back to Home</span>
+            </Link>
           </nav>
         </aside>
 

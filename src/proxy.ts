@@ -8,7 +8,7 @@ import { jwtVerify } from "jose";
 // We can try importing from auth.ts but verifySession uses process.env
 const SESSION_COOKIE_NAME = "fifa_coos_session";
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // We only protect /ops routes for now

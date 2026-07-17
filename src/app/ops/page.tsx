@@ -13,6 +13,8 @@ import { OperationsCopilotPanel } from "@/features/dashboard/components/Operatio
 import { AutoRefresh } from "@/components/shared/AutoRefresh";
 import { AlertCircle, AlertTriangle, CheckCircle, Clock, ShieldAlert } from "lucide-react";
 
+import { ReportIncidentButton } from "@/features/incident/components/ReportIncidentButton";
+
 export default async function OpsDashboardPage() {
   // 1. Authentication & Authorization Failure
   // requireOps() will redirect to /ops/login or /unauthorized if invalid
@@ -71,6 +73,7 @@ export default async function OpsDashboardPage() {
         <PageHeader
           title="Operations Dashboard"
           description="Command Center real-time operational overview."
+          actions={<ReportIncidentButton />}
         />
         <div className="mt-8 p-12 text-center text-gray-500 bg-gray-50 border border-dashed border-gray-300 rounded-lg">
           <ShieldAlert className="h-10 w-10 mx-auto mb-4 text-gray-400" />
@@ -91,6 +94,7 @@ export default async function OpsDashboardPage() {
       <PageHeader
         title="Operations Dashboard"
         description="Command Center real-time operational overview."
+        actions={<ReportIncidentButton />}
       />
 
       <div className="mt-8 space-y-12">

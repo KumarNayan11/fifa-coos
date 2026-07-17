@@ -53,7 +53,7 @@ export const NAV_ITEMS = [
     href: ROUTES.ops.root,
     phase: 3,
     icon: "LayoutDashboard" as const,
-    available: false,
+    available: true,
   },
   {
     label: "Volunteer Assistant",

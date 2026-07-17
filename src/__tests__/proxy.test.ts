@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi } from "vitest";
 import { NextRequest } from "next/server";
-import { middleware } from "../middleware";
+import { proxy } from "../proxy";
 import { SignJWT } from "jose";
 import { USER_ROLES } from "../config/constants";
 
@@ -22,7 +22,7 @@ vi.mock("next/server", () => {
   };
 });
 
-describe("Middleware Route Protection", () => {
+describe("Proxy Route Protection", () => {
   const setupRequest = (pathname: string, tokenValue?: string) => {
     return {
       nextUrl: {
@@ -37,20 +37,20 @@ describe("Middleware Route Protection", () => {
 
   it("should ignore non-ops routes", async () => {
     const req = setupRequest("/fan");
-    const res = await middleware(req);
+    const res = await proxy(req);
     expect((res as any).type).toBe("next");
   });
 
   it("should redirect unauthenticated users away from /ops to /ops/login", async () => {
     const req = setupRequest("/ops/dashboard");
-    const res = await middleware(req);
+    const res = await proxy(req);
     expect((res as any).type).toBe("redirect");
     expect((res as any).url).toContain("/ops/login");
   });
 
   it("should allow unauthenticated users to access /ops/login", async () => {
     const req = setupRequest("/ops/login");
-    const res = await middleware(req);
+    const res = await proxy(req);
     expect((res as any).type).toBe("next");
   });
 
@@ -65,7 +65,7 @@ describe("Middleware Route Protection", () => {
       .sign(secretKey);
 
     const req = setupRequest("/ops/login", validToken);
-    const res = await middleware(req);
+    const res = await proxy(req);
 
     expect((res as any).type).toBe("redirect");
     expect((res as any).url).toContain("/ops");
@@ -82,7 +82,7 @@ describe("Middleware Route Protection", () => {
       .sign(secretKey);
 
     const req = setupRequest("/ops/dashboard", validToken);
-    const res = await middleware(req);
+    const res = await proxy(req);
 
     expect((res as any).type).toBe("redirect");
     expect((res as any).url).toContain("/unauthorized");
@@ -90,7 +90,7 @@ describe("Middleware Route Protection", () => {
 
   it("should clear cookie and redirect to login if JWT is tampered/expired on protected route", async () => {
     const req = setupRequest("/ops/dashboard", "invalid-token-value");
-    const res = await middleware(req);
+    const res = await proxy(req);
 
     expect((res as any).type).toBe("redirect");
     expect((res as any).url).toContain("/ops/login");
