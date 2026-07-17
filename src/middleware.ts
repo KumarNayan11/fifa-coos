@@ -59,7 +59,7 @@ export async function middleware(request: NextRequest) {
     }
 
     return NextResponse.next();
-  } catch (error) {
+  } catch {
     // Invalid token, clear it and redirect to login
     const response = NextResponse.redirect(
       isLoginPage ? request.url : new URL("/ops/login", request.url),

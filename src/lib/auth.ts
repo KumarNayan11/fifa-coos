@@ -71,7 +71,7 @@ export async function verifySession(token: string): Promise<SessionPayload | nul
     }
 
     return payload as unknown as SessionPayload;
-  } catch (error) {
+  } catch {
     return null; // Token tampered, expired, or invalid
   }
 }

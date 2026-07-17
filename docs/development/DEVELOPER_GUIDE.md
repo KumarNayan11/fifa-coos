@@ -146,6 +146,13 @@ AI is a core feature, but it must be heavily constrained.
 - **Always provide deterministic fallbacks:** If the AI fails, times out, or generates invalid data, the system must degrade gracefully with a predefined, deterministic response.
 - **AI Development Philosophy:** Use AI as a flexible natural language interface and summarization engine, layered _on top_ of a rock-solid, traditional, deterministic application architecture.
 
+### 11.1 Operations AI Specific Guidelines
+
+- **Service Boundaries:** Operations AI logic (e.g., `OperationsAiService`) must remain strictly isolated from UI rendering and database queries. It consumes data already fetched by other services (incidents, telemetry) rather than querying the database directly.
+- **Structured Output Contract:** All Operations AI outputs must strictly conform to predefined Zod schemas (e.g., `opsCopilotResponseSchema`). The dashboard must never parse free-form text for critical data. Use ENUMs over free-text fields where practical (e.g., `PriorityLevel`, `OperationalStatus`).
+- **Recommendation-Only Policy:** The Operations Copilot provides advisory decision support. AI must NEVER execute actions, change database state automatically, or imply to the user that it has taken autonomous actions. All prompts must explicitly instruct the model to frame output as advisory.
+- **Prohibition on Autonomous Actions:** Under no circumstances should AI outputs bypass human review for operational interventions (like dispatching staff or locking zones).
+
 ---
 
 ## 12. Database Guidelines (Prisma & Supabase)

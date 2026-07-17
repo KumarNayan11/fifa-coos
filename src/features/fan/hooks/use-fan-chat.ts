@@ -11,7 +11,7 @@
 import { useState, useCallback } from "react";
 
 import { generateId } from "@/lib/helpers";
-import type { ChatMessage, FanCopilotResponse } from "../types/fan.types";
+import type { ChatMessage } from "../types/fan.types";
 import { chat } from "@/app/fan/actions";
 
 export interface UseFanChatReturn {

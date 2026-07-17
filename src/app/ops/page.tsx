@@ -5,9 +5,11 @@ import { Container } from "@/components/ui/container";
 import { requireOps } from "@/lib/auth";
 import { DashboardService } from "@/features/dashboard/services/dashboard.service";
 import { TelemetryService } from "@/features/telemetry/services/telemetry.service";
+import { OperationsAiService } from "@/features/ai/services/operations-ai.service";
 import { MetricCard } from "@/features/dashboard/components/MetricCard";
 import { IncidentOverviewPanel } from "@/features/dashboard/components/IncidentOverviewPanel";
 import { TelemetryOverviewPanel } from "@/features/dashboard/components/TelemetryOverviewPanel";
+import { OperationsCopilotPanel } from "@/features/dashboard/components/OperationsCopilotPanel";
 import { AutoRefresh } from "@/components/shared/AutoRefresh";
 import { AlertCircle, AlertTriangle, CheckCircle, Clock, ShieldAlert } from "lucide-react";
 
@@ -19,17 +21,24 @@ export default async function OpsDashboardPage() {
   let metrics;
   let recentIncidents;
   let telemetry;
+  let decisionSupport;
 
   try {
-    // 2. Fetch Data in Parallel
-    [metrics, recentIncidents, telemetry] = await Promise.all([
+    const incidentsPromise = DashboardService.getRecentIncidents(10);
+    const telemetryPromise = TelemetryService.getDashboardTelemetry().catch((e) => {
+      // Distinguish telemetry simulation failure/provider unavailable from DB crash
+      console.error("Telemetry fetching failed but continuing with dashboard load", e);
+      return null; // Telemetry is non-critical for basic rendering
+    });
+
+    // 2. Fetch Data in Parallel (Chaining AI to reuse incidents/telemetry)
+    [metrics, recentIncidents, telemetry, decisionSupport] = await Promise.all([
       DashboardService.getDashboardMetrics(),
-      DashboardService.getRecentIncidents(10),
-      TelemetryService.getDashboardTelemetry().catch((e) => {
-        // Distinguish telemetry simulation failure/provider unavailable from DB crash
-        console.error("Telemetry fetching failed but continuing with dashboard load", e);
-        return null; // Telemetry is non-critical for basic rendering
-      }),
+      incidentsPromise,
+      telemetryPromise,
+      Promise.all([incidentsPromise, telemetryPromise]).then(([incidents, telem]) =>
+        OperationsAiService.getDecisionSupport(incidents, telem),
+      ),
     ]);
   } catch {
     // 3. Database / Infrastructure Failure (for critical incidents/metrics)
@@ -125,16 +134,27 @@ export default async function OpsDashboardPage() {
 
         <hr className="border-gray-200" />
 
-        {/* Telemetry Section */}
-        <section className="space-y-6">
-          {telemetry ? (
-            <TelemetryOverviewPanel telemetry={telemetry} />
-          ) : (
-            <div className="p-8 text-center text-gray-500 bg-gray-50 border border-dashed border-gray-300 rounded-lg">
-              <p>Telemetry data is currently unavailable.</p>
-            </div>
-          )}
-        </section>
+        <div className="grid gap-6 md:grid-cols-2">
+          {/* Telemetry Section */}
+          <section className="space-y-6">
+            <h2 className="text-xl font-bold tracking-tight">Telemetry</h2>
+            {telemetry ? (
+              <TelemetryOverviewPanel telemetry={telemetry} />
+            ) : (
+              <div className="p-8 text-center text-gray-500 bg-gray-50 border border-dashed border-gray-300 rounded-lg">
+                <p>Telemetry data is currently unavailable.</p>
+              </div>
+            )}
+          </section>
+
+          {/* AI Copilot Section */}
+          <section className="space-y-6">
+            <h2 className="text-xl font-bold tracking-tight text-indigo-700">
+              AI Decision Support
+            </h2>
+            <OperationsCopilotPanel decisionSupport={decisionSupport} />
+          </section>
+        </div>
       </div>
     </Container>
   );

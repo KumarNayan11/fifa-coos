@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { PrismaTelemetryProvider } from "../providers/prisma-telemetry.provider";
 import { TelemetryService } from "../services/telemetry.service";
@@ -68,7 +69,6 @@ describe("Telemetry Engine", () => {
       ]);
       vi.mocked(prisma.poi.findMany).mockResolvedValueOnce([]);
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       vi.mocked(prisma.telemetrySnapshot.findMany).mockResolvedValueOnce([] as any);
       vi.mocked(prisma.telemetrySnapshot.createMany).mockResolvedValueOnce({ count: 2 });
 
@@ -81,7 +81,7 @@ describe("Telemetry Engine", () => {
       const provider = new PrismaTelemetryProvider();
 
       // recent snapshot
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
       vi.mocked(prisma.telemetrySnapshot.findFirst).mockResolvedValue({
         recorded_at: new Date(),
       } as any);
@@ -98,7 +98,6 @@ describe("Telemetry Engine", () => {
     it("should correctly map DTOs from Prisma models", async () => {
       const provider = new PrismaTelemetryProvider();
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       vi.mocked(prisma.telemetrySnapshot.findFirst).mockResolvedValue({
         recorded_at: new Date(),
       } as any);
@@ -120,7 +119,6 @@ describe("Telemetry Engine", () => {
       // Mock snapshots for mapping
 
       vi.mocked(prisma.telemetrySnapshot.findMany).mockResolvedValueOnce([
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         {
           id: "1",
           zone_id: "z1",
@@ -130,7 +128,7 @@ describe("Telemetry Engine", () => {
           recorded_at: new Date(),
           raw_payload: null,
         },
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
         {
           id: "2",
           zone_id: "z1",
