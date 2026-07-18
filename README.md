@@ -13,8 +13,8 @@ FIFACoOS leverages Generative AI to provide intelligent decision support for fan
 | **0:** Repository Init       | ✅ Completed   |
 | **1:** Platform Foundation   | ✅ Completed   |
 | **2:** Fan Copilot           | ✅ Completed   |
-| **3:** Ops Command Center    | ⏳ Not Started |
-| Phase 4: Volunteer Assistant | ⬜ Not Started |
+| **3:** Ops Command Center    | ✅ Completed   |
+| Phase 4: Volunteer Assistant | ⏳ Not Started |
 | Phase 5: Polish              | ⬜ Not Started |
 | Phase 6: Hardening           | ⬜ Not Started |
 | Phase 7: PromptWars Submit   | ⬜ Not Started |
@@ -22,8 +22,8 @@ FIFACoOS leverages Generative AI to provide intelligent decision support for fan
 ## Architecture
 
 - **Architecture Version:** 1.0 (Frozen)
-- **Current Phase:** Phase 1 — Platform Foundation
-- **Application Version:** 0.2.0
+- **Current Phase:** Phase 4 — Volunteer Assistant
+- **Application Version:** 0.3.0
 
 ## Technology Stack
 
@@ -59,6 +59,13 @@ cd fifa-coos
 
 # Install dependencies
 pnpm install
+
+# Setup Database & Seed Auth Users
+# This creates Supabase accounts and maps them to Prisma:
+# - ops@example.com / password123
+# - security@example.com / password123
+# - volunteer@example.com / password123
+pnpm db:seed
 
 # Start the development server
 pnpm dev

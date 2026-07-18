@@ -15,11 +15,9 @@ test.describe("Operations Incident E2E Flow", () => {
     // 3. /ops redirects to login when unauthenticated
     await page.waitForURL("**/ops/login");
 
-    // 4. Login succeeds with demo credentials
-    await page.locator('input[name="username"]').fill(process.env.OPS_USERNAME || "ops_admin");
-    await page
-      .locator('input[name="password"]')
-      .fill(process.env.OPS_PASSWORD || "secure_password_123");
+    // 4. Login with seeded Supabase credentials
+    await page.fill('input[name="email"]', "ops@example.com");
+    await page.fill('input[name="password"]', "password123");
     await page.getByRole("button", { name: /Sign in/i }).click();
 
     // 5. Dashboard renders
@@ -27,33 +25,36 @@ test.describe("Operations Incident E2E Flow", () => {
     await expect(page.getByText("Command Center Ops")).toBeVisible();
 
     // 6. Create Incident
-    await page.getByRole("button", { name: /Report Incident/i }).click();
+    const incidentTitle = `E2E Playwright Incident ${Date.now()}`;
+    await page.getByRole("button", { name: "Report Incident" }).click();
 
-    // Fill out the form
-    await page.locator('input[name="title"]').fill("E2E Playwright Incident");
-    await page
-      .locator('textarea[name="description"]')
-      .fill("Testing the incident flow via automated Playwright test");
-    await page.locator('select[name="severity"]').selectOption("high");
+    // Wait for the modal to be visible
+    const modal = page.locator("form#create-incident-form");
+    await modal.waitFor({ state: "visible" });
 
+    await page.fill('input[name="title"]', incidentTitle);
+    await page.fill(
+      'textarea[name="description"]',
+      "This is an automated test incident for end-to-end verification.",
+    );
+    await page.locator('select[name="severity"]').selectOption("medium");
+
+    // Select a zone from the dropdown
     const zoneSelect = page.locator('select[name="zone_id"]');
     await zoneSelect.waitFor({ state: "visible" });
-
     // Wait for the zones to be populated via the Server Action
     await expect(zoneSelect.locator("option")).not.toHaveCount(1, { timeout: 10000 });
-
-    // Now pick the second option (index 1)
     await zoneSelect.selectOption({ index: 1 });
 
-    await page.getByRole("button", { name: /Submit Incident/i }).click();
+    await page.getByRole("button", { name: "Submit Incident" }).click();
 
     // 7. Verify dashboard metrics update
     // The incident should appear in the table on the dashboard
-    await expect(page.getByText("E2E Playwright Incident")).toBeVisible({ timeout: 15000 });
+    await expect(page.getByText(incidentTitle)).toBeVisible({ timeout: 15000 });
 
     // 8. Open Incident Details
-    const row = page.locator("tr").filter({ hasText: "E2E Playwright Incident" });
-    await row.getByRole("link", { name: /Inspect/i }).click();
+    const row = page.locator("tr").filter({ hasText: incidentTitle }).first();
+    await row.getByRole("link", { name: "Inspect" }).click();
     await page.waitForURL("**/ops/incidents/**");
 
     // 9. Verify AI confidence, reasoning, and recommendation are visible

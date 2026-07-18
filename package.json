@@ -15,7 +15,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
-    "db:seed": "prisma db execute --file prisma/seed.sql",
+    "db:seed": "tsx --env-file=.env prisma/seed.ts",
     "prepare": "husky"
   },
   "lint-staged": {
@@ -32,12 +32,12 @@
     "@base-ui/react": "^1.6.0",
     "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "^7.8.0",
+    "@supabase/ssr": "^0.12.3",
     "@supabase/supabase-js": "^2.110.2",
     "@t3-oss/env-nextjs": "^0.13.11",
     "ai": "^7.0.22",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "jose": "^6.2.3",
     "lucide-react": "^1.24.0",
     "mapbox-gl": "^3.26.0",
     "next": "16.2.10",

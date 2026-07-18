@@ -1,25 +1,27 @@
 "use server";
 
-import { verifyCredentials, createSession, setCookie } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { USER_ROLES } from "@/config/constants";
+import { createClient } from "@/lib/supabase/server";
 
 export async function loginAction(prevState: unknown, formData: FormData) {
-  const username = formData.get("username") as string;
+  const email = formData.get("email") as string;
   const password = formData.get("password") as string;
 
-  if (!username || !password) {
-    return { error: "Username and password are required" };
+  if (!email || !password) {
+    return { error: "Email and password are required" };
   }
 
-  const isValid = verifyCredentials(username, password);
+  const supabase = await createClient();
 
-  if (!isValid) {
-    return { error: "Invalid username or password" };
+  const { error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
+
+  if (error) {
+    // Sanitized error - we don't return `error.message` directly to the client.
+    return { error: "Invalid email or password" };
   }
-
-  const token = await createSession(USER_ROLES.OPS_MANAGER);
-  await setCookie(token);
 
   // Successfully authenticated
   redirect("/ops");
