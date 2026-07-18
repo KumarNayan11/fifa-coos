@@ -1,14 +1,25 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { verifyCredentials, createSession, verifySession } from "../auth";
-import { SignJWT } from "jose";
+import { requireRole, requireVolunteer } from "../auth";
 import { USER_ROLES } from "../../config/constants";
+import { redirect } from "next/navigation";
+import { createClient } from "../supabase/server";
+import { prisma } from "../prisma";
 
-// Mock env for testing
-vi.mock("../../config/env", () => ({
-  env: {
-    OPS_USERNAME: "test_admin",
-    OPS_PASSWORD: "test_password",
-    SESSION_SECRET: "test_super_secret_key_1234567890",
+vi.mock("next/navigation", () => ({
+  redirect: vi.fn(() => {
+    throw new Error("Redirected");
+  }),
+}));
+
+vi.mock("../supabase/server", () => ({
+  createClient: vi.fn(),
+}));
+
+vi.mock("../prisma", () => ({
+  prisma: {
+    user: {
+      findUnique: vi.fn(),
+    },
   },
 }));
 
@@ -17,60 +28,69 @@ describe("Auth Utilities", () => {
     vi.clearAllMocks();
   });
 
-  describe("verifyCredentials", () => {
-    it("should return true for valid credentials", () => {
-      expect(verifyCredentials("test_admin", "test_password")).toBe(true);
+  describe("requireRole", () => {
+    it("should redirect to /ops/login if no session exists", async () => {
+      vi.mocked(createClient).mockResolvedValue({
+        auth: { getUser: vi.fn().mockResolvedValue({ data: { user: null }, error: new Error() }) },
+      } as never);
+
+      await expect(requireRole([USER_ROLES.OPS_MANAGER])).rejects.toThrow("Redirected");
+      expect(redirect).toHaveBeenCalledWith("/ops/login");
     });
 
-    it("should return false for invalid password", () => {
-      expect(verifyCredentials("test_admin", "wrong")).toBe(false);
+    it("should redirect to /unauthorized if role does not match", async () => {
+      vi.mocked(createClient).mockResolvedValue({
+        auth: {
+          getUser: vi
+            .fn()
+            .mockResolvedValue({
+              data: { user: { id: "1", email: "test@test.com" } },
+              error: null,
+            }),
+        },
+      } as never);
+      vi.mocked(prisma.user.findUnique).mockResolvedValue({ role: USER_ROLES.FAN } as never);
+
+      await expect(requireRole([USER_ROLES.OPS_MANAGER])).rejects.toThrow("Redirected");
+      expect(redirect).toHaveBeenCalledWith("/unauthorized");
     });
 
-    it("should return false for invalid username", () => {
-      expect(verifyCredentials("wrong", "test_password")).toBe(false);
-    });
+    it("should return session if role matches", async () => {
+      vi.mocked(createClient).mockResolvedValue({
+        auth: {
+          getUser: vi
+            .fn()
+            .mockResolvedValue({
+              data: { user: { id: "1", email: "test@test.com" } },
+              error: null,
+            }),
+        },
+      } as never);
+      vi.mocked(prisma.user.findUnique).mockResolvedValue({
+        role: USER_ROLES.OPS_MANAGER,
+      } as never);
 
-    it("should return false for missing credentials", () => {
-      expect(verifyCredentials(undefined, undefined)).toBe(false);
+      const session = await requireRole([USER_ROLES.OPS_MANAGER]);
+      expect(session).toEqual({ id: "1", email: "test@test.com", role: USER_ROLES.OPS_MANAGER });
     });
   });
 
-  describe("JWT Session Management", () => {
-    it("should create and successfully verify a valid JWT session", async () => {
-      const token = await createSession(USER_ROLES.OPS_MANAGER);
-      expect(typeof token).toBe("string");
+  describe("requireVolunteer", () => {
+    it("should allow volunteer role", async () => {
+      vi.mocked(createClient).mockResolvedValue({
+        auth: {
+          getUser: vi
+            .fn()
+            .mockResolvedValue({
+              data: { user: { id: "1", email: "test@test.com" } },
+              error: null,
+            }),
+        },
+      } as never);
+      vi.mocked(prisma.user.findUnique).mockResolvedValue({ role: USER_ROLES.VOLUNTEER } as never);
 
-      const session = await verifySession(token);
-      expect(session).not.toBeNull();
-      expect(session?.role).toBe(USER_ROLES.OPS_MANAGER);
-    });
-
-    it("should reject a tampered JWT", async () => {
-      const token = await createSession(USER_ROLES.OPS_MANAGER);
-
-      // Tamper with the token (changing the signature part)
-      const tamperedToken = token.slice(0, -5) + "abcde";
-
-      const session = await verifySession(tamperedToken);
-      expect(session).toBeNull();
-    });
-
-    it("should reject an expired JWT", async () => {
-      // Create a token that is already expired
-      const pastDate = new Date(Date.now() - 24 * 60 * 60 * 1000); // 24 hours ago
-      const secretKey = new TextEncoder().encode("test_super_secret_key_1234567890");
-
-      const expiredToken = await new SignJWT({
-        role: USER_ROLES.OPS_MANAGER,
-        expires: pastDate.toISOString(),
-      })
-        .setProtectedHeader({ alg: "HS256" })
-        .setIssuedAt(Math.floor(pastDate.getTime() / 1000))
-        .setExpirationTime(Math.floor(pastDate.getTime() / 1000))
-        .sign(secretKey);
-
-      const session = await verifySession(expiredToken);
-      expect(session).toBeNull();
+      const session = await requireVolunteer();
+      expect(session.role).toBe(USER_ROLES.VOLUNTEER);
     });
   });
 });

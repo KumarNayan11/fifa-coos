@@ -69,6 +69,14 @@ export async function requireOps() {
 }
 
 /**
+ * 3.5. requireVolunteer
+ * Convenience wrapper for Volunteer and Admin roles.
+ */
+export async function requireVolunteer() {
+  return requireRole(["volunteer", "admin"]);
+}
+
+/**
  * 4. destroySession
  * Signs out of Supabase.
  */

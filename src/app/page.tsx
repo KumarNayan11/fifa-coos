@@ -26,7 +26,7 @@ import { Container } from "@/components/ui/container";
 import { Badge } from "@/components/ui/badge";
 import { Divider } from "@/components/ui/divider";
 import { Card, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { APP_CONFIG, TECH_STACK, IMPLEMENTATION_PHASES, NAV_ITEMS } from "@/config";
+import { APP_CONFIG, TECH_STACK, IMPLEMENTATION_PHASES, NAV_ITEMS, ROUTES } from "@/config";
 import { getStatusEmoji } from "@/lib/helpers";
 
 // ---------------------------------------------------------------------------
@@ -43,7 +43,12 @@ const ICON_MAP = {
 // Page
 // ---------------------------------------------------------------------------
 
-export default function HomePage() {
+import { getSession } from "@/lib/auth";
+
+export default async function HomePage() {
+  const session = await getSession();
+  const isVolunteerOrAdmin = session?.role === "volunteer" || session?.role === "admin";
+
   return (
     <main className="flex min-h-screen flex-col">
       {/* ----------------------------------------------------------------- */}
@@ -96,11 +101,15 @@ export default function HomePage() {
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {NAV_ITEMS.map((item) => {
               const Icon = ICON_MAP[item.icon as keyof typeof ICON_MAP];
+              const isVolunteerItem = item.href === ROUTES.volunteer.root;
+              // If it's the volunteer item, only make it available if the user has the right role.
+              // Otherwise fallback to its config status.
+              const isAvailable = isVolunteerItem ? isVolunteerOrAdmin : item.available;
 
               const CardContent = (
                 <Card
                   className={`group relative overflow-hidden transition-shadow ${
-                    item.available ? "hover:shadow-md hover:border-indigo-200" : "opacity-75"
+                    isAvailable ? "hover:shadow-md hover:border-indigo-200" : "opacity-75"
                   }`}
                 >
                   <CardHeader>
@@ -108,7 +117,7 @@ export default function HomePage() {
                       {Icon && (
                         <div
                           className={`flex h-10 w-10 items-center justify-center rounded-lg ${
-                            item.available
+                            isAvailable
                               ? "bg-indigo-50 text-indigo-600"
                               : "bg-muted text-muted-foreground"
                           }`}
@@ -124,7 +133,7 @@ export default function HomePage() {
                     <CardDescription>{item.description}</CardDescription>
                   </CardHeader>
                   <CardFooter>
-                    {item.available ? (
+                    {isAvailable ? (
                       <span className="inline-flex items-center gap-1 text-xs font-medium text-indigo-600">
                         Open Module
                         <ArrowRight className="h-3 w-3" aria-hidden="true" />
@@ -141,7 +150,7 @@ export default function HomePage() {
 
               return (
                 <div key={item.label}>
-                  {item.available ? (
+                  {isAvailable ? (
                     <Link href={item.href} className="block">
                       {CardContent}
                     </Link>

@@ -35,8 +35,8 @@ export async function updateSession(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const isLoginPage = pathname === "/ops/login";
 
-  // Protect /ops routes
-  if (pathname.startsWith("/ops")) {
+  // Protect /ops and /volunteer routes
+  if (pathname.startsWith("/ops") || pathname.startsWith("/volunteer")) {
     if (!user && !isLoginPage) {
       // no user, potentially respond by redirecting the user to the login page
       const url = request.nextUrl.clone();

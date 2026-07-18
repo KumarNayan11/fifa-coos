@@ -25,7 +25,7 @@ describe("Operations AI Services", () => {
       const telemetry: any = {
         globalCrowdDensity: 45,
         gateThroughput: 12,
-        zones: [{ zoneId: "z1", crowdDensity: 40, incidentProbability: 5 }],
+        zones: [{ zoneId: "z1", zoneName: "Zone 1", crowdDensity: 40, incidentProbability: 5 }],
       };
 
       const prompt = composeOpsPrompt(incidents, telemetry);
@@ -35,7 +35,7 @@ describe("Operations AI Services", () => {
       expect(prompt).toContain("NEVER state that an action has already been taken");
       expect(prompt).toContain("Test Incident");
       expect(prompt).toContain("Global Crowd Density: 45%");
-      expect(prompt).toContain("Zone z1");
+      expect(prompt).toContain("Zone 1 (ID: z1)");
     });
 
     it("should gracefully handle empty incidents and null telemetry", () => {

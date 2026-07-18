@@ -236,11 +236,22 @@ model Recommendation {
   @@map("recommendations")
 }
 
+enum Audience {
+  volunteer
+  operations
+  public
+}
+
 model KnowledgeArticle {
   id               String     @id @default(uuid()) @db.Uuid
   title            String
+  slug             String     @unique
+  category         String
+  audience         Audience[]
   content_markdown String
-  applicable_roles UserRole[]
+  keywords         String[]
+  version          String     @default("1.0")
+  is_published     Boolean    @default(true)
   created_at       DateTime   @default(now()) @db.Timestamptz
   updated_at       DateTime   @default(now()) @updatedAt @db.Timestamptz
 

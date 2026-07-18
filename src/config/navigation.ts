@@ -61,6 +61,6 @@ export const NAV_ITEMS = [
     href: ROUTES.volunteer.root,
     phase: 4,
     icon: "HeartHandshake" as const,
-    available: false,
+    available: true,
   },
 ] as const;
