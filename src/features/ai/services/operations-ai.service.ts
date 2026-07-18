@@ -4,8 +4,9 @@ import { RecentIncidentDTO } from "@/features/dashboard/types";
 import { TelemetryDashboardDto } from "@/features/telemetry/types";
 import { opsCopilotResponseSchema, OpsCopilotResponse } from "../types/ops-ai.types";
 import { composeOpsPrompt } from "./ops-prompt-composer";
+import { GEMINI_MODEL } from "@/lib/ai/config";
 
-const MODEL_ID = "gemini-2.5-flash";
+// Using centralized GEMINI_MODEL from @/lib/ai/config
 
 export class OperationsAiService {
   /**
@@ -31,7 +32,7 @@ export class OperationsAiService {
       const systemPrompt = composeOpsPrompt(incidents, telemetry);
 
       const result = await generateObject({
-        model: google(MODEL_ID),
+        model: google(GEMINI_MODEL),
         schema: opsCopilotResponseSchema,
         system: systemPrompt,
         messages: [

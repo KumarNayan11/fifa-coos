@@ -38,7 +38,7 @@ IMPORTANT: Recommendations are advisory only. You are a decision-support tool.
     const zoneText = telemetry.zones
       .map(
         (z) =>
-          `- Zone ${z.zoneId}: Crowd Density ${z.crowdDensity}%, Incident Probability ${z.incidentProbability}%`,
+          `- ${z.zoneName} (ID: ${z.zoneId}): Crowd Density ${z.crowdDensity}%, Incident Probability ${z.incidentProbability}%`,
       )
       .join("\n");
     sections.push(`## Zone Statistics\n${zoneText}`);
@@ -54,7 +54,7 @@ You must respond with a structured JSON object matching the provided schema.
 - "recommendedActions": Provide actionable advice based on the data.
 - "reasoning": Explain why you recommend these actions.
 - "confidenceScore": 0-100. Lower if data is conflicting or missing.
-- "affectedZones": List relevant Zone IDs.`);
+- "affectedZones": List relevant Zone names (e.g., North Concourse, VIP Lounge).`);
 
   return sections.join("\n\n");
 }

@@ -108,6 +108,11 @@ src/
 
 Copy `.env.example` to `.env` and configure the required variables. See the `.env` file for documentation on each variable.
 
+**AI Configuration:**
+
+- `GOOGLE_GENERATIVE_AI_API_KEY`: Your Google Gemini API Key (required).
+- `GEMINI_MODEL`: (Optional) The specific Gemini model ID to use across all copilots (defaults to `gemini-flash-latest`).
+
 ### Documentation
 
 - [Architecture](docs/architecture/ARCHITECTURE.md)

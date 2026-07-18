@@ -15,6 +15,7 @@
 
 import { generateObject } from "ai";
 import { google } from "@ai-sdk/google";
+import { GEMINI_MODEL } from "@/lib/ai/config";
 
 import { fanCopilotResponseSchema } from "../types/ai.schemas";
 import { searchKnowledge } from "./search.service";
@@ -25,7 +26,7 @@ import type { POI, KnowledgeArticle } from "../types/fan.types";
 // Model Configuration
 // ---------------------------------------------------------------------------
 
-const MODEL_ID = "gemini-2.5-flash";
+// Using centralized GEMINI_MODEL from @/lib/ai/config
 
 // ---------------------------------------------------------------------------
 // System Prompt Composer (AI_ARCHITECTURE.md §11)
@@ -143,7 +144,7 @@ export async function processFanQuery(messages: AIMessage[]) {
 
   // Step 3: Invoke LLM with generateObject + Zod schema validation
   return generateObject({
-    model: google(MODEL_ID),
+    model: google(GEMINI_MODEL),
     schema: fanCopilotResponseSchema,
     system: systemPrompt,
     messages: messages.map((m) => ({

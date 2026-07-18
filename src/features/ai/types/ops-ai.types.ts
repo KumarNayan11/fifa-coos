@@ -16,7 +16,9 @@ export const opsCopilotResponseSchema = z.object({
     .min(0)
     .max(100)
     .describe("Confidence score of the AI's assessment (0-100)"),
-  affectedZones: z.array(z.string()).describe("List of zone IDs affected by the current situation"),
+  affectedZones: z
+    .array(z.string())
+    .describe("List of zone names affected by the current situation"),
 });
 
 export type OpsCopilotResponse = z.infer<typeof opsCopilotResponseSchema>;
