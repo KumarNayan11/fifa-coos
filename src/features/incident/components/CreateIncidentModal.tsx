@@ -128,16 +128,15 @@ export function CreateIncidentModal({ isOpen, onClose }: CreateIncidentModalProp
                 ))}
               </select>
             </div>
+            <div className="pt-4 mt-6 border-t flex justify-end gap-3">
+              <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? "Submitting..." : "Submit Incident"}
+              </Button>
+            </div>
           </form>
-        </div>
-
-        <div className="px-6 py-4 border-t bg-gray-50 flex justify-end gap-3">
-          <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
-            Cancel
-          </Button>
-          <Button type="submit" form="create-incident-form" disabled={isSubmitting}>
-            {isSubmitting ? "Submitting..." : "Report Incident"}
-          </Button>
         </div>
       </div>
     </div>

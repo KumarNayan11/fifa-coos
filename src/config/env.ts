@@ -67,4 +67,7 @@ export const env = {
   get SESSION_SECRET() {
     return getEnvVar("SESSION_SECRET");
   },
+  get DATABASE_URL() {
+    return getEnvVar("DATABASE_URL");
+  },
 };

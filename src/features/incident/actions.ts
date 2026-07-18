@@ -9,6 +9,7 @@ export async function createIncident(data: unknown) {
     const incident = await IncidentService.createIncident(data);
     return { success: true, data: incident };
   } catch (error: unknown) {
+    console.error("createIncident failed:", error);
     return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
   }
 }

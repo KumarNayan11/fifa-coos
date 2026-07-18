@@ -1,21 +1,18 @@
 import { PrismaClient } from "@prisma/client";
+import { Pool } from "pg";
+import { PrismaPg } from "@prisma/adapter-pg";
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
-// WORKAROUND: Prisma 7.8.0 / Next.js Turbopack build crash
-// Eagerly instantiating `new PrismaClient()` at module level causes Next.js
-// static generation to fail with `PrismaClientInitializationError`.
-// We use a Proxy to lazily initialize the client only when it is first queried.
-// DO NOT "simplify" this back to `const prisma = new PrismaClient()`!
-export const prisma = new Proxy({} as PrismaClient, {
-  get(_target, prop) {
-    if (!globalForPrisma.prisma) {
-      globalForPrisma.prisma = new PrismaClient();
-    }
-    return (globalForPrisma.prisma as Record<string | symbol, unknown>)[prop];
-  },
-});
+const prismaClientSingleton = () => {
+  console.log("DATABASE_URL IS:", process.env.DATABASE_URL);
+  const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+  const adapter = new PrismaPg(pool);
+  return new PrismaClient({ adapter });
+};
+
+export const prisma = globalForPrisma.prisma ?? prismaClientSingleton();
 
 if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;

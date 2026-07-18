@@ -9,12 +9,13 @@ import { OperationsAiService } from "@/features/ai/services/operations-ai.servic
 import { IncidentActionsPanel } from "@/features/incident/components/IncidentActionsPanel";
 import { Brain } from "lucide-react";
 
-export default async function IncidentDetailsPage({ params }: { params: { id: string } }) {
+export default async function IncidentDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   await requireOps();
+  const unwrappedParams = await params;
 
   let incident;
   try {
-    incident = await IncidentService.getIncident(params.id);
+    incident = await IncidentService.getIncident(unwrappedParams.id);
   } catch {
     notFound();
   }
