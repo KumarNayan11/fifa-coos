@@ -22,8 +22,15 @@ FIFACoOS leverages Generative AI to provide intelligent decision support for fan
 ## Architecture
 
 - **Architecture Version:** 1.0 (Frozen)
-- **Current Phase:** Phase 4 — Volunteer Assistant
+- **Current Phase:** Phase 6 — Hardening
 - **Application Version:** 0.3.0
+
+### Security Philosophy
+
+- **AI is advisory only**: AI cannot execute operational commands.
+- **Input Sanitization**: AI input is sanitized before prompt construction to prevent prompt injection and remove PII.
+- **Strict Boundaries**: Unauthorized requests fail before business logic.
+- **Graceful Failures**: Internal errors are never exposed to clients (e.g., stack traces, SQL errors).
 
 ## Technology Stack
 

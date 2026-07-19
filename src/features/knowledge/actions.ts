@@ -4,6 +4,7 @@ import { getSession } from "@/lib/auth";
 import { KnowledgeService } from "./services/knowledge.service";
 import { KnowledgeSearchInput, knowledgeSearchInputSchema, KnowledgeSearchResult } from "./types";
 import { Audience } from "@prisma/client";
+import { sanitizeError } from "@/lib/errors";
 
 const mapRoleToAudiences = (role?: string): Audience[] => {
   if (role === "admin" || role === "ops_manager" || role === "security") {
@@ -30,8 +31,7 @@ export async function searchKnowledgeAction(
     const results = await KnowledgeService.search(validatedInput);
     return { success: true, data: results };
   } catch (error) {
-    console.error("Search Knowledge Error:", error);
-    return { success: false, error: "Failed to search knowledge base" };
+    return { success: false, error: sanitizeError(error, "Failed to search knowledge base") };
   }
 }
 
@@ -45,7 +45,6 @@ export async function getKnowledgeArticleAction(
     const article = await KnowledgeService.getBySlug(slug, audiences);
     return { success: true, data: article };
   } catch (error) {
-    console.error("Get Knowledge Article Error:", error);
-    return { success: false, error: "Failed to retrieve knowledge article" };
+    return { success: false, error: sanitizeError(error, "Failed to retrieve knowledge article") };
   }
 }

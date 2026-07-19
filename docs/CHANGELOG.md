@@ -47,6 +47,12 @@ Any contributor (human or AI) submitting a pull request is responsible for updat
 
 #### Added
 
+- **Phase 6: Security Hardening**
+- Centralized `sanitizeError()` utility to mask internal database/stack traces from clients.
+- `detectPromptInjection()` guardrail added to all AI services to heuristically reject malicious prompt inputs.
+- `removePII()` deterministic guardrail to redact emails, phone numbers, and credit cards from prompts.
+- `requireRole(["ops_manager", "security", "admin", "volunteer"])` enforced accurately on `createIncident` per Domain Model.
+- Security regression tests covering prompt injection, PII removal, and error sanitization.
 - **Phase 2: Fan Copilot**
 - Domain-driven structure (`src/features/fan/`) for Chat UI, Knowledge Services, and AI Pipeline
 - Deterministic static knowledge base (FAQs, POIs, Stadium data) without RAG/Embeddings

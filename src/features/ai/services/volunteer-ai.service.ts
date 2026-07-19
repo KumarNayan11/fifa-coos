@@ -8,6 +8,7 @@ import {
 import { composeVolunteerPrompt } from "./volunteer-prompt-composer";
 import { GEMINI_MODEL } from "@/lib/ai/config";
 import type { Locale } from "@/i18n/routing";
+import { detectPromptInjection, removePII } from "@/lib/ai/security";
 
 export class VolunteerAiService {
   /**
@@ -27,6 +28,14 @@ export class VolunteerAiService {
         } as VolunteerCopilotResponse;
       }
 
+      // Guardrail 1: Prompt Injection Detection
+      if (detectPromptInjection(question)) {
+        return null; // Forces fallback in the Server Action
+      }
+
+      // Guardrail 2: PII Removal
+      const safeQuestion = removePII(question);
+
       const systemPrompt = composeVolunteerPrompt(context, locale);
 
       const result = await generateObject({
@@ -36,7 +45,7 @@ export class VolunteerAiService {
         messages: [
           {
             role: "user",
-            content: question,
+            content: safeQuestion,
           },
         ],
       });

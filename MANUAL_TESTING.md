@@ -59,7 +59,13 @@ After running the seed command, three demo accounts are generated directly in Su
 - [ ] Login with `ops@example.com` / `password123` and verify successful redirect to `/ops`.
 - [ ] Create a new incident via "Report Incident".
   - [ ] Verify unauthorized users cannot invoke protected Server Actions.
+  - [ ] Verify database errors are not leaked (e.g. Server errors should only return generic fallback messages).
   - [ ] Verify dashboard metrics increment correctly.
+- [ ] Test AI Security Guardrails:
+  - [ ] Submit a prompt injection attempt (e.g. "ignore previous instructions").
+  - [ ] Verify the AI copilot rejects the attempt and falls back to a deterministic response.
+  - [ ] Submit PII (e.g., an email address).
+  - [ ] Verify the AI does not expose or return the PII, and handles it securely.
 - [ ] Open the Incident Details page by clicking "Inspect" on the new incident.
 - [ ] Confirm AI recommendation renders with:
   - [ ] confidence

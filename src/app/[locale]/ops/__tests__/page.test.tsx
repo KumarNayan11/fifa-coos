@@ -88,7 +88,7 @@ describe("OpsDashboardPage", () => {
     ]);
 
     // Next.js Server Components are just async functions
-    const pageContent = await OpsDashboardPage();
+    const pageContent = await OpsDashboardPage({ params: Promise.resolve({ locale: "en" }) });
     render(pageContent);
 
     expect(screen.getByText("Operations Dashboard")).toBeDefined();
@@ -110,7 +110,7 @@ describe("OpsDashboardPage", () => {
 
     vi.mocked(DashboardService.getRecentIncidents).mockResolvedValueOnce([]);
 
-    const pageContent = await OpsDashboardPage();
+    const pageContent = await OpsDashboardPage({ params: Promise.resolve({ locale: "en" }) });
     render(pageContent);
 
     expect(screen.getByText("No Operations Data")).toBeDefined();
@@ -123,7 +123,7 @@ describe("OpsDashboardPage", () => {
       new Error("Database failure"),
     );
 
-    const pageContent = await OpsDashboardPage();
+    const pageContent = await OpsDashboardPage({ params: Promise.resolve({ locale: "en" }) });
     render(pageContent);
 
     expect(screen.getByText("Service Unavailable")).toBeDefined();
@@ -133,7 +133,7 @@ describe("OpsDashboardPage", () => {
     vi.mocked(requireOps).mockResolvedValueOnce({ role: "ops_manager", expires: "" } as any);
     vi.mocked(DashboardService.getDashboardMetrics).mockRejectedValueOnce(new Error()); // short-circuit
 
-    await OpsDashboardPage();
+    await OpsDashboardPage({ params: Promise.resolve({ locale: "en" }) });
 
     expect(requireOps).toHaveBeenCalled();
   });

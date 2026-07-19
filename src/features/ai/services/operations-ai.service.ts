@@ -6,9 +6,7 @@ import { opsCopilotResponseSchema, OpsCopilotResponse } from "../types/ops-ai.ty
 import { composeOpsPrompt } from "./ops-prompt-composer";
 import { GEMINI_MODEL } from "@/lib/ai/config";
 import type { Locale } from "@/i18n/routing";
-
-// Using centralized GEMINI_MODEL from @/lib/ai/config
-
+import { detectPromptInjection, removePII } from "@/lib/ai/security";
 export class OperationsAiService {
   /**
    * Generates AI decision support based on current incidents and telemetry.
@@ -31,7 +29,19 @@ export class OperationsAiService {
         } as OpsCopilotResponse;
       }
 
-      const systemPrompt = composeOpsPrompt(incidents, telemetry, locale);
+      // Guardrail: Check incident titles for prompt injection
+      const isInjection = incidents.some((inc) => detectPromptInjection(inc.title));
+      if (isInjection) {
+        return null; // Forces fallback in dashboard
+      }
+
+      // Guardrail: Remove PII from incident titles
+      const sanitizedIncidents = incidents.map((inc) => ({
+        ...inc,
+        title: removePII(inc.title),
+      }));
+
+      const systemPrompt = composeOpsPrompt(sanitizedIncidents, telemetry, locale);
 
       const result = await generateObject({
         model: google(GEMINI_MODEL),

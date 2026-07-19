@@ -23,6 +23,7 @@ import { STADIUM } from "../data/stadium";
 import type { POI, KnowledgeArticle } from "../types/fan.types";
 import type { Locale } from "@/i18n/routing";
 import { getLanguageInstruction } from "@/lib/ai/prompts";
+import { detectPromptInjection, removePII } from "@/lib/ai/security";
 
 // ---------------------------------------------------------------------------
 // Model Configuration
@@ -144,10 +145,27 @@ export interface AIMessage {
  */
 export async function processFanQuery(messages: AIMessage[], locale: Locale) {
   // Extract the latest user message for knowledge search
-  const latestMessage = messages.filter((m) => m.role === "user").at(-1)?.content ?? "";
+  const rawLatestMessage = messages.filter((m) => m.role === "user").at(-1)?.content ?? "";
+
+  // Guardrail 1: Prompt Injection Detection
+  if (detectPromptInjection(rawLatestMessage)) {
+    // Return a forced fallback via low confidence
+    return {
+      object: {
+        intent: "general_inquiry",
+        response: "I cannot fulfill this request.",
+        suggestedPOIs: [],
+        confidence: 0, // Forces fallback
+      },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any;
+  }
+
+  // Guardrail 2: PII Removal
+  const safeLatestMessage = removePII(rawLatestMessage);
 
   // Step 1: Deterministic knowledge retrieval
-  const { faqs, pois } = searchKnowledge(latestMessage);
+  const { faqs, pois } = searchKnowledge(safeLatestMessage);
 
   // Step 2: Compose the modular system prompt
   const systemPrompt = composeSystemPrompt(faqs, pois, locale);
@@ -159,7 +177,7 @@ export async function processFanQuery(messages: AIMessage[], locale: Locale) {
     system: systemPrompt,
     messages: messages.map((m) => ({
       role: m.role,
-      content: m.content,
+      content: m.role === "user" ? removePII(m.content) : m.content,
     })),
   });
 }

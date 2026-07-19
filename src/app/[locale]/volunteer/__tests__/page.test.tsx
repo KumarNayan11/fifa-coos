@@ -23,6 +23,14 @@ vi.mock("@/components/ui/card", () => ({
   CardFooter: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }));
 
+vi.mock("@/features/knowledge/components/knowledge-search-panel", () => ({
+  KnowledgeSearchPanel: () => <div>Knowledge Search</div>,
+}));
+
+vi.mock("@/features/ai/components/volunteer-copilot-panel", () => ({
+  VolunteerCopilotPanel: () => <div>Volunteer Copilot</div>,
+}));
+
 describe("VolunteerDashboardPage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
