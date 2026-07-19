@@ -14,21 +14,12 @@ vi.mock("@/components/ui/container", () => ({
   Container: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }));
 
-vi.mock("@/components/ui/card", () => ({
-  Card: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-  CardHeader: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-  CardTitle: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-  CardDescription: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-  CardContent: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-  CardFooter: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-}));
-
 vi.mock("@/features/knowledge/components/knowledge-search-panel", () => ({
   KnowledgeSearchPanel: () => <div>Knowledge Search</div>,
 }));
 
-vi.mock("@/features/ai/components/volunteer-copilot-panel", () => ({
-  VolunteerCopilotPanel: () => <div>Volunteer Copilot</div>,
+vi.mock("@/features/ai/components/volunteer-workspace", () => ({
+  VolunteerCopilotWorkspace: () => <div>Volunteer Copilot Workspace</div>,
 }));
 
 describe("VolunteerDashboardPage", () => {
@@ -47,11 +38,8 @@ describe("VolunteerDashboardPage", () => {
     const pageContent = await VolunteerDashboardPage();
     render(pageContent);
 
-    expect(screen.getByText("Welcome, volunteer@example.com")).toBeDefined();
-    expect(screen.getByText("Quick Actions")).toBeDefined();
     expect(screen.getByText("Knowledge Search")).toBeDefined();
-    expect(screen.getByText("Volunteer Copilot")).toBeDefined();
-    expect(screen.getByText("Recent Updates")).toBeDefined();
+    expect(screen.getByText("Volunteer Copilot Workspace")).toBeDefined();
   });
 
   it("should call requireVolunteer to enforce authorization", async () => {

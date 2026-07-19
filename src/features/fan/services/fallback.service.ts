@@ -15,7 +15,6 @@
 import type { FanCopilotResponse } from "../types/fan.types";
 import { searchFAQs } from "./faq.service";
 import { searchPOIs } from "./poi.service";
-import { STADIUM } from "../data/stadium";
 
 /** Confidence threshold — below this, AI response is discarded */
 export const CONFIDENCE_THRESHOLD = 50;

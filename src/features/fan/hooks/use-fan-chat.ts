@@ -21,6 +21,7 @@ export interface UseFanChatReturn {
   isStreaming: boolean;
   streamingText: string;
   sendMessage: (content: string) => Promise<void>;
+  clearConversation: () => void;
 }
 
 export function useFanChat(): UseFanChatReturn {
@@ -80,13 +81,20 @@ export function useFanChat(): UseFanChatReturn {
         setStreamingText("");
       }
     },
-    [messages],
+    [messages, locale, t],
   );
+
+  const clearConversation = useCallback(() => {
+    setMessages([]);
+    setIsStreaming(false);
+    setStreamingText("");
+  }, []);
 
   return {
     messages,
     isStreaming,
     streamingText,
     sendMessage,
+    clearConversation,
   };
 }

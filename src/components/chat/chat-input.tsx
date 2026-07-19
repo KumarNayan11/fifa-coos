@@ -10,7 +10,7 @@
  */
 
 import { useState, useRef, useCallback } from "react";
-import { Send } from "lucide-react";
+import { Send, Loader2 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -74,8 +74,8 @@ export function ChatInput({
   }, []);
 
   return (
-    <div className="border-t bg-background p-3 sm:p-4">
-      <div className="flex items-end gap-2">
+    <div className="bg-white px-4 py-4 pb-6 sm:pb-8 border-t shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.02)] relative z-20">
+      <div className="mx-auto max-w-3xl relative flex items-end gap-2 bg-gray-50/50 rounded-2xl border border-gray-200 p-2 focus-within:ring-2 focus-within:ring-primary focus-within:border-transparent transition-all shadow-inner">
         <textarea
           ref={textareaRef}
           value={value}
@@ -87,9 +87,9 @@ export function ChatInput({
           maxLength={MAX_MESSAGE_LENGTH}
           aria-label="Message input"
           className={cn(
-            "flex-1 resize-none rounded-xl border bg-muted/50 px-4 py-3 text-sm",
-            "placeholder:text-muted-foreground",
-            "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1",
+            "flex-1 resize-none bg-transparent px-3 py-2 text-sm text-gray-900",
+            "placeholder:text-gray-400",
+            "focus:outline-none",
             "disabled:cursor-not-allowed disabled:opacity-50",
           )}
         />
@@ -98,14 +98,18 @@ export function ChatInput({
           disabled={disabled || !value.trim()}
           size="icon"
           aria-label="Send message"
-          className="shrink-0 rounded-xl"
+          className="shrink-0 rounded-xl h-10 w-10 bg-primary text-primary-foreground hover:bg-primary/90 transition-all shadow-sm"
         >
-          <Send className="h-4 w-4" aria-hidden="true" />
+          {disabled ? (
+            <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+          ) : (
+            <Send className="h-4 w-4" aria-hidden="true" />
+          )}
         </Button>
       </div>
       {value.length > MAX_MESSAGE_LENGTH * 0.8 && (
-        <p className="mt-1 text-right text-[10px] text-muted-foreground">
-          {value.length}/{MAX_MESSAGE_LENGTH}
+        <p className="mt-2 text-center text-[10px] text-gray-400 font-medium">
+          {value.length} / {MAX_MESSAGE_LENGTH} characters
         </p>
       )}
     </div>
