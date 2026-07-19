@@ -1,0 +1,21 @@
+{
+  "common": {
+    "dashboard": "Dashboard",
+    "incidents": "Incidents",
+    "volunteerAssistant": "Volunteer Assistant",
+    "fanCopilot": "Fan Copilot",
+    "operations": "Operations",
+    "search": "Search",
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "language": "Language",
+    "english": "English",
+    "hindi": "Hindi",
+    "logout": "Logout"
+  },
+  "accessibility": {
+    "skipToContent": "Skip to content"
+  }
+}

@@ -29,7 +29,7 @@ export async function askVolunteerCopilotAction(
     ]);
 
     // Authorization logic to map user roles to audiences
-    const allowedAudiences: string[] = ["public"];
+    const allowedAudiences: ("operations" | "volunteer" | "public" | "security")[] = ["public"];
     if (session.role === USER_ROLES.VOLUNTEER) {
       allowedAudiences.push("volunteer");
     } else if (session.role === USER_ROLES.OPS_MANAGER || session.role === USER_ROLES.SECURITY) {

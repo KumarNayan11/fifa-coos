@@ -1,0 +1,21 @@
+{
+  "common": {
+    "dashboard": "डैशबोर्ड",
+    "incidents": "घटनाएं",
+    "volunteerAssistant": "स्वयंसेवक सहायक",
+    "fanCopilot": "प्रशंसक सह-पायलट",
+    "operations": "संचालन",
+    "search": "खोजें",
+    "submit": "जमा करें",
+    "cancel": "रद्द करें",
+    "loading": "लोड हो रहा है...",
+    "error": "एक त्रुटि हुई",
+    "language": "भाषा",
+    "english": "अंग्रेज़ी",
+    "hindi": "हिन्दी",
+    "logout": "लॉग आउट"
+  },
+  "accessibility": {
+    "skipToContent": "मुख्य सामग्री पर जाएँ"
+  }
+}

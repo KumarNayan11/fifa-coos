@@ -10,9 +10,14 @@
 
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { NextIntlClientProvider } from "next-intl";
+import { getMessages } from "next-intl/server";
 
 import { APP_CONFIG } from "@/config/app";
 import { Providers } from "./providers";
+import { LanguageSwitcher } from "@/components/shared/LanguageSwitcher";
+import { SkipNav } from "@/components/shared/SkipNav";
+import { LiveRegion } from "@/components/shared/LiveRegion";
 import "./globals.css";
 
 // ---------------------------------------------------------------------------
@@ -66,19 +71,34 @@ export const viewport: Viewport = {
 // Layout
 // ---------------------------------------------------------------------------
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
+  params,
 }: Readonly<{
   children: React.ReactNode;
+  params: Promise<{ locale: string }>;
 }>) {
+  const { locale } = await params;
+  const messages = await getMessages();
+
   return (
     <html
-      lang={APP_CONFIG.metadata.locale}
+      lang={locale}
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
-        <Providers>{children}</Providers>
+        <NextIntlClientProvider messages={messages}>
+          <Providers>
+            <SkipNav />
+            <LiveRegion />
+            {/* Global Top Navigation for Language Switching */}
+            <header className="flex shrink-0 items-center justify-end border-b bg-muted/20 px-4 py-1.5 h-10">
+              <LanguageSwitcher />
+            </header>
+            {children}
+          </Providers>
+        </NextIntlClientProvider>
       </body>
     </html>
   );

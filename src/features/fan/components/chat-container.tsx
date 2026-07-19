@@ -10,6 +10,7 @@
  */
 
 import { useRef, useEffect } from "react";
+import { announce } from "@/lib/accessibility/announcements";
 
 import { cn } from "@/lib/utils";
 import { Container } from "@/components/ui/container";
@@ -48,6 +49,14 @@ export function ChatContainer({
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages, streamingText]);
+
+  useEffect(() => {
+    if (isStreaming) {
+      announce("Copilot is thinking...", "polite");
+    } else if (messages.length > 0 && messages[messages.length - 1].role === "assistant") {
+      announce("Response received from Copilot", "polite");
+    }
+  }, [isStreaming, messages]);
 
   return (
     <div className="flex h-full flex-col">

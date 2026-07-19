@@ -12,7 +12,7 @@ import { useState, useCallback } from "react";
 
 import { generateId } from "@/lib/helpers";
 import type { ChatMessage } from "../types/fan.types";
-import { chat } from "@/app/fan/actions";
+import { chat } from "@/app/[locale]/fan/actions";
 
 export interface UseFanChatReturn {
   messages: ChatMessage[];
