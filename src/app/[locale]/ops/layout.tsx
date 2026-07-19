@@ -2,7 +2,8 @@ import { redirect } from "next/navigation";
 import { destroySession } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { LayoutDashboard, AlertTriangle, Activity, Users } from "lucide-react";
+import { LayoutDashboard, AlertTriangle, Activity, BrainCircuit, ArrowLeft } from "lucide-react";
+import { SidebarNav } from "@/components/shared/SidebarNav";
 
 export default function OpsLayout({ children }: { children: React.ReactNode }) {
   const handleLogout = async () => {
@@ -10,6 +11,23 @@ export default function OpsLayout({ children }: { children: React.ReactNode }) {
     await destroySession();
     redirect("/ops/login");
   };
+
+  const navItems = [
+    { label: "Dashboard", href: "/ops", icon: <LayoutDashboard className="h-5 w-5" /> },
+    { label: "Incidents", href: "/ops/incidents", icon: <AlertTriangle className="h-5 w-5" /> },
+    { label: "Telemetry", href: "/ops#telemetry", icon: <Activity className="h-5 w-5" /> },
+    { label: "AI Copilot", href: "/ops#ai-copilot", icon: <BrainCircuit className="h-5 w-5" /> },
+  ];
+
+  const bottomItem = (
+    <Link
+      href="/"
+      className="flex items-center space-x-2 px-3 py-2 text-sm font-medium rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
+    >
+      <ArrowLeft className="h-5 w-5" aria-hidden="true" />
+      <span>Back to Home</span>
+    </Link>
+  );
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -25,53 +43,7 @@ export default function OpsLayout({ children }: { children: React.ReactNode }) {
       </header>
 
       <div className="flex flex-1 overflow-hidden">
-        {/* Sidebar Navigation */}
-        <aside className="w-64 bg-white border-r hidden md:block overflow-y-auto">
-          <nav className="p-4 space-y-2">
-            <Link
-              href="/ops"
-              className="flex items-center space-x-2 px-3 py-2 text-sm font-medium rounded-md bg-blue-50 text-blue-700"
-            >
-              <LayoutDashboard className="h-5 w-5" />
-              <span>Dashboard</span>
-            </Link>
-
-            <Link
-              href="/ops"
-              className="flex items-center space-x-2 px-3 py-2 text-sm font-medium rounded-md text-gray-700 hover:bg-gray-50"
-            >
-              <AlertTriangle className="h-5 w-5" />
-              <span>Incidents</span>
-            </Link>
-
-            <Link
-              href="/ops"
-              className="flex items-center space-x-2 px-3 py-2 text-sm font-medium rounded-md text-gray-700 hover:bg-gray-50"
-            >
-              <Activity className="h-5 w-5" />
-              <span>Telemetry</span>
-            </Link>
-
-            <Link
-              href="/ops"
-              className="flex items-center space-x-2 px-3 py-2 text-sm font-medium rounded-md text-gray-700 hover:bg-gray-50"
-              title="Coming Soon"
-            >
-              <Users className="h-5 w-5" />
-              <span>AI Copilot</span>
-            </Link>
-
-            <hr className="my-2 border-gray-200" />
-
-            <Link
-              href="/"
-              className="flex items-center space-x-2 px-3 py-2 text-sm font-medium rounded-md text-gray-700 hover:bg-gray-50"
-            >
-              <LayoutDashboard className="h-5 w-5" />
-              <span>Back to Home</span>
-            </Link>
-          </nav>
-        </aside>
+        <SidebarNav items={navItems} bottomItem={bottomItem} />
 
         <main id="main-content" className="flex-1 overflow-y-auto p-6">
           {children}

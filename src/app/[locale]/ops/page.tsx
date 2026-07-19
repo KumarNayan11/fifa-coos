@@ -105,7 +105,7 @@ export default async function OpsDashboardPage({
 
       <div className="mt-8 space-y-12">
         {/* Incidents Section */}
-        <section className="space-y-6">
+        <section id="incidents" className="space-y-6">
           <h2 className="text-xl font-bold tracking-tight">Incidents</h2>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             <MetricCard
@@ -146,7 +146,7 @@ export default async function OpsDashboardPage({
 
         <div className="grid gap-6 md:grid-cols-2">
           {/* Telemetry Section */}
-          <section className="space-y-6">
+          <section id="telemetry" className="space-y-6">
             <h2 className="text-xl font-bold tracking-tight">Telemetry</h2>
             {telemetry ? (
               <TelemetryOverviewPanel telemetry={telemetry} />
@@ -158,7 +158,7 @@ export default async function OpsDashboardPage({
           </section>
 
           {/* AI Copilot Section */}
-          <section className="space-y-6">
+          <section id="ai-copilot" className="space-y-6">
             <h2 className="text-xl font-bold tracking-tight text-indigo-700">
               AI Decision Support
             </h2>

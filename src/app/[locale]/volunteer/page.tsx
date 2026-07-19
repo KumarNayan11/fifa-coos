@@ -38,10 +38,10 @@ export default async function VolunteerDashboardPage() {
         </div>
 
         <div className="grid gap-6 md:grid-cols-2 mt-8">
-          <div>
+          <div id="volunteer-copilot">
             <VolunteerCopilotPanel />
           </div>
-          <div>
+          <div id="knowledge-search">
             <KnowledgeSearchPanel />
           </div>
         </div>

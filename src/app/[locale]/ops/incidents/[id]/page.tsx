@@ -8,7 +8,8 @@ import { getUsers } from "@/features/incident/actions";
 import { OperationsAiService } from "@/features/ai/services/operations-ai.service";
 import { IncidentActionsPanel } from "@/features/incident/components/IncidentActionsPanel";
 import { Brain } from "lucide-react";
-import type { Locale } from "@/i18n/routing";
+import { Breadcrumbs } from "@/components/shared/Breadcrumbs";
+import { BackButton } from "@/components/shared/BackButton";
 
 export default async function IncidentDetailsPage({
   params,
@@ -72,7 +73,18 @@ export default async function IncidentDetailsPage({
   };
 
   return (
-    <Container>
+    <Container className="space-y-6">
+      <div className="space-y-4 pt-4">
+        <Breadcrumbs
+          items={[
+            { label: "Dashboard", href: "/ops" },
+            { label: "Incidents", href: "/ops/incidents" },
+            { label: `Incident ${incident.id.slice(0, 8)}` },
+          ]}
+        />
+        <BackButton href="/ops/incidents" label="Back to Incidents" />
+      </div>
+
       <PageHeader title={`Incident: ${incident.title}`} description={`ID: ${incident.id}`} />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">

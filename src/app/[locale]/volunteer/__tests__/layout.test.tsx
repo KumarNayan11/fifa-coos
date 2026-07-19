@@ -8,6 +8,7 @@ import VolunteerLayout from "../layout";
 // Mock dependencies
 vi.mock("next/navigation", () => ({
   redirect: vi.fn(),
+  usePathname: () => "/volunteer",
 }));
 
 vi.mock("@/lib/auth", () => ({

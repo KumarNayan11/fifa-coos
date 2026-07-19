@@ -2,7 +2,8 @@ import { redirect } from "next/navigation";
 import { destroySession } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { HeartHandshake, FileText, MessageCircle, LayoutDashboard } from "lucide-react";
+import { HeartHandshake, FileText, MessageCircle, ArrowLeft } from "lucide-react";
+import { SidebarNav } from "@/components/shared/SidebarNav";
 
 export default function VolunteerLayout({ children }: { children: React.ReactNode }) {
   const handleLogout = async () => {
@@ -10,6 +11,34 @@ export default function VolunteerLayout({ children }: { children: React.ReactNod
     await destroySession();
     redirect("/ops/login");
   };
+
+  const navItems = [
+    {
+      label: "Dashboard",
+      href: "/volunteer",
+      icon: <HeartHandshake className="h-5 w-5" aria-hidden="true" />,
+    },
+    {
+      label: "Volunteer Copilot",
+      href: "/volunteer#volunteer-copilot",
+      icon: <MessageCircle className="h-5 w-5" aria-hidden="true" />,
+    },
+    {
+      label: "Knowledge Search",
+      href: "/volunteer#knowledge-search",
+      icon: <FileText className="h-5 w-5" aria-hidden="true" />,
+    },
+  ];
+
+  const bottomItem = (
+    <Link
+      href="/"
+      className="flex items-center space-x-2 px-3 py-2 text-sm font-medium rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
+    >
+      <ArrowLeft className="h-5 w-5" aria-hidden="true" />
+      <span>Back to Home</span>
+    </Link>
+  );
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -25,46 +54,7 @@ export default function VolunteerLayout({ children }: { children: React.ReactNod
       </header>
 
       <div className="flex flex-1 overflow-hidden">
-        {/* Sidebar Navigation */}
-        <aside className="w-64 bg-white border-r hidden md:block overflow-y-auto">
-          <nav className="p-4 space-y-2" aria-label="Volunteer Navigation">
-            <Link
-              href="/volunteer"
-              className="flex items-center space-x-2 px-3 py-2 text-sm font-medium rounded-md bg-indigo-50 text-indigo-700"
-            >
-              <HeartHandshake className="h-5 w-5" aria-hidden="true" />
-              <span>Dashboard</span>
-            </Link>
-
-            <Link
-              href="/volunteer"
-              className="flex items-center space-x-2 px-3 py-2 text-sm font-medium rounded-md text-gray-700 hover:bg-gray-50"
-              title="Coming Soon"
-            >
-              <FileText className="h-5 w-5" aria-hidden="true" />
-              <span>Knowledge Search</span>
-            </Link>
-
-            <Link
-              href="/volunteer"
-              className="flex items-center space-x-2 px-3 py-2 text-sm font-medium rounded-md text-gray-700 hover:bg-gray-50"
-              title="Coming Soon"
-            >
-              <MessageCircle className="h-5 w-5" aria-hidden="true" />
-              <span>Volunteer Copilot</span>
-            </Link>
-
-            <hr className="my-2 border-gray-200" />
-
-            <Link
-              href="/"
-              className="flex items-center space-x-2 px-3 py-2 text-sm font-medium rounded-md text-gray-700 hover:bg-gray-50"
-            >
-              <LayoutDashboard className="h-5 w-5" aria-hidden="true" />
-              <span>Back to Home</span>
-            </Link>
-          </nav>
-        </aside>
+        <SidebarNav items={navItems} bottomItem={bottomItem} />
 
         <main id="main-content" className="flex-1 overflow-y-auto p-6">
           {children}

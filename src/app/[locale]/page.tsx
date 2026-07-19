@@ -1,16 +1,14 @@
 /**
  * FIFACoOS — Home Page
  *
- * Professional landing page displaying:
- * - Project title and description
- * - Architecture version and implementation phase
- * - Technology stack summary
- * - Development status
- * - Placeholder links for future features
+ * Premium product homepage for the FIFA Copilot Operating System.
+ * Presents FIFACoOS as an AI-powered Stadium Operations Platform
+ * and guides users into the three core experiences.
  *
- * No business logic. Server Component (default).
+ * Server Component — no client-side JavaScript required.
  *
- * @see IMPLEMENTATION_PLAN.md — Phase 1 deliverables
+ * @see PRD.md — Product overview
+ * @see ARCHITECTURE.md — System architecture
  */
 
 import {
@@ -18,32 +16,209 @@ import {
   LayoutDashboard,
   HeartHandshake,
   ArrowRight,
-  ExternalLink,
+  BrainCircuit,
+  Activity,
+  Globe,
+  Accessibility,
+  ShieldCheck,
+  BookOpen,
+  Sparkles,
+  Users,
+  Shield,
+  Zap,
+  Target,
+  Radio,
 } from "lucide-react";
 import Link from "next/link";
 
 import { Container } from "@/components/ui/container";
 import { Badge } from "@/components/ui/badge";
-import { Divider } from "@/components/ui/divider";
-import { Card, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { APP_CONFIG, TECH_STACK, IMPLEMENTATION_PHASES, NAV_ITEMS, ROUTES } from "@/config";
-import { getStatusEmoji } from "@/lib/helpers";
+import { buttonVariants } from "@/components/ui/button";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { APP_CONFIG, ROUTES } from "@/config";
+import { getSession } from "@/lib/auth";
+import { cn } from "@/lib/utils";
 
 // ---------------------------------------------------------------------------
-// Icon map for nav items — avoids dynamic imports
+// Data — Platform Modules
 // ---------------------------------------------------------------------------
 
-const ICON_MAP = {
-  MessageCircle,
-  LayoutDashboard,
-  HeartHandshake,
-} as const;
+const PLATFORM_MODULES = [
+  {
+    id: "fan-copilot",
+    title: "Fan Copilot",
+    description:
+      "AI-powered stadium assistant that helps fans navigate the venue, check wait times, and get instant answers — all through natural conversation.",
+    capabilities: [
+      "Natural language stadium navigation",
+      "Real-time wait time information",
+      "Accessibility-aware routing",
+      "Multilingual AI responses",
+    ],
+    icon: MessageCircle,
+    href: ROUTES.fan.root,
+    color: "from-violet-500/10 to-indigo-500/10",
+    iconColor: "text-violet-600",
+    borderColor: "hover:border-violet-300",
+    requiresAuth: false,
+    available: true,
+  },
+  {
+    id: "ops-command",
+    title: "Operations Command Center",
+    description:
+      "Real-time operational dashboard with AI decision support for incident management, crowd monitoring, and resource coordination.",
+    capabilities: [
+      "Live incident tracking & lifecycle management",
+      "AI-powered situational awareness",
+      "Simulated crowd telemetry & zone heatmaps",
+      "Automated decision recommendations",
+    ],
+    icon: LayoutDashboard,
+    href: ROUTES.ops.root,
+    color: "from-blue-500/10 to-cyan-500/10",
+    iconColor: "text-blue-600",
+    borderColor: "hover:border-blue-300",
+    requiresAuth: false,
+    available: true,
+  },
+  {
+    id: "volunteer-assistant",
+    title: "Volunteer Assistant",
+    description:
+      "Knowledge-grounded AI copilot that helps volunteers access policies, SOPs, and operational guidance instantly.",
+    capabilities: [
+      "Instant policy & SOP retrieval",
+      "AI-powered Q&A with source citations",
+      "Role-based knowledge scoping",
+      "Context-aware operational guidance",
+    ],
+    icon: HeartHandshake,
+    href: ROUTES.volunteer.root,
+    color: "from-emerald-500/10 to-teal-500/10",
+    iconColor: "text-emerald-600",
+    borderColor: "hover:border-emerald-300",
+    requiresAuth: true,
+    available: true,
+  },
+] as const;
+
+// ---------------------------------------------------------------------------
+// Data — Platform Capabilities
+// ---------------------------------------------------------------------------
+
+const CAPABILITIES = [
+  {
+    title: "AI Decision Support",
+    description:
+      "Three specialized AI copilots powered by Google Gemini deliver contextual, real-time intelligence across every persona.",
+    icon: BrainCircuit,
+    iconColor: "text-indigo-600",
+    bgColor: "bg-indigo-50",
+  },
+  {
+    title: "Real-Time Telemetry",
+    description:
+      "Simulated crowd density, gate throughput, and queue metrics provide live operational awareness for command staff.",
+    icon: Activity,
+    iconColor: "text-blue-600",
+    bgColor: "bg-blue-50",
+  },
+  {
+    title: "Multilingual Experience",
+    description:
+      "Full internationalization with AI responses adapted to the user's language, supporting a global audience.",
+    icon: Globe,
+    iconColor: "text-violet-600",
+    bgColor: "bg-violet-50",
+  },
+  {
+    title: "Accessibility First",
+    description:
+      "WCAG-compliant interfaces with skip navigation, keyboard support, screen reader optimization, and accessibility-aware routing.",
+    icon: Accessibility,
+    iconColor: "text-emerald-600",
+    bgColor: "bg-emerald-50",
+  },
+  {
+    title: "Secure Role-Based Access",
+    description:
+      "Supabase authentication with Prisma-verified roles ensures each persona sees only what they're authorized to access.",
+    icon: ShieldCheck,
+    iconColor: "text-amber-600",
+    bgColor: "bg-amber-50",
+  },
+  {
+    title: "Intelligent Knowledge Retrieval",
+    description:
+      "Deterministic knowledge retrieval feeds curated stadium data into every AI response — no hallucinations, only grounded facts.",
+    icon: BookOpen,
+    iconColor: "text-rose-600",
+    bgColor: "bg-rose-50",
+  },
+] as const;
+
+// ---------------------------------------------------------------------------
+// Data — Why FIFACoOS highlights
+// ---------------------------------------------------------------------------
+
+const WHY_HIGHLIGHTS = [
+  {
+    icon: Sparkles,
+    title: "Unified Intelligence Engine",
+    description:
+      "A single AI architecture powers three specialized copilots — each with its own knowledge scope, prompt engineering, and safety guardrails.",
+  },
+  {
+    icon: Users,
+    title: "Human-in-the-Loop AI",
+    description:
+      "Every AI recommendation is advisory. Operations staff maintain full decision authority with AI-augmented situational awareness.",
+  },
+  {
+    icon: Shield,
+    title: "Safe AI by Design",
+    description:
+      "Built-in prompt injection detection, PII removal, confidence scoring, and deterministic fallbacks ensure reliable AI behavior.",
+  },
+  {
+    icon: Target,
+    title: "Three Specialized Copilots",
+    description:
+      "Fan navigation, operational decision support, and volunteer policy retrieval — each copilot is purpose-built for its audience.",
+  },
+  {
+    icon: Zap,
+    title: "Real-Time Operational Awareness",
+    description:
+      "Live telemetry simulation, auto-refreshing dashboards, and AI-driven incident analysis keep operations teams ahead of events.",
+  },
+  {
+    icon: Radio,
+    title: "Built for Scale",
+    description:
+      "Designed for large-scale sporting events with zone-based management, multi-persona workflows, and resilient error handling.",
+  },
+] as const;
+
+// ---------------------------------------------------------------------------
+// Data — Tech Stack (curated, product-facing)
+// ---------------------------------------------------------------------------
+
+const TECH_BADGES = [
+  "Next.js",
+  "TypeScript",
+  "Google Gemini",
+  "Vercel AI SDK",
+  "Supabase",
+  "Prisma",
+  "Tailwind CSS",
+  "shadcn/ui",
+] as const;
 
 // ---------------------------------------------------------------------------
 // Page
 // ---------------------------------------------------------------------------
-
-import { getSession } from "@/lib/auth";
 
 export default async function HomePage() {
   const session = await getSession();
@@ -51,111 +226,182 @@ export default async function HomePage() {
 
   return (
     <main className="flex min-h-screen flex-col">
-      {/* ----------------------------------------------------------------- */}
-      {/* Hero Section                                                       */}
-      {/* ----------------------------------------------------------------- */}
-      <section className="flex flex-1 flex-col items-center justify-center py-20 sm:py-28">
-        <Container size="lg">
-          <div className="flex flex-col items-center text-center">
-            {/* Competition badge */}
-            <Badge variant="outline" className="mb-6">
-              {APP_CONFIG.competition}
+      {/* ================================================================= */}
+      {/* HERO SECTION                                                       */}
+      {/* ================================================================= */}
+      <section className="relative overflow-hidden border-b bg-gradient-to-b from-slate-50 via-white to-white">
+        {/* Decorative background elements */}
+        <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+          <div className="absolute -top-40 right-0 h-[500px] w-[500px] rounded-full bg-gradient-to-br from-indigo-100/60 to-violet-100/40 blur-3xl" />
+          <div className="absolute -bottom-20 -left-20 h-[400px] w-[400px] rounded-full bg-gradient-to-tr from-blue-100/50 to-cyan-100/30 blur-3xl" />
+        </div>
+
+        <Container size="lg" className="relative">
+          <div className="flex flex-col items-center py-20 text-center sm:py-28 lg:py-32">
+            {/* Event context badge */}
+            <Badge
+              variant="secondary"
+              className="mb-6 gap-1.5 px-4 py-1.5 text-sm font-medium shadow-sm"
+            >
+              <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
+              FIFA World Cup 2026™
             </Badge>
 
-            {/* Title */}
-            <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl">
-              {APP_CONFIG.name}
+            {/* Brand name */}
+            <h1 className="text-5xl font-extrabold tracking-tight text-foreground sm:text-6xl lg:text-7xl">
+              FIFA
+              <span className="bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">
+                CoOS
+              </span>
             </h1>
-            <p className="mt-2 text-lg text-muted-foreground sm:text-xl">{APP_CONFIG.fullName}</p>
 
-            {/* Description */}
-            <p className="mt-6 max-w-2xl text-base leading-relaxed text-muted-foreground">
-              {APP_CONFIG.description}
+            {/* Tagline */}
+            <p className="mt-4 text-lg font-medium text-muted-foreground sm:text-xl">
+              {APP_CONFIG.fullName}
             </p>
 
-            {/* Meta info pills */}
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-              <Badge variant="secondary">Architecture v{APP_CONFIG.architectureVersion}</Badge>
-              <Badge variant="info">
-                Phase {APP_CONFIG.phase.current}: {APP_CONFIG.phase.name}
-              </Badge>
-              <Badge variant="warning">{APP_CONFIG.phase.status}</Badge>
+            {/* Description */}
+            <p className="mt-6 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+              An AI-powered Stadium Operations Platform delivering intelligent decision support for
+              fans, operations teams, and volunteers — designed for the world&apos;s largest
+              sporting event.
+            </p>
+
+            {/* CTAs */}
+            <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:gap-4">
+              <Link
+                href={ROUTES.fan.copilot}
+                className={cn(
+                  buttonVariants({ size: "lg" }),
+                  "gap-2 bg-gradient-to-r from-indigo-600 to-violet-600 px-8 text-white shadow-lg shadow-indigo-200/50 transition-all hover:shadow-xl hover:shadow-indigo-200/60 hover:from-indigo-700 hover:to-violet-700",
+                )}
+              >
+                <MessageCircle className="h-5 w-5" aria-hidden="true" />
+                Launch Fan Copilot
+              </Link>
+              <Link
+                href={ROUTES.ops.root}
+                className={cn(
+                  buttonVariants({ variant: "outline", size: "lg" }),
+                  "gap-2 px-8 shadow-sm transition-all hover:shadow-md",
+                )}
+              >
+                <LayoutDashboard className="h-5 w-5" aria-hidden="true" />
+                Operations Dashboard
+              </Link>
             </div>
           </div>
         </Container>
       </section>
 
-      <Divider />
-
-      {/* ----------------------------------------------------------------- */}
-      {/* Feature Placeholders                                              */}
-      {/* ----------------------------------------------------------------- */}
-      <section className="py-16" aria-labelledby="features-heading">
+      {/* ================================================================= */}
+      {/* PLATFORM MODULES                                                   */}
+      {/* ================================================================= */}
+      <section className="border-b py-20 sm:py-24" aria-labelledby="modules-heading">
         <Container size="lg">
-          <h2
-            id="features-heading"
-            className="mb-8 text-center text-2xl font-semibold tracking-tight"
-          >
-            Platform Modules
-          </h2>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {NAV_ITEMS.map((item) => {
-              const Icon = ICON_MAP[item.icon as keyof typeof ICON_MAP];
-              const isVolunteerItem = item.href === ROUTES.volunteer.root;
-              // If it's the volunteer item, only make it available if the user has the right role.
-              // Otherwise fallback to its config status.
-              const isAvailable = isVolunteerItem ? isVolunteerOrAdmin : item.available;
+          <div className="mx-auto max-w-2xl text-center">
+            <Badge variant="outline" className="mb-4">
+              Platform Experiences
+            </Badge>
+            <h2 id="modules-heading" className="text-3xl font-bold tracking-tight sm:text-4xl">
+              Three Intelligent Copilots,
+              <br className="hidden sm:block" />
+              One Unified Platform
+            </h2>
+            <p className="mt-4 text-muted-foreground sm:text-lg">
+              Purpose-built AI assistants for every role in stadium operations — from spectators to
+              command staff to volunteers.
+            </p>
+          </div>
 
-              const CardContent = (
+          <div className="mt-14 grid gap-6 sm:gap-8 lg:grid-cols-3">
+            {PLATFORM_MODULES.map((mod) => {
+              const Icon = mod.icon;
+              const isAccessible = mod.requiresAuth ? isVolunteerOrAdmin : mod.available;
+
+              const cardContent = (
                 <Card
-                  className={`group relative overflow-hidden transition-shadow ${
-                    isAvailable ? "hover:shadow-md hover:border-indigo-200" : "opacity-75"
-                  }`}
+                  className={cn(
+                    "group relative flex h-full flex-col overflow-hidden transition-all duration-300",
+                    isAccessible ? `shadow-sm hover:shadow-lg ${mod.borderColor}` : "opacity-70",
+                  )}
                 >
-                  <CardHeader>
-                    <div className="mb-3 flex items-center gap-3">
-                      {Icon && (
-                        <div
-                          className={`flex h-10 w-10 items-center justify-center rounded-lg ${
-                            isAvailable
-                              ? "bg-indigo-50 text-indigo-600"
-                              : "bg-muted text-muted-foreground"
-                          }`}
-                        >
-                          <Icon className="h-5 w-5" aria-hidden="true" />
-                        </div>
-                      )}
-                      <Badge variant="outline" className="text-[10px]">
-                        Phase {item.phase}
-                      </Badge>
-                    </div>
-                    <CardTitle className="text-lg">{item.label}</CardTitle>
-                    <CardDescription>{item.description}</CardDescription>
-                  </CardHeader>
-                  <CardFooter>
-                    {isAvailable ? (
-                      <span className="inline-flex items-center gap-1 text-xs font-medium text-indigo-600">
-                        Open Module
-                        <ArrowRight className="h-3 w-3" aria-hidden="true" />
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
-                        Coming Soon
-                        <ArrowRight className="h-3 w-3" aria-hidden="true" />
-                      </span>
+                  {/* Gradient top accent */}
+                  <div
+                    className={cn(
+                      "absolute inset-x-0 top-0 h-1 bg-gradient-to-r opacity-0 transition-opacity duration-300 group-hover:opacity-100",
+                      mod.color.replace("/10", "").replace("from-", "from-").replace("to-", "to-"),
                     )}
-                  </CardFooter>
+                    style={{
+                      background: `linear-gradient(to right, ${mod.iconColor.replace("text-", "").replace("-600", "")}50, ${mod.iconColor.replace("text-", "").replace("-600", "")}30)`,
+                    }}
+                    aria-hidden="true"
+                  />
+
+                  <CardHeader className="pb-4">
+                    <div className="mb-4 flex items-center gap-3">
+                      <div
+                        className={cn(
+                          "flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br transition-transform duration-300 group-hover:scale-105",
+                          mod.color,
+                        )}
+                      >
+                        <Icon className={cn("h-6 w-6", mod.iconColor)} aria-hidden="true" />
+                      </div>
+                    </div>
+                    <CardTitle className="text-xl">{mod.title}</CardTitle>
+                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                      {mod.description}
+                    </p>
+                  </CardHeader>
+
+                  <CardContent className="flex-1 pt-0">
+                    <ul className="space-y-2.5" aria-label={`${mod.title} capabilities`}>
+                      {mod.capabilities.map((cap) => (
+                        <li
+                          key={cap}
+                          className="flex items-start gap-2.5 text-sm text-muted-foreground"
+                        >
+                          <div
+                            className={cn(
+                              "mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full",
+                              mod.iconColor.replace("text-", "bg-"),
+                            )}
+                            aria-hidden="true"
+                          />
+                          {cap}
+                        </li>
+                      ))}
+                    </ul>
+                  </CardContent>
+
+                  {isAccessible && (
+                    <div className="mt-auto p-6 pt-2">
+                      <span
+                        className={cn(
+                          "inline-flex items-center gap-1.5 text-sm font-medium transition-all duration-200 group-hover:gap-2.5",
+                          mod.iconColor,
+                        )}
+                      >
+                        Launch {mod.title.split(" ")[0]}
+                        <ArrowRight
+                          className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5"
+                          aria-hidden="true"
+                        />
+                      </span>
+                    </div>
+                  )}
                 </Card>
               );
 
               return (
-                <div key={item.label}>
-                  {isAvailable ? (
-                    <Link href={item.href} className="block">
-                      {CardContent}
+                <div key={mod.id}>
+                  {isAccessible ? (
+                    <Link href={mod.href} className="block h-full">
+                      {cardContent}
                     </Link>
                   ) : (
-                    CardContent
+                    cardContent
                   )}
                 </div>
               );
@@ -164,88 +410,184 @@ export default async function HomePage() {
         </Container>
       </section>
 
-      <Divider />
-
-      {/* ----------------------------------------------------------------- */}
-      {/* Technology Stack                                                   */}
-      {/* ----------------------------------------------------------------- */}
-      <section className="py-16" aria-labelledby="tech-heading">
+      {/* ================================================================= */}
+      {/* PLATFORM CAPABILITIES                                              */}
+      {/* ================================================================= */}
+      <section
+        className="border-b bg-slate-50/50 py-20 sm:py-24"
+        aria-labelledby="capabilities-heading"
+      >
         <Container size="lg">
-          <h2 id="tech-heading" className="mb-8 text-center text-2xl font-semibold tracking-tight">
-            Technology Stack
-          </h2>
-          <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-            {TECH_STACK.map((tech) => (
-              <div
-                key={tech.name}
-                className="flex items-center gap-3 rounded-lg border p-3 transition-colors hover:bg-muted/50"
-              >
-                <div>
-                  <p className="text-sm font-medium">{tech.name}</p>
-                  <p className="text-xs text-muted-foreground">{tech.category}</p>
-                </div>
-              </div>
-            ))}
+          <div className="mx-auto max-w-2xl text-center">
+            <Badge variant="outline" className="mb-4">
+              Built-In Capabilities
+            </Badge>
+            <h2 id="capabilities-heading" className="text-3xl font-bold tracking-tight sm:text-4xl">
+              Enterprise-Grade Intelligence
+            </h2>
+            <p className="mt-4 text-muted-foreground sm:text-lg">
+              Every feature is architecturally implemented and production-ready — from AI safety
+              guardrails to accessibility compliance.
+            </p>
           </div>
-        </Container>
-      </section>
 
-      <Divider />
-
-      {/* ----------------------------------------------------------------- */}
-      {/* Implementation Status                                             */}
-      {/* ----------------------------------------------------------------- */}
-      <section className="py-16" aria-labelledby="status-heading">
-        <Container size="md">
-          <h2
-            id="status-heading"
-            className="mb-8 text-center text-2xl font-semibold tracking-tight"
-          >
-            Development Status
-          </h2>
-          <div className="space-y-2">
-            {IMPLEMENTATION_PHASES.map((phase) => (
-              <div
-                key={phase.phase}
-                className="flex items-center justify-between rounded-lg border p-3 transition-colors hover:bg-muted/50"
-              >
-                <div className="flex items-center gap-3">
-                  <span className="text-base" aria-hidden="true">
-                    {getStatusEmoji(phase.status)}
-                  </span>
-                  <span className="text-sm font-medium">
-                    Phase {phase.phase}: {phase.name}
-                  </span>
-                </div>
-                <Badge
-                  variant={
-                    phase.status === "complete"
-                      ? "success"
-                      : phase.status === "in-progress"
-                        ? "warning"
-                        : "outline"
-                  }
+          <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {CAPABILITIES.map((cap) => {
+              const Icon = cap.icon;
+              return (
+                <div
+                  key={cap.title}
+                  className="group rounded-xl border bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:border-slate-300"
                 >
-                  {phase.status === "complete"
-                    ? "Complete"
-                    : phase.status === "in-progress"
-                      ? "In Progress"
-                      : "Not Started"}
-                </Badge>
-              </div>
-            ))}
+                  <div
+                    className={cn(
+                      "mb-4 flex h-11 w-11 items-center justify-center rounded-lg transition-transform duration-300 group-hover:scale-105",
+                      cap.bgColor,
+                    )}
+                  >
+                    <Icon className={cn("h-5 w-5", cap.iconColor)} aria-hidden="true" />
+                  </div>
+                  <h3 className="text-base font-semibold tracking-tight">{cap.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                    {cap.description}
+                  </p>
+                </div>
+              );
+            })}
           </div>
         </Container>
       </section>
 
-      {/* ----------------------------------------------------------------- */}
-      {/* Footer                                                            */}
-      {/* ----------------------------------------------------------------- */}
+      {/* ================================================================= */}
+      {/* WHY FIFACoOS                                                       */}
+      {/* ================================================================= */}
+      <section className="border-b py-20 sm:py-24" aria-labelledby="why-heading">
+        <Container size="lg">
+          <div className="mx-auto max-w-2xl text-center">
+            <Badge variant="outline" className="mb-4">
+              Why FIFACoOS
+            </Badge>
+            <h2 id="why-heading" className="text-3xl font-bold tracking-tight sm:text-4xl">
+              AI That Serves Every Stakeholder
+            </h2>
+            <p className="mt-4 text-muted-foreground sm:text-lg">
+              A unified architecture where deterministic knowledge retrieval meets large language
+              models — delivering reliable, safe, and contextual intelligence at stadium scale.
+            </p>
+          </div>
+
+          <div className="mt-14 grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
+            {WHY_HIGHLIGHTS.map((item) => {
+              const Icon = item.icon;
+              return (
+                <div key={item.title} className="flex gap-4">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-50 to-violet-50">
+                    <Icon className="h-5 w-5 text-indigo-600" aria-hidden="true" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-semibold tracking-tight">{item.title}</h3>
+                    <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+                      {item.description}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </Container>
+      </section>
+
+      {/* ================================================================= */}
+      {/* TECHNOLOGY SECTION                                                 */}
+      {/* ================================================================= */}
+      <section className="border-b bg-slate-50/50 py-16 sm:py-20" aria-labelledby="tech-heading">
+        <Container size="lg">
+          <div className="flex flex-col items-center text-center">
+            <h2
+              id="tech-heading"
+              className="text-lg font-semibold tracking-tight text-muted-foreground"
+            >
+              Built with modern, production-grade technology
+            </h2>
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-2.5">
+              {TECH_BADGES.map((tech) => (
+                <Badge
+                  key={tech}
+                  variant="secondary"
+                  className="px-3.5 py-1.5 text-sm font-medium shadow-sm transition-shadow hover:shadow-md"
+                >
+                  {tech}
+                </Badge>
+              ))}
+            </div>
+          </div>
+        </Container>
+      </section>
+
+      {/* ================================================================= */}
+      {/* FINAL CTA                                                          */}
+      {/* ================================================================= */}
+      <section className="py-20 sm:py-24" aria-labelledby="cta-heading">
+        <Container size="md">
+          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-indigo-950 to-violet-950 px-8 py-16 text-center shadow-2xl sm:px-16">
+            {/* Decorative glow */}
+            <div
+              className="pointer-events-none absolute inset-0 overflow-hidden"
+              aria-hidden="true"
+            >
+              <div className="absolute -top-10 left-1/2 h-40 w-80 -translate-x-1/2 rounded-full bg-indigo-500/20 blur-3xl" />
+            </div>
+
+            <div className="relative">
+              <h2
+                id="cta-heading"
+                className="text-3xl font-bold tracking-tight text-white sm:text-4xl"
+              >
+                Experience the Future of
+                <br className="hidden sm:block" />
+                Stadium Operations
+              </h2>
+              <p className="mx-auto mt-4 max-w-lg text-base leading-relaxed text-indigo-200">
+                Step into a world where AI copilots, real-time telemetry, and intelligent knowledge
+                retrieval come together to power the world&apos;s greatest sporting event.
+              </p>
+
+              <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
+                <Link
+                  href={ROUTES.fan.copilot}
+                  className={cn(
+                    buttonVariants({ size: "lg" }),
+                    "gap-2 bg-white px-8 text-slate-900 shadow-lg transition-all hover:bg-indigo-50 hover:shadow-xl",
+                  )}
+                >
+                  <MessageCircle className="h-5 w-5" aria-hidden="true" />
+                  Open Fan Copilot
+                </Link>
+                <Link
+                  href={ROUTES.ops.root}
+                  className={cn(
+                    buttonVariants({ variant: "outline", size: "lg" }),
+                    "gap-2 border-indigo-400/30 px-8 text-indigo-200 transition-all hover:bg-indigo-900/50 hover:text-white hover:border-indigo-400/50",
+                  )}
+                >
+                  <ShieldCheck className="h-5 w-5" aria-hidden="true" />
+                  Operations Login
+                </Link>
+              </div>
+            </div>
+          </div>
+        </Container>
+      </section>
+
+      {/* ================================================================= */}
+      {/* FOOTER                                                             */}
+      {/* ================================================================= */}
       <footer className="mt-auto border-t py-8">
         <Container size="lg">
           <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
             <p className="text-sm text-muted-foreground">
-              {APP_CONFIG.name} v{APP_CONFIG.version} &mdash; {APP_CONFIG.competition}
+              <span className="font-semibold text-foreground">{APP_CONFIG.name}</span> —{" "}
+              {APP_CONFIG.description}
             </p>
             <a
               href={APP_CONFIG.repository}
@@ -253,8 +595,8 @@ export default async function HomePage() {
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
             >
-              <ExternalLink className="h-4 w-4" aria-hidden="true" />
               GitHub Repository
+              <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
             </a>
           </div>
         </Container>
