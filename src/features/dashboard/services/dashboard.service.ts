@@ -6,62 +6,71 @@ import {
   DashboardIncidentStatus,
 } from "../types";
 import { Severity, IncidentStatus } from "@prisma/client";
+import { unstable_cache } from "next/cache";
 
 export class DashboardService {
   static async getDashboardMetrics(): Promise<DashboardMetricsDTO> {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const fetchMetrics = unstable_cache(
+      async () => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
 
-    const [
-      totalIncidents,
-      openIncidents,
-      resolvedIncidents,
-      incidentsCreatedToday,
-      unresolvedCriticalIncidents,
-      severityGroups,
-    ] = await Promise.all([
-      prisma.incident.count(),
-      prisma.incident.count({
-        where: { status: { notIn: [IncidentStatus.resolved, IncidentStatus.closed] } },
-      }),
-      prisma.incident.count({
-        where: { status: IncidentStatus.resolved },
-      }),
-      prisma.incident.count({
-        where: { created_at: { gte: today } },
-      }),
-      prisma.incident.count({
-        where: {
-          severity: Severity.critical,
-          status: { notIn: [IncidentStatus.resolved, IncidentStatus.closed] },
-        },
-      }),
-      prisma.incident.groupBy({
-        by: ["severity"],
-        _count: { id: true },
-      }),
-    ]);
+        const [
+          totalIncidents,
+          openIncidents,
+          resolvedIncidents,
+          incidentsCreatedToday,
+          unresolvedCriticalIncidents,
+          severityGroups,
+        ] = await Promise.all([
+          prisma.incident.count(),
+          prisma.incident.count({
+            where: { status: { notIn: [IncidentStatus.resolved, IncidentStatus.closed] } },
+          }),
+          prisma.incident.count({
+            where: { status: IncidentStatus.resolved },
+          }),
+          prisma.incident.count({
+            where: { created_at: { gte: today } },
+          }),
+          prisma.incident.count({
+            where: {
+              severity: Severity.critical,
+              status: { notIn: [IncidentStatus.resolved, IncidentStatus.closed] },
+            },
+          }),
+          prisma.incident.groupBy({
+            by: ["severity"],
+            _count: { id: true },
+          }),
+        ]);
 
-    // Ensure all severities are represented even if count is 0
-    const severityMap = new Map(severityGroups.map((g) => [g.severity, g._count.id]));
-    const incidentsBySeverity = [
-      Severity.low,
-      Severity.medium,
-      Severity.high,
-      Severity.critical,
-    ].map((severity) => ({
-      severity: severity as DashboardSeverity,
-      count: severityMap.get(severity) || 0,
-    }));
+        // Ensure all severities are represented even if count is 0
+        const severityMap = new Map(severityGroups.map((g) => [g.severity, g._count.id]));
+        const incidentsBySeverity = [
+          Severity.low,
+          Severity.medium,
+          Severity.high,
+          Severity.critical,
+        ].map((severity) => ({
+          severity: severity as DashboardSeverity,
+          count: severityMap.get(severity) || 0,
+        }));
 
-    return {
-      totalIncidents,
-      openIncidents,
-      resolvedIncidents,
-      incidentsCreatedToday,
-      unresolvedCriticalIncidents,
-      incidentsBySeverity,
-    };
+        return {
+          totalIncidents,
+          openIncidents,
+          resolvedIncidents,
+          incidentsCreatedToday,
+          unresolvedCriticalIncidents,
+          incidentsBySeverity,
+        };
+      },
+      ["dashboard-metrics"],
+      { revalidate: 15, tags: ["dashboard-metrics"] },
+    );
+
+    return fetchMetrics();
   }
 
   static async getRecentIncidents(limit = 10): Promise<RecentIncidentDTO[]> {

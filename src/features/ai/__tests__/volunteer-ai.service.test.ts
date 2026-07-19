@@ -32,6 +32,11 @@ describe("VolunteerAiService", () => {
     const context: KnowledgeContext = { articles: [] };
     const result = await VolunteerAiService.getVolunteerAnswer("Test?", context, "en");
 
+    expect(aiModule.generateObject).toHaveBeenCalledWith(
+      expect.objectContaining({
+        abortSignal: expect.any(AbortSignal),
+      }),
+    );
     expect(result).toEqual({
       answer: "Test Answer",
       referencedArticles: ["slug1"],

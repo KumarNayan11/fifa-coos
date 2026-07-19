@@ -23,6 +23,11 @@ vi.mock("../services/incident.service", () => ({
   },
 }));
 
+vi.mock("next/cache", () => ({
+  revalidatePath: vi.fn(),
+  revalidateTag: vi.fn(),
+}));
+
 describe("Incident Actions", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -36,6 +41,14 @@ describe("Incident Actions", () => {
 
     expect(mockRequireRole).toHaveBeenCalledWith(["ops_manager", "security", "admin", "volunteer"]);
     expect(IncidentService.createIncident).toHaveBeenCalledWith({ title: "Test" });
+
+    // Verify cache invalidation
+    const { revalidatePath, revalidateTag } = await import("next/cache");
+    expect(revalidateTag).toHaveBeenCalledWith("dashboard-metrics");
+    expect(revalidateTag).toHaveBeenCalledWith("incident-list");
+    expect(revalidateTag).toHaveBeenCalledWith("incident-details");
+    expect(revalidatePath).toHaveBeenCalledWith("/ops", "layout");
+
     expect(result).toEqual({ success: true, data: mockIncident });
   });
 

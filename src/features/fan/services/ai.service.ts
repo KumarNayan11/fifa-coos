@@ -179,5 +179,6 @@ export async function processFanQuery(messages: AIMessage[], locale: Locale) {
       role: m.role,
       content: m.role === "user" ? removePII(m.content) : m.content,
     })),
+    abortSignal: AbortSignal.timeout(15000),
   });
 }

@@ -52,9 +52,7 @@ export function useFanChat(): UseFanChatReturn {
         }));
 
         // 2. Call the Server Action
-        console.log("Calling Server Action...");
         const finalResponse = await chat(history, locale);
-        console.log("Server Action returned:", finalResponse);
 
         // 3. Add assistant message to history
         if (finalResponse.response) {

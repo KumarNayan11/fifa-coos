@@ -47,9 +47,20 @@ Any contributor (human or AI) submitting a pull request is responsible for updat
 
 #### Added
 
+- **Phase 6: Release Readiness & Final Packaging**
+- Performed a comprehensive repository audit to remove unused dependencies (`@base-ui/react`, `mapbox-gl`, `pino`, `zustand`, etc.).
+- Added `lint-staged` as a development dependency.
+- Synchronized all documentation (`README.md`, `MANUAL_TESTING.md`, `DEVELOPER_GUIDE.md`, `CHANGELOG.md`) for complete internal consistency.
+- Verified a clean deployment flow from scratch, including database seeding, migrations, and application startup.
+- Executed final validation suite (lint, typecheck, unit tests, e2e tests, production build).
+- **Phase 6: Performance & Production Readiness**
+- Implemented `AbortSignal.timeout()` across all AI services (10s Ops, 15s Fan/Volunteer) with graceful deterministic fallbacks.
+- Added `unstable_cache` to `DashboardService.getDashboardMetrics` (15s revalidation) to prevent excessive DB load on auto-refresh.
+- Added Next.js cache invalidation (`revalidateTag`, `revalidatePath`) for mutations in incident server actions.
+- Removed development `console.log` statements for production readiness.
+- Fixed minor TypeScript errors across the application to pass `pnpm typecheck` and `pnpm build`.
 - **Phase 6: Security Hardening**
 - Centralized `sanitizeError()` utility to mask internal database/stack traces from clients.
-- `detectPromptInjection()` guardrail added to all AI services to heuristically reject malicious prompt inputs.
 - `removePII()` deterministic guardrail to redact emails, phone numbers, and credit cards from prompts.
 - `requireRole(["ops_manager", "security", "admin", "volunteer"])` enforced accurately on `createIncident` per Domain Model.
 - Security regression tests covering prompt injection, PII removal, and error sanitization.

@@ -34,7 +34,7 @@ describe("askVolunteerCopilotAction", () => {
     const formData = new FormData();
     const result = await askVolunteerCopilotAction("en", { success: false }, formData);
     expect(result.success).toBe(false);
-    expect(result.error).toContain("validationFailed");
+    expect(result.error).toContain("Invalid input");
   });
 
   it("should return fallback Case A if no knowledge is found", async () => {

@@ -66,6 +66,10 @@ After running the seed command, three demo accounts are generated directly in Su
   - [ ] Verify the AI copilot rejects the attempt and falls back to a deterministic response.
   - [ ] Submit PII (e.g., an email address).
   - [ ] Verify the AI does not expose or return the PII, and handles it securely.
+- [ ] Test Performance & Caching:
+  - [ ] Open Operations Dashboard and wait for 30s auto-refresh; verify no UI hang.
+  - [ ] Simulate network latency (using DevTools) and query Fan/Volunteer Copilot to verify timeout (15s) falls back to offline mode correctly without crashing.
+  - [ ] Add an incident and verify metrics immediately update (via cache invalidation) rather than waiting 15s.
 - [ ] Open the Incident Details page by clicking "Inspect" on the new incident.
 - [ ] Confirm AI recommendation renders with:
   - [ ] confidence

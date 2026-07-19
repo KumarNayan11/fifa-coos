@@ -48,6 +48,7 @@ export class VolunteerAiService {
             content: safeQuestion,
           },
         ],
+        abortSignal: AbortSignal.timeout(15000),
       });
 
       return result.object;

@@ -54,6 +54,7 @@ export class OperationsAiService {
               "Please provide an operational assessment and recommendations based on the current context.",
           },
         ],
+        abortSignal: AbortSignal.timeout(10000),
       });
 
       return result.object;

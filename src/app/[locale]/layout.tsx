@@ -18,7 +18,7 @@ import { Providers } from "./providers";
 import { LanguageSwitcher } from "@/components/shared/LanguageSwitcher";
 import { SkipNav } from "@/components/shared/SkipNav";
 import { LiveRegion } from "@/components/shared/LiveRegion";
-import "./globals.css";
+import "../globals.css";
 
 // ---------------------------------------------------------------------------
 // Fonts — Next.js font optimization (self-hosted, zero layout shift)

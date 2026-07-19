@@ -15,9 +15,9 @@ FIFACoOS leverages Generative AI to provide intelligent decision support for fan
 | **2:** Fan Copilot           | ✅ Completed   |
 | **3:** Ops Command Center    | ✅ Completed   |
 | Phase 4: Volunteer Assistant | 🏗️ In Progress |
-| Phase 5: Polish              | ⬜ Not Started |
-| Phase 6: Hardening           | ⬜ Not Started |
-| Phase 7: PromptWars Submit   | ⬜ Not Started |
+| Phase 5: Polish              | ✅ Completed   |
+| Phase 6: Hardening           | ✅ Completed   |
+| Phase 7: PromptWars Submit   | 🏗️ In Progress |
 
 ## Architecture
 
@@ -32,23 +32,27 @@ FIFACoOS leverages Generative AI to provide intelligent decision support for fan
 - **Strict Boundaries**: Unauthorized requests fail before business logic.
 - **Graceful Failures**: Internal errors are never exposed to clients (e.g., stack traces, SQL errors).
 
+### Performance Philosophy
+
+- **Resilient AI**: All network-bound AI calls enforce strict timeouts (10-15s) with deterministic fallbacks to ensure dashboards never hang.
+- **Optimized Data Retrieval**: Dashboard metrics are grouped and cached to prevent N+1 queries and excessive database load during auto-refresh intervals.
+- **Deterministic Caching**: Cache invalidation is driven by business logic mutations rather than arbitrary time-to-live expirations.
+
 ## Technology Stack
 
-| Technology      | Purpose          |
-| :-------------- | :--------------- |
-| Next.js 16      | Framework        |
-| TypeScript      | Language         |
-| Tailwind CSS v4 | Styling          |
-| shadcn/ui       | Components       |
-| Supabase        | Database & Auth  |
-| Prisma          | ORM              |
-| Vercel AI SDK   | AI Gateway       |
-| Google Gemini   | LLM Provider     |
-| Zod             | Validation       |
-| Zustand         | State Management |
-| Mapbox GL JS    | Maps             |
-| Vitest          | Unit Testing     |
-| Playwright      | E2E Testing      |
+| Technology      | Purpose         |
+| :-------------- | :-------------- |
+| Next.js 16      | Framework       |
+| TypeScript      | Language        |
+| Tailwind CSS v4 | Styling         |
+| shadcn/ui       | Components      |
+| Supabase        | Database & Auth |
+| Prisma          | ORM             |
+| Vercel AI SDK   | AI Gateway      |
+| Google Gemini   | LLM Provider    |
+| Zod             | Validation      |
+| Vitest          | Unit Testing    |
+| Playwright      | E2E Testing     |
 
 ## Development
 

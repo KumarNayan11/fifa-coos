@@ -14,6 +14,10 @@ vi.mock("@/lib/prisma", () => ({
   },
 }));
 
+vi.mock("next/cache", () => ({
+  unstable_cache: vi.fn((cb) => cb),
+}));
+
 describe("DashboardService", () => {
   beforeEach(() => {
     vi.clearAllMocks();

@@ -3,11 +3,24 @@
 import { requireOps, requireRole } from "@/lib/auth";
 import { IncidentService } from "./services/incident.service";
 import { sanitizeError } from "@/lib/errors";
+import { revalidatePath, revalidateTag } from "next/cache";
+
+function revalidateIncidentData() {
+  // @ts-expect-error Next.js 16 types mismatch
+  revalidateTag("dashboard-metrics");
+  // @ts-expect-error Next.js 16 types mismatch
+  revalidateTag("incident-list");
+  // @ts-expect-error Next.js 16 types mismatch
+  revalidateTag("incident-details");
+  // Also revalidate the main ops layout to clear router cache if necessary
+  revalidatePath("/ops", "layout");
+}
 
 export async function createIncident(data: unknown) {
   await requireRole(["ops_manager", "security", "admin", "volunteer"]);
   try {
     const incident = await IncidentService.createIncident(data);
+    revalidateIncidentData();
     return { success: true, data: incident };
   } catch (error: unknown) {
     return { success: false, error: sanitizeError(error) };
@@ -18,6 +31,7 @@ export async function updateIncident(data: unknown) {
   await requireOps();
   try {
     const incident = await IncidentService.updateIncident(data);
+    revalidateIncidentData();
     return { success: true, data: incident };
   } catch (error: unknown) {
     return { success: false, error: sanitizeError(error) };
@@ -28,6 +42,7 @@ export async function assignIncident(data: unknown) {
   await requireOps();
   try {
     const incident = await IncidentService.assignIncident(data);
+    revalidateIncidentData();
     return { success: true, data: incident };
   } catch (error: unknown) {
     return { success: false, error: sanitizeError(error) };
@@ -38,6 +53,7 @@ export async function resolveIncident(data: unknown) {
   await requireOps();
   try {
     const incident = await IncidentService.resolveIncident(data);
+    revalidateIncidentData();
     return { success: true, data: incident };
   } catch (error: unknown) {
     return { success: false, error: sanitizeError(error) };
@@ -48,6 +64,7 @@ export async function closeIncident(id: string) {
   await requireOps();
   try {
     const incident = await IncidentService.closeIncident(id);
+    revalidateIncidentData();
     return { success: true, data: incident };
   } catch (error: unknown) {
     return { success: false, error: sanitizeError(error) };

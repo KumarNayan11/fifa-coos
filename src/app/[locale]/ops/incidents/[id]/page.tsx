@@ -35,16 +35,22 @@ export default async function IncidentDetailsPage({
     status: incident.status as "reported" | "assigned" | "resolved" | "closed",
     zoneId: incident.zone_id,
     zoneName: incident.zone?.name || "Unknown",
-    createdAt: incident.created_at,
-    updatedAt: incident.updated_at || incident.created_at,
+    createdAt: incident.created_at.toISOString(),
+    updatedAt: (incident.updated_at || incident.created_at).toISOString(),
     assignedPersonnel: incident.assignments.map(
-      (a: { user: { id: string; name: string; role: string } }) => ({
+      (a: { user: { id: string; full_name: string | null; role: string } }) => ({
         id: a.user.id,
-        name: a.user.name,
+        name: a.user.full_name || "Unknown User",
         role: a.user.role,
       }),
     ),
   };
+
+  const mappedUsers = users.map((u) => ({
+    id: u.id,
+    name: u.full_name || "Unknown",
+    role: u.role,
+  }));
 
   const aiSupport = await OperationsAiService.getDecisionSupport(
     [formattedIncident],
@@ -122,7 +128,10 @@ export default async function IncidentDetailsPage({
                     <p className="text-sm text-gray-500">
                       Assigned to{" "}
                       {incident.assignments
-                        .map((a: { user: { name: string } }) => a.user.name)
+                        .map(
+                          (a: { user: { full_name: string | null } }) =>
+                            a.user.full_name || "Unknown",
+                        )
                         .join(", ")}
                     </p>
                   ) : (
@@ -167,7 +176,7 @@ export default async function IncidentDetailsPage({
         </div>
 
         <div className="space-y-6">
-          <IncidentActionsPanel incident={incident} users={users} />
+          <IncidentActionsPanel incident={incident} users={mappedUsers} />
 
           <div className="bg-indigo-50 rounded-lg shadow-sm border border-indigo-100 p-5">
             <div className="flex items-center gap-2 mb-4 text-indigo-900">
@@ -178,7 +187,7 @@ export default async function IncidentDetailsPage({
             {aiSupport ? (
               <div className="space-y-4">
                 <p className="text-sm text-indigo-900 bg-white p-3 rounded border border-indigo-50">
-                  {aiSupport.summary}
+                  {aiSupport.reasoning}
                 </p>
 
                 {aiSupport.recommendedActions.length > 0 && (
@@ -190,16 +199,12 @@ export default async function IncidentDetailsPage({
                     <div className="bg-white p-3 rounded border border-indigo-100 space-y-2">
                       <div className="flex justify-between items-start">
                         <span className="text-sm font-semibold text-gray-900">
-                          {aiSupport.recommendedActions[0].action}
+                          {aiSupport.recommendedActions[0]}
                         </span>
                         <Badge variant="secondary" className="bg-indigo-100 text-indigo-800">
-                          {Math.round(aiSupport.recommendedActions[0].confidence * 100)}% Conf
+                          {aiSupport.confidenceScore}% Conf
                         </Badge>
                       </div>
-                      <p className="text-xs text-gray-600">
-                        <span className="font-medium">Reasoning:</span>{" "}
-                        {aiSupport.recommendedActions[0].reasoning}
-                      </p>
                     </div>
                   </div>
                 )}

@@ -12,7 +12,7 @@ export function sanitizeError(
 ): string {
   if (error instanceof ZodError) {
     // Return the first Zod error message or join them.
-    return error.issues?.[0]?.message || error.errors?.[0]?.message || "Validation failed";
+    return error.issues?.[0]?.message || "Validation failed";
   }
 
   // Log the original error for server-side debugging

@@ -101,7 +101,6 @@ describe("KnowledgeService", () => {
       } as unknown as KnowledgeArticle);
 
       const result = await KnowledgeService.getBySlug("medical-emergency-sop", ["public"]);
-      console.log("RESULT IS", result);
       expect(result).toBeNull();
 
       const validResult = await KnowledgeService.getBySlug("medical-emergency-sop", ["volunteer"]);

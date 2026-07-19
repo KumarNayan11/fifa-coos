@@ -63,7 +63,11 @@ describe("Operations AI Services", () => {
 
       const result = await OperationsAiService.getDecisionSupport([], null, "en");
 
-      expect(generateObject).toHaveBeenCalled();
+      expect(generateObject).toHaveBeenCalledWith(
+        expect.objectContaining({
+          abortSignal: expect.any(AbortSignal),
+        }),
+      );
       expect(result).toEqual(mockResponse);
     });
 
