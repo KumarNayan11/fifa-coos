@@ -6,6 +6,8 @@ import { USER_ROLES } from "@/config/constants";
 import { KnowledgeService } from "@/features/knowledge/services/knowledge.service";
 import { VolunteerAiService } from "./services/volunteer-ai.service";
 import { VolunteerCopilotResponse } from "./types/volunteer-ai.types";
+import { getTranslations } from "next-intl/server";
+import type { Locale } from "@/i18n/routing";
 
 const askVolunteerCopilotSchema = z.object({
   question: z.string().min(1, "Question cannot be empty").max(1000),
@@ -18,9 +20,11 @@ export type AskVolunteerCopilotState = {
 };
 
 export async function askVolunteerCopilotAction(
+  locale: Locale,
   prevState: AskVolunteerCopilotState,
   formData: FormData,
 ): Promise<AskVolunteerCopilotState> {
+  const t = await getTranslations({ locale, namespace: "ai" });
   try {
     const session = await requireRole([
       USER_ROLES.VOLUNTEER,
@@ -29,11 +33,11 @@ export async function askVolunteerCopilotAction(
     ]);
 
     // Authorization logic to map user roles to audiences
-    const allowedAudiences: ("operations" | "volunteer" | "public" | "security")[] = ["public"];
+    const allowedAudiences: ("operations" | "volunteer" | "public")[] = ["public"];
     if (session.role === USER_ROLES.VOLUNTEER) {
       allowedAudiences.push("volunteer");
     } else if (session.role === USER_ROLES.OPS_MANAGER || session.role === USER_ROLES.SECURITY) {
-      allowedAudiences.push("volunteer", "operations", "security");
+      allowedAudiences.push("volunteer", "operations");
     }
 
     const question = formData.get("question") as string;
@@ -42,7 +46,7 @@ export async function askVolunteerCopilotAction(
     if (!parsed.success) {
       return {
         success: false,
-        error: parsed.error?.errors?.[0]?.message || "Validation failed",
+        error: parsed.error?.errors?.[0]?.message || t("validationFailed"),
       };
     }
 
@@ -57,25 +61,25 @@ export async function askVolunteerCopilotAction(
       return {
         success: true,
         data: {
-          answer:
-            "I couldn't find a volunteer policy that matches your question. Please try rephrasing your question. If you need immediate operational guidance, contact the Operations Center or your supervisor.",
+          answer: t("noPoliciesFound"),
           referencedArticles: [],
         },
       };
     }
 
     // 2. AI Reasoning
-    const aiResponse = await VolunteerAiService.getVolunteerAnswer(parsed.data.question, {
-      articles: searchResults,
-    });
+    const aiResponse = await VolunteerAiService.getVolunteerAnswer(
+      parsed.data.question,
+      { articles: searchResults },
+      locale,
+    );
 
     if (!aiResponse) {
       // Fallback Case B: AI unavailable or parsing failed
       return {
         success: true,
         data: {
-          answer:
-            "I found relevant volunteer policies, but I'm currently unable to summarize them. Please review the referenced policy articles or contact the Operations Center if you need clarification.",
+          answer: t("aiUnavailable"),
           referencedArticles: searchResults.map((a) => a.slug),
         },
       };
@@ -89,7 +93,7 @@ export async function askVolunteerCopilotAction(
     console.error("[askVolunteerCopilotAction] Error:", error);
     return {
       success: false,
-      error: "An unexpected error occurred while processing your request.",
+      error: t("unexpectedError"),
     };
   }
 }

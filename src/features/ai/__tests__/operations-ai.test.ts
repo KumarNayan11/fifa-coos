@@ -28,7 +28,7 @@ describe("Operations AI Services", () => {
         zones: [{ zoneId: "z1", zoneName: "Zone 1", crowdDensity: 40, incidentProbability: 5 }],
       };
 
-      const prompt = composeOpsPrompt(incidents, telemetry);
+      const prompt = composeOpsPrompt(incidents, telemetry, "en");
 
       expect(prompt).toContain("## System Identity");
       expect(prompt).toContain("## Advisory Policy");
@@ -39,7 +39,7 @@ describe("Operations AI Services", () => {
     });
 
     it("should gracefully handle empty incidents and null telemetry", () => {
-      const prompt = composeOpsPrompt([], null);
+      const prompt = composeOpsPrompt([], null, "en");
 
       expect(prompt).toContain("No active incidents reported.");
       expect(prompt).toContain("Telemetry data is currently unavailable.");
@@ -61,7 +61,7 @@ describe("Operations AI Services", () => {
         object: mockResponse,
       } as never);
 
-      const result = await OperationsAiService.getDecisionSupport([], null);
+      const result = await OperationsAiService.getDecisionSupport([], null, "en");
 
       expect(generateObject).toHaveBeenCalled();
       expect(result).toEqual(mockResponse);
@@ -70,7 +70,7 @@ describe("Operations AI Services", () => {
     it("should fallback to null if AI provider throws an error", async () => {
       vi.mocked(generateObject).mockRejectedValueOnce(new Error("AI offline"));
 
-      const result = await OperationsAiService.getDecisionSupport([], null);
+      const result = await OperationsAiService.getDecisionSupport([], null, "en");
 
       expect(result).toBeNull();
     });
@@ -79,7 +79,7 @@ describe("Operations AI Services", () => {
       // generateObject throws when the LLM output violates the zod schema
       vi.mocked(generateObject).mockRejectedValueOnce(new Error("Schema validation failed"));
 
-      const result = await OperationsAiService.getDecisionSupport([], null);
+      const result = await OperationsAiService.getDecisionSupport([], null, "en");
 
       expect(result).toBeNull();
     });

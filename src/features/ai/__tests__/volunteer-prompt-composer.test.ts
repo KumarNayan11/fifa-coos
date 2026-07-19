@@ -18,12 +18,22 @@ describe("composeVolunteerPrompt", () => {
       ],
     };
 
-    const prompt = composeVolunteerPrompt(mockContext);
+    const prompt = composeVolunteerPrompt(mockContext, "en");
 
     expect(prompt).toContain("Title: Test Title");
     expect(prompt).toContain("Slug: test-slug");
     expect(prompt).toContain("Test content.");
     expect(prompt).toContain("explicitly state that the information is unavailable");
+    expect(prompt).toContain("Respond entirely in English.");
+  });
+
+  it("should format articles into the prompt correctly for hindi", () => {
+    const mockContext: KnowledgeContext = {
+      articles: [],
+    };
+
+    const prompt = composeVolunteerPrompt(mockContext, "hi");
+    expect(prompt).toContain("पूरा उत्तर हिन्दी में दें।");
   });
 
   it("should handle empty articles gracefully", () => {
@@ -31,7 +41,7 @@ describe("composeVolunteerPrompt", () => {
       articles: [],
     };
 
-    const prompt = composeVolunteerPrompt(mockContext);
+    const prompt = composeVolunteerPrompt(mockContext, "en");
     expect(prompt).toContain("No policies available.");
   });
 });

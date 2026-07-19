@@ -5,6 +5,7 @@ import { TelemetryDashboardDto } from "@/features/telemetry/types";
 import { opsCopilotResponseSchema, OpsCopilotResponse } from "../types/ops-ai.types";
 import { composeOpsPrompt } from "./ops-prompt-composer";
 import { GEMINI_MODEL } from "@/lib/ai/config";
+import type { Locale } from "@/i18n/routing";
 
 // Using centralized GEMINI_MODEL from @/lib/ai/config
 
@@ -16,6 +17,7 @@ export class OperationsAiService {
   public static async getDecisionSupport(
     incidents: RecentIncidentDTO[],
     telemetry: TelemetryDashboardDto | null,
+    locale: Locale,
   ): Promise<OpsCopilotResponse | null> {
     try {
       if (process.env.PLAYWRIGHT_TEST === "1") {
@@ -29,7 +31,7 @@ export class OperationsAiService {
         } as OpsCopilotResponse;
       }
 
-      const systemPrompt = composeOpsPrompt(incidents, telemetry);
+      const systemPrompt = composeOpsPrompt(incidents, telemetry, locale);
 
       const result = await generateObject({
         model: google(GEMINI_MODEL),

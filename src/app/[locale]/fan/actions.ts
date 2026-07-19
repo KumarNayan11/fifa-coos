@@ -19,6 +19,7 @@ import {
   shouldUseFallback,
 } from "@/features/fan/services/fallback.service";
 import type { FanCopilotResponse } from "@/features/fan/types/fan.types";
+import type { Locale } from "@/i18n/routing";
 
 /**
  * Fan Copilot chat Server Action.
@@ -26,25 +27,25 @@ import type { FanCopilotResponse } from "@/features/fan/types/fan.types";
  * Returns a fully formed response instead of streaming, avoiding Next.js
  * Server Action async iterable hanging issues.
  */
-export async function chat(messages: AIMessage[]): Promise<FanCopilotResponse> {
+export async function chat(messages: AIMessage[], locale: Locale): Promise<FanCopilotResponse> {
   try {
     const latestUserMessage = messages.filter((m) => m.role === "user").at(-1)?.content ?? "";
 
     if (!latestUserMessage.trim()) {
-      return generateFallbackResponse("");
+      return await generateFallbackResponse("", locale);
     }
 
     // Invoke AI Service (generateObject)
-    const result = await processFanQuery(messages);
+    const result = await processFanQuery(messages, locale);
 
     if (shouldUseFallback(result.object.confidence)) {
-      return generateFallbackResponse(latestUserMessage);
+      return await generateFallbackResponse(latestUserMessage, locale);
     }
 
     return result.object;
   } catch (error) {
     console.error("[FIFACoOS] AI Service Error:", error);
     const latestUserMessage = messages.filter((m) => m.role === "user").at(-1)?.content ?? "";
-    return generateFallbackResponse(latestUserMessage);
+    return await generateFallbackResponse(latestUserMessage, locale);
   }
 }

@@ -2,6 +2,8 @@
 
 import { useActionState, useRef, useEffect } from "react";
 import { useFormStatus } from "react-dom";
+import { useLocale } from "next-intl";
+import type { Locale } from "@/i18n/routing";
 import {
   Card,
   CardHeader,
@@ -32,7 +34,11 @@ function SubmitButton() {
 }
 
 export function VolunteerCopilotPanel() {
-  const [state, formAction] = useActionState(askVolunteerCopilotAction, initialState);
+  const locale = useLocale() as Locale;
+  const [state, formAction] = useActionState(
+    askVolunteerCopilotAction.bind(null, locale),
+    initialState,
+  );
   const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {

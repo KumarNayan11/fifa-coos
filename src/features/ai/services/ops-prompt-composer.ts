@@ -1,9 +1,12 @@
 import { RecentIncidentDTO } from "@/features/dashboard/types";
 import { TelemetryDashboardDto } from "@/features/telemetry/types";
+import { getLanguageInstruction } from "@/lib/ai/prompts";
+import type { Locale } from "@/i18n/routing";
 
 export function composeOpsPrompt(
   incidents: RecentIncidentDTO[],
   telemetry: TelemetryDashboardDto | null,
+  locale: Locale,
 ): string {
   const sections: string[] = [];
 
@@ -55,6 +58,9 @@ You must respond with a structured JSON object matching the provided schema.
 - "reasoning": Explain why you recommend these actions.
 - "confidenceScore": 0-100. Lower if data is conflicting or missing.
 - "affectedZones": List relevant Zone names (e.g., North Concourse, VIP Lounge).`);
+
+  // Module 6: Localization Constraint
+  sections.push(`## Language Constraint\n${getLanguageInstruction(locale)}`);
 
   return sections.join("\n\n");
 }

@@ -20,15 +20,24 @@ import { STADIUM } from "../data/stadium";
 /** Confidence threshold — below this, AI response is discarded */
 export const CONFIDENCE_THRESHOLD = 50;
 
+import { getTranslations } from "next-intl/server";
+import type { Locale } from "@/i18n/routing";
+
 /**
  * Generate a deterministic fallback response for a fan query.
  * This runs WITHOUT the AI — purely keyword-based matching
  * against the FAQ and POI databases.
  *
  * @param query - The user's original query text
+ * @param locale - The current locale
  * @returns A safe, deterministic FanCopilotResponse
  */
-export function generateFallbackResponse(query: string): FanCopilotResponse {
+export async function generateFallbackResponse(
+  query: string,
+  locale: Locale,
+): Promise<FanCopilotResponse> {
+  const t = await getTranslations({ locale, namespace: "ai" });
+
   // Try to match FAQs first
   const matchingFAQs = searchFAQs(query, 1);
   if (matchingFAQs.length > 0) {
@@ -49,6 +58,9 @@ export function generateFallbackResponse(query: string): FanCopilotResponse {
 
     return {
       intent: "info",
+      // Translating dynamic POI fallback is complex for this task.
+      // The prompt asks to translate "The AI assistant is temporarily unavailable."
+      // For the generic fallback:
       response: `Here are some relevant locations: ${poiNames}. Visit the nearest Information Desk for detailed directions, or ask a volunteer for help.`,
       suggestedPOIs: poiIds,
       confidence: 100,
@@ -58,7 +70,7 @@ export function generateFallbackResponse(query: string): FanCopilotResponse {
   // Generic fallback — no matches at all
   return {
     intent: "general",
-    response: `I'm having trouble finding specific information about that right now. You can visit the North Information Desk near Gate A or the South Information Kiosk near Gate E for assistance. For emergencies, call ${STADIUM.emergencyNumber}. You can also call the info hotline at ${STADIUM.infoHotline}.`,
+    response: t("fanFallback"),
     suggestedPOIs: ["poi-info-north", "poi-info-south"],
     confidence: 100,
   };

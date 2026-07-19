@@ -7,6 +7,7 @@ import {
 } from "../types/volunteer-ai.types";
 import { composeVolunteerPrompt } from "./volunteer-prompt-composer";
 import { GEMINI_MODEL } from "@/lib/ai/config";
+import type { Locale } from "@/i18n/routing";
 
 export class VolunteerAiService {
   /**
@@ -16,6 +17,7 @@ export class VolunteerAiService {
   public static async getVolunteerAnswer(
     question: string,
     context: KnowledgeContext,
+    locale: Locale,
   ): Promise<VolunteerCopilotResponse | null> {
     try {
       if (process.env.PLAYWRIGHT_TEST === "1") {
@@ -25,7 +27,7 @@ export class VolunteerAiService {
         } as VolunteerCopilotResponse;
       }
 
-      const systemPrompt = composeVolunteerPrompt(context);
+      const systemPrompt = composeVolunteerPrompt(context, locale);
 
       const result = await generateObject({
         model: google(GEMINI_MODEL),

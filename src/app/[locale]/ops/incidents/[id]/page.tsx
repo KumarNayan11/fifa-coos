@@ -8,8 +8,13 @@ import { getUsers } from "@/features/incident/actions";
 import { OperationsAiService } from "@/features/ai/services/operations-ai.service";
 import { IncidentActionsPanel } from "@/features/incident/components/IncidentActionsPanel";
 import { Brain } from "lucide-react";
+import type { Locale } from "@/i18n/routing";
 
-export default async function IncidentDetailsPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function IncidentDetailsPage({
+  params,
+}: {
+  params: Promise<{ id: string; locale: string }>;
+}) {
   await requireOps();
   const unwrappedParams = await params;
 
@@ -41,7 +46,11 @@ export default async function IncidentDetailsPage({ params }: { params: Promise<
     ),
   };
 
-  const aiSupport = await OperationsAiService.getDecisionSupport([formattedIncident], null);
+  const aiSupport = await OperationsAiService.getDecisionSupport(
+    [formattedIncident],
+    null,
+    unwrappedParams.locale as Locale,
+  );
 
   const getSeverityVariant = (severity: string) => {
     switch (severity) {

@@ -14,11 +14,17 @@ import { AutoRefresh } from "@/components/shared/AutoRefresh";
 import { AlertCircle, AlertTriangle, CheckCircle, Clock, ShieldAlert } from "lucide-react";
 
 import { ReportIncidentButton } from "@/features/incident/components/ReportIncidentButton";
+import type { Locale } from "@/i18n/routing";
 
-export default async function OpsDashboardPage() {
+export default async function OpsDashboardPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
   // 1. Authentication & Authorization Failure
   // requireOps() will redirect to /ops/login or /unauthorized if invalid
   await requireOps();
+  const { locale } = await params;
 
   let metrics;
   let recentIncidents;
@@ -39,7 +45,7 @@ export default async function OpsDashboardPage() {
       incidentsPromise,
       telemetryPromise,
       Promise.all([incidentsPromise, telemetryPromise]).then(([incidents, telem]) =>
-        OperationsAiService.getDecisionSupport(incidents, telem),
+        OperationsAiService.getDecisionSupport(incidents, telem, locale as Locale),
       ),
     ]);
   } catch {

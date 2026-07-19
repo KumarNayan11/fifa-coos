@@ -16,7 +16,7 @@ describe("VolunteerAiService", () => {
     vi.mocked(aiModule.generateObject).mockRejectedValueOnce(new Error("AI Failed"));
 
     const context: KnowledgeContext = { articles: [] };
-    const result = await VolunteerAiService.getVolunteerAnswer("Test?", context);
+    const result = await VolunteerAiService.getVolunteerAnswer("Test?", context, "en");
 
     expect(result).toBeNull();
   });
@@ -30,7 +30,7 @@ describe("VolunteerAiService", () => {
     } as never);
 
     const context: KnowledgeContext = { articles: [] };
-    const result = await VolunteerAiService.getVolunteerAnswer("Test?", context);
+    const result = await VolunteerAiService.getVolunteerAnswer("Test?", context, "en");
 
     expect(result).toEqual({
       answer: "Test Answer",

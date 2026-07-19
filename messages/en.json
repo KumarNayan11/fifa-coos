@@ -17,5 +17,12 @@
   },
   "accessibility": {
     "skipToContent": "Skip to content"
+  },
+  "ai": {
+    "validationFailed": "Validation failed",
+    "noPoliciesFound": "I couldn't find a volunteer policy that matches your question. Please try rephrasing your question. If you need immediate operational guidance, contact the Operations Center or your supervisor.",
+    "aiUnavailable": "I found relevant volunteer policies, but I'm currently unable to summarize them. Please review the referenced policy articles or contact the Operations Center if you need clarification.",
+    "fanFallback": "The AI assistant is temporarily unavailable.",
+    "unexpectedError": "An unexpected error occurred while processing your request."
   }
 }

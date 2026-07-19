@@ -13,6 +13,8 @@ import { useState, useCallback } from "react";
 import { generateId } from "@/lib/helpers";
 import type { ChatMessage } from "../types/fan.types";
 import { chat } from "@/app/[locale]/fan/actions";
+import { useLocale, useTranslations } from "next-intl";
+import type { Locale } from "@/i18n/routing";
 
 export interface UseFanChatReturn {
   messages: ChatMessage[];
@@ -22,6 +24,8 @@ export interface UseFanChatReturn {
 }
 
 export function useFanChat(): UseFanChatReturn {
+  const locale = useLocale() as Locale;
+  const t = useTranslations("ai");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isStreaming, setIsStreaming] = useState(false);
   const [streamingText, setStreamingText] = useState("");
@@ -49,7 +53,7 @@ export function useFanChat(): UseFanChatReturn {
 
         // 2. Call the Server Action
         console.log("Calling Server Action...");
-        const finalResponse = await chat(history);
+        const finalResponse = await chat(history, locale);
         console.log("Server Action returned:", finalResponse);
 
         // 3. Add assistant message to history
@@ -69,8 +73,7 @@ export function useFanChat(): UseFanChatReturn {
         const errorMessage: ChatMessage = {
           id: "msg_err_" + generateId(),
           role: "assistant",
-          content:
-            "I'm sorry, I'm having trouble connecting right now. Please check your internet connection or ask a nearby volunteer for help.",
+          content: t("fanFallback"),
           timestamp: new Date(),
         };
         setMessages((prev) => [...prev, errorMessage]);

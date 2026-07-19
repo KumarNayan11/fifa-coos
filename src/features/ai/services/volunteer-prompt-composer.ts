@@ -1,6 +1,8 @@
 import { KnowledgeContext } from "@/features/knowledge/types";
+import { getLanguageInstruction } from "@/lib/ai/prompts";
+import type { Locale } from "@/i18n/routing";
 
-export function composeVolunteerPrompt(context: KnowledgeContext): string {
+export function composeVolunteerPrompt(context: KnowledgeContext, locale: Locale): string {
   const articlesContext = context.articles
     .map(
       (article) =>
@@ -24,5 +26,8 @@ CRITICAL RULES:
 3. Your answer should be direct and easy to read quickly on a mobile device.
 4. When you formulate an answer using the provided policies, you must include the 'slug' of those policies in the 'referencedArticles' field of your response.
 5. If you cannot answer the question using the context, provide a polite refusal indicating you do not have that information and leave 'referencedArticles' empty.
+
+LANGUAGE CONSTRAINT:
+${getLanguageInstruction(locale)}
 `.trim();
 }

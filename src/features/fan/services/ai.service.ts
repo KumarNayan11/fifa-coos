@@ -21,6 +21,8 @@ import { fanCopilotResponseSchema } from "../types/ai.schemas";
 import { searchKnowledge } from "./search.service";
 import { STADIUM } from "../data/stadium";
 import type { POI, KnowledgeArticle } from "../types/fan.types";
+import type { Locale } from "@/i18n/routing";
+import { getLanguageInstruction } from "@/lib/ai/prompts";
 
 // ---------------------------------------------------------------------------
 // Model Configuration
@@ -36,7 +38,11 @@ import type { POI, KnowledgeArticle } from "../types/fan.types";
  * Compose the modular system prompt for the Fan Copilot.
  * Each section is a discrete module per the architecture.
  */
-function composeSystemPrompt(matchingFAQs: KnowledgeArticle[], matchingPOIs: POI[]): string {
+function composeSystemPrompt(
+  matchingFAQs: KnowledgeArticle[],
+  matchingPOIs: POI[],
+  locale: Locale,
+): string {
   const sections: string[] = [];
 
   // Module 1: System Identity
@@ -106,6 +112,9 @@ You must respond with a structured JSON object matching the provided schema.
 - Set "suggestedPOIs" to an array of POI IDs from the provided data (or empty array)
 - Set "confidence" to your self-assessed confidence (0-100). Set below 50 if unsure.`);
 
+  // Module 9: Localization Constraint
+  sections.push(`## Language Constraint\n${getLanguageInstruction(locale)}`);
+
   return sections.join("\n\n");
 }
 
@@ -130,9 +139,10 @@ export interface AIMessage {
  * 3. generateObject() — LLM invocation with automatic Zod validation
  *
  * @param messages - Conversation history
+ * @param locale - The user's active locale
  * @returns A result with Zod-validated schema
  */
-export async function processFanQuery(messages: AIMessage[]) {
+export async function processFanQuery(messages: AIMessage[], locale: Locale) {
   // Extract the latest user message for knowledge search
   const latestMessage = messages.filter((m) => m.role === "user").at(-1)?.content ?? "";
 
@@ -140,7 +150,7 @@ export async function processFanQuery(messages: AIMessage[]) {
   const { faqs, pois } = searchKnowledge(latestMessage);
 
   // Step 2: Compose the modular system prompt
-  const systemPrompt = composeSystemPrompt(faqs, pois);
+  const systemPrompt = composeSystemPrompt(faqs, pois, locale);
 
   // Step 3: Invoke LLM with generateObject + Zod schema validation
   return generateObject({
