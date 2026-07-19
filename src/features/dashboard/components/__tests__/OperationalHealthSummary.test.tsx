@@ -22,9 +22,9 @@ describe("OperationalHealthSummary", () => {
     globalCrowdDensity: 50,
     averageWaitTime: 5,
     gateThroughput: 100,
-    globalDensityTrend: "stable" as const,
-    throughputTrend: "stable" as const,
-    waitTimeTrend: "stable" as const,
+    globalDensityTrend: { value: 0, label: "stable", isPositive: true },
+    throughputTrend: { value: 0, label: "stable", isPositive: true },
+    waitTimeTrend: { value: 0, label: "stable", isPositive: true },
     zones: [],
     pois: [],
   };

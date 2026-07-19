@@ -17,6 +17,7 @@ import { RelatedTelemetryPanel } from "@/features/incident/components/RelatedTel
 import { AssignmentContextPanel } from "@/features/incident/components/AssignmentContextPanel";
 import { CopyIdButton } from "@/components/shared/CopyIdButton";
 import { StatusProgressBar } from "@/features/incident/components/StatusProgressBar";
+import type { Locale } from "@/i18n/routing";
 
 export default async function IncidentDetailsPage({
   params,
@@ -65,7 +66,7 @@ export default async function IncidentDetailsPage({
   const aiSupport = await OperationsAiService.getDecisionSupport(
     [formattedIncident],
     null,
-    unwrappedParams.locale as "en" | "es" | "fr" | "hi", // fallback cast
+    unwrappedParams.locale as Locale,
   );
 
   // 4. Fetch Telemetry & Filter for Zone (without new backend logic)
