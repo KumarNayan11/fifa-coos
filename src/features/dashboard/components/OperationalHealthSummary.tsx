@@ -1,6 +1,7 @@
 import { DashboardMetricsDTO } from "@/features/dashboard/types";
 import { TelemetryDashboardDto } from "@/features/telemetry/types";
 import { Activity, ShieldAlert, Users, Clock } from "lucide-react";
+import { RadialProgress } from "@/components/ui/radial-progress";
 
 interface OperationalHealthSummaryProps {
   metrics: DashboardMetricsDTO;
@@ -29,25 +30,18 @@ export function OperationalHealthSummary({ metrics, telemetry }: OperationalHeal
 
   healthScore = Math.max(0, Math.min(100, Math.round(100 - deductions)));
 
-  const getScoreColor = (score: number) => {
-    if (score >= 90) return "text-green-600 bg-green-50 border-green-200";
-    if (score >= 70) return "text-amber-600 bg-amber-50 border-amber-200";
-    return "text-red-600 bg-red-50 border-red-200";
-  };
-
-  const scoreClasses = getScoreColor(healthScore);
-
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col items-center justify-center text-center h-full">
       <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-500 mb-4">
         Stadium Health Score
       </h2>
 
-      <div
-        className={`w-32 h-32 rounded-full border-4 flex items-center justify-center mb-6 shadow-inner ${scoreClasses}`}
-      >
-        <span className="text-4xl font-bold">{healthScore}</span>
-      </div>
+      <RadialProgress
+        value={healthScore}
+        max={100}
+        label={healthScore >= 90 ? "Excellent" : healthScore >= 70 ? "Good" : "Critical"}
+        className="mb-6"
+      />
 
       <div className="grid grid-cols-2 gap-4 w-full">
         <div className="bg-gray-50 rounded p-3 flex flex-col items-center border border-gray-100">

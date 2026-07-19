@@ -4,7 +4,7 @@ import { KnowledgeSearchPanel } from "@/features/knowledge/components/knowledge-
 import { VolunteerCopilotWorkspace } from "@/features/ai/components/volunteer-workspace";
 
 export default async function VolunteerDashboardPage() {
-  const session = await requireVolunteer();
+  await requireVolunteer();
 
   return (
     <Container className="h-[calc(100vh-4rem)] pt-6 pb-6 max-h-screen">

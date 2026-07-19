@@ -5,7 +5,7 @@
 **Document Name:** Master Implementation Plan
 **Version:** 3.0.0
 **Phase:** Engineering Roadmap
-**Status:** DRAFT (Pending Technology Decisions)
+**Status:** Approved (Completed)
 **Roles Assumed:** Technical Program Manager, Principal Software Architect, Engineering Manager, Staff Software Engineer, Release Manager, Technical Writer
 
 ## 2. Purpose
@@ -103,11 +103,11 @@ graph TD
 - **Objective:** Establish the foundational version control, CI/CD pipelines, and initial project scaffolding.
 - **Deliverables:** Git repository, CI/CD workflows, dependency management, linter/formatter rules.
 - **Checklist:**
-  - [ ] Git repository structure created matching `SYSTEM_DESIGN.md`.
-  - [ ] CI/CD pipeline configured for linting and testing.
-  - [ ] Code formatting and linting rules enforced.
-  - [ ] Dependency package managers initialized.
-  - [ ] Phase approved.
+  - [x] Git repository structure created matching `SYSTEM_DESIGN.md`.
+  - [x] CI/CD pipeline configured for linting and testing.
+  - [x] Code formatting and linting rules enforced.
+  - [x] Dependency package managers initialized.
+  - [x] Phase approved.
 - **Completion Evidence:**
   - CI/CD pipeline triggers automatically on PR creation.
   - Code passes all automated linting checks.
@@ -119,11 +119,11 @@ graph TD
 - **Objective:** Scaffold the core frontend shell, routing, state management, and mock data adapters for the Unified Intelligence Engine.
 - **Deliverables:** Shared UI Component library, Design System tokens, Base layouts, API client scaffolding.
 - **Checklist:**
-  - [ ] Design system tokens (colors, typography, spacing) implemented.
-  - [ ] Shared accessible UI components (Buttons, Modals, Inputs) built.
-  - [ ] Core application routing and layout shell completed.
-  - [ ] Telemetry simulation adapters stubbed.
-  - [ ] Phase approved.
+  - [x] Design system tokens (colors, typography, spacing) implemented.
+  - [x] Shared accessible UI components (Buttons, Modals, Inputs) built.
+  - [x] Core application routing and layout shell completed.
+  - [x] Telemetry simulation adapters stubbed.
+  - [x] Phase approved.
 - **Completion Evidence:**
   - Shared UI components render correctly in isolation.
   - Application shell loads without console errors.
@@ -135,12 +135,12 @@ graph TD
 - **Objective:** Deliver a complete, end-to-end journey for an anonymous fan requesting stadium assistance.
 - **Deliverables:** Fan Copilot UI, Anonymous Session Management, Smart Navigation Service, POI Search, Wait Time Retrieval.
 - **Checklist:**
-  - [ ] Anonymous fan session initialization.
-  - [ ] Conversational UI interface for Fan Copilot.
-  - [ ] Deterministic knowledge retrieval strategy integrated for stadium FAQs.
-  - [ ] Smart Navigation service integration (e.g., routing to gates/concessions).
-  - [ ] AI connected to process fan queries and return structured responses.
-  - [ ] Phase approved.
+  - [x] Anonymous fan session initialization.
+  - [x] Conversational UI interface for Fan Copilot.
+  - [x] Deterministic knowledge retrieval strategy integrated for stadium FAQs.
+  - [x] Smart Navigation service integration (e.g., routing to gates/concessions).
+  - [x] AI connected to process fan queries and return structured responses.
+  - [x] Phase approved.
 - **Completion Evidence:**
   - Anonymous session is created upon initial load.
   - Fan Copilot accurately responds to "Where is Gate B?" with navigational directions and wait times.
@@ -152,12 +152,12 @@ graph TD
 - **Objective:** Deliver the operational dashboard where staff monitor telemetry and receive AI decision support for incidents.
 - **Deliverables:** Authenticated Ops Login, Incident Dashboard, Telemetry Visualization, AI Recommendations Engine.
 - **Checklist:**
-  - [ ] RBAC Authentication for Operations Role implemented.
-  - [ ] Real-time (or simulated) incident dashboard UI completed.
-  - [ ] Telemetry ingestion endpoint wired to dashboard.
-  - [ ] AI Decision Support integrated to recommend incident mitigations.
-  - [ ] Security validation on operational endpoints.
-  - [ ] Phase approved.
+  - [x] RBAC Authentication for Operations Role implemented.
+  - [x] Real-time (or simulated) incident dashboard UI completed.
+  - [x] Telemetry ingestion endpoint wired to dashboard.
+  - [x] AI Decision Support integrated to recommend incident mitigations.
+  - [x] Security validation on operational endpoints.
+  - [x] Phase approved.
 - **Completion Evidence:**
   - Operations personnel successfully log in with RBAC verification.
   - Incident dashboard visualizes telemetry data streams.
@@ -170,9 +170,9 @@ graph TD
 - **Deliverables:** Authenticated Volunteer Login, Knowledge Access UI, Role-specific prompt templates.
 - **Checklist:**
   - [x] RBAC Authentication for Volunteer Role implemented.
-  - [ ] Volunteer Copilot UI tailored for rapid information retrieval.
-  - [ ] AI connected to volunteer-specific policy knowledge base.
-  - [ ] Phase approved.
+  - [x] Volunteer Copilot UI tailored for rapid information retrieval.
+  - [x] AI connected to volunteer-specific policy knowledge base.
+  - [x] Phase approved.
 - **Completion Evidence:**
   - Volunteer successfully logs in with RBAC verification.
   - Volunteer Assistant successfully retrieves role-specific policies.
@@ -183,11 +183,11 @@ graph TD
 - **Objective:** Elevate the application to meet global inclusivity standards required for a FIFA-level event.
 - **Deliverables:** i18n implementation, ARIA tag audit, Keyboard navigation flows, Voice-ready text processing.
 - **Checklist:**
-  - [ ] Internationalization (i18n) framework integrated.
-  - [ ] Core application strings translated into at least two languages.
-  - [ ] Automated accessibility validation passed.
-  - [ ] Keyboard-only navigation verified for Copilots and Dashboard.
-  - [ ] Phase approved.
+  - [x] Internationalization (i18n) framework integrated.
+  - [x] Core application strings translated into at least two languages.
+  - [x] Automated accessibility validation passed.
+  - [x] Keyboard-only navigation verified for Copilots and Dashboard.
+  - [x] Phase approved.
 - **Completion Evidence:**
   - Automated accessibility validation scores 100% against WCAG guidelines.
   - Application fully operable via keyboard navigation.
@@ -199,11 +199,11 @@ graph TD
 - **Objective:** Stabilize, optimize, and secure the application for final delivery.
 - **Deliverables:** Performance optimization, dependency updates, security patching, comprehensive E2E tests, AI evaluation.
 - **Checklist:**
-  - [ ] End-to-end regression tests executed and passing.
-  - [ ] Lighthouse performance scores verified (>90).
-  - [ ] AI response guardrails and latency bounds validated.
-  - [ ] PII sanitization verified on Copilot inputs.
-  - [ ] Phase approved.
+  - [x] End-to-end regression tests executed and passing.
+  - [x] Lighthouse performance scores verified (>90).
+  - [x] AI response guardrails and latency bounds validated.
+  - [x] PII sanitization verified on Copilot inputs.
+  - [x] Phase approved.
 - **Completion Evidence:**
   - End-to-end test suites execute with 100% pass rate.
   - Performance audits confirm >90 scores.
@@ -216,10 +216,10 @@ graph TD
 - **Objective:** Package the application and demonstrations for the PromptWars competition.
 - **Deliverables:** Submission assets, final demo environment, demonstration scripts.
 - **Checklist:**
-  - [ ] Demo environment seeded with simulation data.
-  - [ ] Walkthrough scripts for all primary personas written.
-  - [ ] Final submission documentation and videos generated.
-  - [ ] Phase approved.
+  - [x] Demo environment seeded with simulation data.
+  - [x] Walkthrough scripts for all primary personas written.
+  - [x] Final submission documentation and videos generated.
+  - [x] Phase approved.
 - **Completion Evidence:**
   - End-to-end competition demo scenario is successfully completed.
   - Demo environment is fully provisioned and stable.
@@ -312,24 +312,24 @@ Mandatory gates before progressing to the next phase:
 
 ---
 
-## 18. Technology Decision Placeholders
+## 18. Technology Decision Resolution
 
-_(Note: No technologies are chosen here. They will be resolved in `TECHNOLOGY_DECISIONS.md`)_
+The technology selections for FIFACoOS are resolved as follows (detailed in `TECHNOLOGY_DECISIONS.md`):
 
-- `[FRONTEND_FRAMEWORK]` - Framework for building the conversational and dashboard interfaces.
-- `[BACKEND_FRAMEWORK]` - Framework for REST/GraphQL and AI orchestration.
-- `[AUTH_PROVIDER]` - Provider for RBAC, Operations/Volunteer Auth, and Anonymous sessions.
-- `[DATABASE_PLATFORM]` - Storage for incidents, configurations, and knowledge base.
-- `[LLM_PROVIDER]` - Engine powering Fan Copilot and AI Decision Support.
-- `[KNOWLEDGE_RETRIEVAL_STRATEGY]` - Mechanism for deterministic knowledge retrieval during the MVP, with evaluation of future semantic retrieval and Retrieval-Augmented Generation (RAG) enhancements after the MVP.
-- `[MAPS_PROVIDER]` - Engine for rendering stadium Smart Navigation.
-- `[TELEMETRY_SIMULATION_STRATEGY]` - Architecture for mocking real-time stadium events.
-- `[I18N_LIBRARY]` - Framework for localization and multilingual support.
-- `[A11Y_FRAMEWORK]` - Framework for automated accessibility validation and enforcing WCAG compliance.
-- `[STATE_MANAGEMENT]` - Solution for managing Copilot session state and real-time dashboard data.
-- `[DEPLOYMENT_PLATFORM]` - Cloud hosting environment for the demo.
-- `[OBSERVABILITY_PLATFORM]` - Tooling for application logs and AI token metrics.
-- `[TESTING_FRAMEWORK]` - Platform for executing end-to-end, integration, and unit tests.
+- **Frontend Framework**: Next.js 16 (App Router) for Server-First modular pages and Client components.
+- **Backend Framework**: Next.js Server Components, Route Handlers, and Server Actions for secure, typed data orchestration.
+- **Auth Provider**: Supabase Auth (GoTrue) for RBAC, Operations/Volunteer sessions, and Anonymous Fan interfaces.
+- **Database Platform**: Supabase PostgreSQL with Row-Level Security (RLS) for data isolation.
+- **LLM Provider**: Google Gemini via Vercel AI SDK acting as the provider-agnostic gateway.
+- **Knowledge Retrieval Strategy**: Deterministic exact-match database queries fetching structured standard operating procedures and FAQs to prevent hallucination.
+- **Maps Provider**: Mapbox GL JS for accessible, visually-customizable stadium wayfinding maps.
+- **Telemetry Simulation Strategy**: A dedicated scheduled in-application simulation engine that updates zone crowd densities and incident states in the database.
+- **i18n Library**: `next-intl` supporting English (EN), Spanish (ES), French (FR), and Hindi (HI).
+- **Accessibility (A11y)**: Radix UI headless primitives (via shadcn/ui) verified with `eslint-plugin-jsx-a11y` static checks and automated axe-core scans.
+- **State Management**: React Server Components (RSC) for server-side state with Zustand for complex client-side chat and dashboard interaction.
+- **Deployment Platform**: Vercel for serverless edge deployment.
+- **Observability Platform**: Pino structured JSON logs for backend logging.
+- **Testing Framework**: Vitest for unit and integration testing, and Playwright for cross-browser E2E testing.
 
 ---
 

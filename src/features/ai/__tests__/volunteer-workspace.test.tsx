@@ -6,7 +6,6 @@ import { render, screen, cleanup, fireEvent, act } from "@testing-library/react"
 import { VolunteerCopilotWorkspace } from "../components/volunteer-workspace";
 import { useVolunteerChat } from "../hooks/use-volunteer-chat";
 import { renderHook } from "@testing-library/react";
-import { announce } from "@/lib/accessibility/announcements";
 
 // Mock matchMedia for jsdom
 Object.defineProperty(window, "matchMedia", {
@@ -62,7 +61,7 @@ describe("Volunteer Assistant - Premium Experience", () => {
     it("should hide the welcome screen when messages exist", async () => {
       // Create a mock hook specifically for this test if we need to simulate state,
       // but actually we can just fire the send event which triggers useVolunteerChat
-      const { container } = render(<VolunteerCopilotWorkspace />);
+      render(<VolunteerCopilotWorkspace />);
       const btn = screen.getByText("Report an Incident").closest("button");
 
       await act(async () => {

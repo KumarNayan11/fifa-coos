@@ -9,6 +9,7 @@
  */
 
 import { cva, type VariantProps } from "class-variance-authority";
+import { Loader2 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
@@ -19,7 +20,7 @@ const buttonVariants = cva(
     "transition-colors duration-200",
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
     "disabled:pointer-events-none disabled:opacity-50",
-    "whitespace-nowrap",
+    "whitespace-nowrap relative",
   ],
   {
     variants: {
@@ -46,21 +47,42 @@ const buttonVariants = cva(
 );
 
 export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {}
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {
+  /** If true, shows a spinner and disables the button */
+  isLoading?: boolean;
+}
 
 /**
  * Accessible button component with multiple visual variants.
- *
- * @example
- * ```tsx
- * <Button variant="default" size="md">Click me</Button>
- * <Button variant="outline" size="lg">Large Outlined</Button>
- * <Button variant="ghost" size="icon" aria-label="Close"><X /></Button>
- * ```
+ * Supports loading state via `isLoading` prop.
  */
-export function Button({ className, variant, size, type = "button", ...props }: ButtonProps) {
+export function Button({
+  className,
+  variant,
+  size,
+  type = "button",
+  isLoading,
+  disabled,
+  children,
+  ...props
+}: ButtonProps) {
   return (
-    <button type={type} className={cn(buttonVariants({ variant, size, className }))} {...props} />
+    <button
+      type={type}
+      className={cn(buttonVariants({ variant, size, className }))}
+      disabled={disabled || isLoading}
+      aria-busy={isLoading}
+      {...props}
+    >
+      {isLoading && (
+        <div className="absolute inset-0 flex items-center justify-center">
+          <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+        </div>
+      )}
+      <span className={cn("inline-flex items-center gap-2", isLoading && "opacity-0")}>
+        {children}
+      </span>
+    </button>
   );
 }
 

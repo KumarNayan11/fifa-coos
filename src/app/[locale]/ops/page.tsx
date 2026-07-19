@@ -1,4 +1,4 @@
-import { Suspense } from "react";
+import { Suspense, cache } from "react";
 import { Container } from "@/components/ui/container";
 import { requireOps } from "@/lib/auth";
 import { DashboardService } from "@/features/dashboard/services/dashboard.service";
@@ -7,14 +7,23 @@ import { OperationsAiService } from "@/features/ai/services/operations-ai.servic
 import { IncidentService } from "@/features/incident/services/incident.service";
 import { AutoRefresh } from "@/components/shared/AutoRefresh";
 import { AlertTriangle, Activity, Users, ShieldAlert, CheckCircle } from "lucide-react";
-import type { DashboardIncidentStatus, DashboardSeverity } from "@/features/dashboard/types";
+import type {
+  DashboardIncidentStatus,
+  DashboardSeverity,
+  RecentIncidentDTO,
+} from "@/features/dashboard/types";
+import type { TelemetryDashboardDto } from "@/features/telemetry/types";
 
 import { ReportIncidentButton } from "@/features/incident/components/ReportIncidentButton";
 import { IncidentAnalyticsPanel } from "@/features/dashboard/components/IncidentAnalyticsPanel";
 import { TelemetryOverviewPanel } from "@/features/dashboard/components/TelemetryOverviewPanel";
-import { OperationsCopilotPanel } from "@/features/dashboard/components/OperationsCopilotPanel";
+import {
+  OperationsCopilotPanel,
+  OperationsRecommendationsCard,
+} from "@/features/dashboard/components/OperationsCopilotPanel";
 import { OperationalHealthSummary } from "@/features/dashboard/components/OperationalHealthSummary";
 import { RecentActivityFeed } from "@/features/dashboard/components/RecentActivityFeed";
+import { MetricCard } from "@/features/dashboard/components/MetricCard";
 import type { Locale } from "@/i18n/routing";
 
 export const dynamic = "force-dynamic";
@@ -37,7 +46,7 @@ export default async function OpsDashboardPage({
   });
 
   return (
-    <Container className="space-y-8 pb-12">
+    <Container size="full" className="max-w-[1600px] space-y-8 pb-12">
       <AutoRefresh intervalMs={REFRESH_INTERVAL_MS} />
 
       {/* 1. Header */}
@@ -63,39 +72,59 @@ export default async function OpsDashboardPage({
         <DashboardKPIs metricsPromise={metricsPromise} incidentsPromise={incidentsPromise} />
       </Suspense>
 
-      {/* Main Grid: Operational Intelligence & Analytics */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Left Column: Intelligence & Summaries */}
-        <div className="lg:col-span-1 space-y-8">
-          <Suspense fallback={<HealthSummarySkeleton />}>
-            <HealthSummarySection
-              metricsPromise={metricsPromise}
-              telemetryPromise={telemetryPromise}
-            />
-          </Suspense>
-
-          <Suspense fallback={<CopilotSkeleton />}>
-            <CopilotSection
-              incidentsPromise={incidentsPromise}
-              telemetryPromise={telemetryPromise}
-              locale={locale as Locale}
-            />
-          </Suspense>
-
-          <Suspense fallback={<ActivitySkeleton />}>
-            <ActivitySection incidentsPromise={incidentsPromise} />
-          </Suspense>
+      {/* 3. Reorganized Rows for Dashboard Layout */}
+      <div className="space-y-8">
+        {/* Row 2: Health Score (1/3) & Incident Analytics (2/3) */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
+          <div className="lg:col-span-1">
+            <Suspense fallback={<HealthSummarySkeleton />}>
+              <HealthSummarySection
+                metricsPromise={metricsPromise}
+                telemetryPromise={telemetryPromise}
+              />
+            </Suspense>
+          </div>
+          <div className="lg:col-span-2">
+            <Suspense fallback={<AnalyticsSkeleton />}>
+              <AnalyticsSection incidentsPromise={incidentsPromise} />
+            </Suspense>
+          </div>
         </div>
 
-        {/* Right Column: Analytics & Telemetry */}
-        <div className="lg:col-span-2 space-y-8">
-          <Suspense fallback={<AnalyticsSkeleton />}>
-            <AnalyticsSection incidentsPromise={incidentsPromise} />
-          </Suspense>
+        {/* Row 3: Telemetry (2/3) & Executive Briefing (1/3) */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
+          <div className="lg:col-span-2">
+            <Suspense fallback={<TelemetrySkeleton />}>
+              <TelemetrySection telemetryPromise={telemetryPromise} />
+            </Suspense>
+          </div>
+          <div className="lg:col-span-1">
+            <Suspense fallback={<CopilotSkeleton />}>
+              <BriefingSection
+                incidentsPromise={incidentsPromise}
+                telemetryPromise={telemetryPromise}
+                locale={locale as Locale}
+              />
+            </Suspense>
+          </div>
+        </div>
 
-          <Suspense fallback={<TelemetrySkeleton />}>
-            <TelemetrySection telemetryPromise={telemetryPromise} />
-          </Suspense>
+        {/* Row 4: Recent Activity (1/3) & AI Recommendations / Recommended Actions (2/3) */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
+          <div className="lg:col-span-1">
+            <Suspense fallback={<ActivitySkeleton />}>
+              <ActivitySection incidentsPromise={incidentsPromise} />
+            </Suspense>
+          </div>
+          <div className="lg:col-span-2">
+            <Suspense fallback={<CopilotSkeleton />}>
+              <RecommendationsSection
+                incidentsPromise={incidentsPromise}
+                telemetryPromise={telemetryPromise}
+                locale={locale as Locale}
+              />
+            </Suspense>
+          </div>
         </div>
       </div>
     </Container>
@@ -131,57 +160,111 @@ async function DashboardKPIs({
     );
   }
 
+  // Calculate simple deterministic trends for last 30 minutes
+  const now = new Date();
+  const thirtyMinsAgo = new Date(now.getTime() - 30 * 60 * 1000);
+
+  const recentActive = incidents.filter(
+    (inc) =>
+      ["reported", "verified", "assigned"].includes(inc.status) &&
+      new Date(inc.created_at) >= thirtyMinsAgo,
+  ).length;
+
+  const recentCritical = incidents.filter(
+    (inc) =>
+      ["reported", "verified", "assigned"].includes(inc.status) &&
+      inc.severity === "critical" &&
+      new Date(inc.created_at) >= thirtyMinsAgo,
+  ).length;
+
+  let recentAssignments = 0;
+  incidents.forEach((inc) => {
+    inc.assignments.forEach((assign) => {
+      if (new Date(assign.assigned_at) >= thirtyMinsAgo) {
+        recentAssignments++;
+      }
+    });
+  });
+
+  const recentResolved = incidents.filter(
+    (inc) => inc.status === "resolved" && new Date(inc.updated_at) >= thirtyMinsAgo,
+  ).length;
+
+  const activeTrend =
+    recentActive > 0
+      ? {
+          value: Math.round((recentActive / Math.max(1, metrics.openIncidents)) * 100),
+          label: "new active",
+          isPositive: false,
+        }
+      : undefined;
+
+  const criticalTrend =
+    recentCritical > 0
+      ? {
+          value: Math.round(
+            (recentCritical / Math.max(1, metrics.unresolvedCriticalIncidents)) * 100,
+          ),
+          label: "new critical",
+          isPositive: false,
+        }
+      : undefined;
+
+  const assignmentsTrend =
+    recentAssignments > 0
+      ? {
+          value: Math.round((recentAssignments / Math.max(1, activeAssignments)) * 100),
+          label: "recent staff",
+          isPositive: true,
+        }
+      : undefined;
+
+  const resolvedTrend =
+    recentResolved > 0
+      ? {
+          value: Math.round((recentResolved / Math.max(1, metrics.resolvedIncidents)) * 100),
+          label: "recent closed",
+          isPositive: true,
+        }
+      : undefined;
+
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-      <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
-        <div className="flex items-center justify-between">
-          <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wider">
-            Active Incidents
-          </h3>
-          <Activity className="h-5 w-5 text-indigo-500" />
-        </div>
-        <p className="mt-4 text-3xl font-bold text-gray-900">{metrics.openIncidents}</p>
-        <p className="mt-1 text-sm text-gray-500">Requires resolution</p>
-      </div>
+      <MetricCard
+        title="Active Incidents"
+        value={metrics.openIncidents}
+        icon={<Activity className="h-5 w-5 text-indigo-500" />}
+        trend={activeTrend}
+        description="Requires resolution"
+        status={metrics.openIncidents > 5 ? "warning" : "info"}
+      />
 
-      <div
-        className={`bg-white p-5 rounded-xl shadow-sm border ${metrics.unresolvedCriticalIncidents > 0 ? "border-red-300 bg-red-50" : "border-gray-200"}`}
-      >
-        <div className="flex items-center justify-between">
-          <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wider">
-            Critical Priority
-          </h3>
-          <AlertTriangle
-            className={`h-5 w-5 ${metrics.unresolvedCriticalIncidents > 0 ? "text-red-500" : "text-gray-400"}`}
-          />
-        </div>
-        <p className="mt-4 text-3xl font-bold text-gray-900">
-          {metrics.unresolvedCriticalIncidents}
-        </p>
-        <p className="mt-1 text-sm text-gray-500">Highest severity alerts</p>
-      </div>
+      <MetricCard
+        title="Critical Priority"
+        value={metrics.unresolvedCriticalIncidents}
+        icon={<AlertTriangle className="h-5 w-5 text-red-500" />}
+        trend={criticalTrend}
+        description="Highest severity alerts"
+        status={metrics.unresolvedCriticalIncidents > 0 ? "danger" : "neutral"}
+      />
 
-      <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
-        <div className="flex items-center justify-between">
-          <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wider">
-            Active Assignments
-          </h3>
-          <Users className="h-5 w-5 text-blue-500" />
-        </div>
-        <p className="mt-4 text-3xl font-bold text-gray-900">{activeAssignments}</p>
-        <p className="mt-1 text-sm text-gray-500">Personnel currently dispatched</p>
-      </div>
+      <MetricCard
+        title="Active Assignments"
+        value={activeAssignments}
+        icon={<Users className="h-5 w-5 text-blue-500" />}
+        trend={assignmentsTrend}
+        description="Personnel currently dispatched"
+        status="neutral"
+      />
 
-      <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
-        <div className="flex items-center justify-between">
-          <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wider">
-            Resolved Today
-          </h3>
-          <CheckCircle className="h-5 w-5 text-emerald-500" />
-        </div>
-        <p className="mt-4 text-3xl font-bold text-gray-900">{metrics.resolvedIncidents}</p>
-        <p className="mt-1 text-sm text-gray-500">Total successfully closed</p>
-      </div>
+      <MetricCard
+        title="Resolved Today"
+        value={metrics.resolvedIncidents}
+        icon={<CheckCircle className="h-5 w-5 text-emerald-500" />}
+        trend={resolvedTrend}
+        description="Total successfully closed"
+        status="success"
+      />
     </div>
   );
 }
@@ -197,7 +280,17 @@ async function HealthSummarySection({
   return <OperationalHealthSummary metrics={metrics} telemetry={telemetry} />;
 }
 
-async function CopilotSection({
+const getCachedDecisionSupport = cache(
+  async (
+    recentDtos: RecentIncidentDTO[],
+    telemetry: TelemetryDashboardDto | null,
+    locale: Locale,
+  ) => {
+    return OperationsAiService.getDecisionSupport(recentDtos, telemetry, locale);
+  },
+);
+
+async function BriefingSection({
   incidentsPromise,
   telemetryPromise,
   locale,
@@ -208,7 +301,6 @@ async function CopilotSection({
 }) {
   const [incidents, telemetry] = await Promise.all([incidentsPromise, telemetryPromise]);
 
-  // Map raw incidents to RecentIncidentDTO for OperationsAiService exactly as it was
   const recentDtos = incidents.slice(0, 10).map((inc) => ({
     id: inc.id,
     title: inc.title,
@@ -222,12 +314,36 @@ async function CopilotSection({
     })),
   }));
 
-  const decisionSupport = await OperationsAiService.getDecisionSupport(
-    recentDtos,
-    telemetry,
-    locale,
-  );
+  const decisionSupport = await getCachedDecisionSupport(recentDtos, telemetry, locale);
   return <OperationsCopilotPanel decisionSupport={decisionSupport} />;
+}
+
+async function RecommendationsSection({
+  incidentsPromise,
+  telemetryPromise,
+  locale,
+}: {
+  incidentsPromise: ReturnType<typeof IncidentService.listIncidents>;
+  telemetryPromise: ReturnType<typeof TelemetryService.getDashboardTelemetry>;
+  locale: Locale;
+}) {
+  const [incidents, telemetry] = await Promise.all([incidentsPromise, telemetryPromise]);
+
+  const recentDtos = incidents.slice(0, 10).map((inc) => ({
+    id: inc.id,
+    title: inc.title,
+    status: inc.status as DashboardIncidentStatus,
+    severity: inc.severity as DashboardSeverity,
+    createdAt: inc.created_at.toISOString(),
+    updatedAt: inc.updated_at.toISOString(),
+    assignedPersonnel: inc.assignments.map((a) => ({
+      id: a.user.id,
+      name: a.user.full_name || "Unknown",
+    })),
+  }));
+
+  const decisionSupport = await getCachedDecisionSupport(recentDtos, telemetry, locale);
+  return <OperationsRecommendationsCard decisionSupport={decisionSupport} />;
 }
 
 async function AnalyticsSection({

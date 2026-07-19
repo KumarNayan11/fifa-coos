@@ -3,6 +3,8 @@
 import { useMemo } from "react";
 import { IncidentDataAnalytics } from "./IncidentAnalyticsPanel";
 import { AlertCircle, CheckCircle, Clock, ShieldAlert, UserPlus, Info } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
 
 interface RecentActivityFeedProps {
   incidents: IncidentDataAnalytics[];
@@ -22,21 +24,21 @@ export function RecentActivityFeed({ incidents }: RecentActivityFeedProps) {
     const recent = sorted.slice(0, 8);
 
     return recent.map((inc) => {
-      let icon = <Info className="h-4 w-4 text-blue-500" />;
+      let icon = <Info className="h-4 w-4 text-blue-500" aria-hidden="true" />;
       let title = `Incident ${inc.status}`;
       let description = inc.title;
 
       switch (inc.status) {
         case "reported":
-          icon = <AlertCircle className="h-4 w-4 text-gray-500" />;
+          icon = <AlertCircle className="h-4 w-4 text-gray-500" aria-hidden="true" />;
           title = "New Incident Reported";
           break;
         case "verified":
-          icon = <ShieldAlert className="h-4 w-4 text-amber-500" />;
+          icon = <ShieldAlert className="h-4 w-4 text-amber-500" aria-hidden="true" />;
           title = "Incident Verified";
           break;
         case "assigned":
-          icon = <UserPlus className="h-4 w-4 text-indigo-500" />;
+          icon = <UserPlus className="h-4 w-4 text-indigo-500" aria-hidden="true" />;
           const assignees = inc.assignments
             .map((a) => a.user.full_name)
             .filter(Boolean)
@@ -47,18 +49,18 @@ export function RecentActivityFeed({ incidents }: RecentActivityFeedProps) {
           }
           break;
         case "resolved":
-          icon = <CheckCircle className="h-4 w-4 text-emerald-500" />;
+          icon = <CheckCircle className="h-4 w-4 text-emerald-500" aria-hidden="true" />;
           title = "Incident Resolved";
           break;
         case "closed":
-          icon = <CheckCircle className="h-4 w-4 text-teal-600" />;
+          icon = <CheckCircle className="h-4 w-4 text-teal-600" aria-hidden="true" />;
           title = "Incident Closed";
           break;
       }
 
       // If severity is critical and it's new/verified, make it pop more
       if (inc.severity === "critical" && ["reported", "verified"].includes(inc.status)) {
-        icon = <ShieldAlert className="h-4 w-4 text-red-500" />;
+        icon = <ShieldAlert className="h-4 w-4 text-red-500" aria-hidden="true" />;
       }
 
       return {
@@ -74,21 +76,25 @@ export function RecentActivityFeed({ incidents }: RecentActivityFeedProps) {
 
   if (feedItems.length === 0) {
     return (
-      <div className="p-6 text-center text-gray-500">
-        <Clock className="h-8 w-8 mx-auto mb-2 text-gray-300" />
-        <p className="text-sm">No recent activity.</p>
-      </div>
+      <Card>
+        <CardContent className="pt-6">
+          <EmptyState
+            icon={<Clock className="h-12 w-12" aria-hidden="true" />}
+            title="No recent activity"
+          />
+        </CardContent>
+      </Card>
     );
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-      <div className="px-5 py-4 border-b border-gray-100 bg-gray-50">
-        <h2 className="text-sm font-bold text-gray-900 uppercase tracking-wider">
+    <Card className="overflow-hidden">
+      <CardHeader className="bg-gray-50 border-b pb-4">
+        <CardTitle className="text-sm font-bold text-gray-900 uppercase tracking-wider">
           Recent Activity
-        </h2>
-      </div>
-      <div className="p-0">
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="p-0">
         <ul className="divide-y divide-gray-100">
           {feedItems.map((item) => (
             <li key={item.id} className="p-4 hover:bg-gray-50 transition-colors">
@@ -113,7 +119,7 @@ export function RecentActivityFeed({ incidents }: RecentActivityFeedProps) {
             </li>
           ))}
         </ul>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }

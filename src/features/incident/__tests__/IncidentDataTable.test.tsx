@@ -117,10 +117,10 @@ describe("IncidentDataTable", () => {
     render(<IncidentDataTable incidents={mockIncidents} />);
 
     const searchInput = screen.getByPlaceholderText("Search by ID, title, or zone...");
-    fireEvent.change(searchInput, { target: { value: "Nonexistent" } });
+    fireEvent.change(searchInput, { target: { value: "Non-existent Incident" } });
 
     expect(screen.queryByText("Fire in Sector A")).toBeNull();
-    expect(screen.getByText("No incidents match your filters")).toBeDefined();
+    expect(screen.getByText("No results found")).toBeDefined();
 
     // Clear filters button should work
     const clearButton = screen.getByText("Clear all filters");

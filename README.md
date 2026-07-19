@@ -1,136 +1,225 @@
-# FIFACoOS
+# FIFACoOS (FIFA Copilot Operating System)
 
-FIFA Copilot Operating System
+An AI-powered Smart Stadium & Tournament Operations Platform built for the FIFA World Cup 2026.
 
-An AI-powered Smart Stadium & Tournament Operations Platform built for PromptWars Challenge 4.
+FIFACoOS leverages Generative AI to provide intelligent decision support for fans, operations managers, volunteers, venue staff, and emergency responders. Rather than functioning as a simple conversational chatbot, the platform acts as an operational copilot by synthesizing real-time stadium context, predicting operational challenges, and delivering actionable, validated recommendations across crowd management, navigation, accessibility, multilingual assistance, and incident response.
 
-FIFACoOS leverages Generative AI to provide intelligent decision support for fans, organizers, volunteers, venue staff, and emergency responders during the FIFA World Cup 2026. Rather than functioning as a simple chatbot, the platform acts as an operational copilot by synthesizing real-time stadium context, predicting operational challenges, and delivering actionable recommendations across crowd management, navigation, accessibility, transportation, multilingual assistance, sustainability, and incident response.
+---
 
-## Project Status
+## Features
 
-| Phase                        | Status         |
-| :--------------------------- | :------------- |
-| **0:** Repository Init       | ✅ Completed   |
-| **1:** Platform Foundation   | ✅ Completed   |
-| **2:** Fan Copilot           | ✅ Completed   |
-| **3:** Ops Command Center    | ✅ Completed   |
-| Phase 4: Volunteer Assistant | 🏗️ In Progress |
-| Phase 5: Polish              | ✅ Completed   |
-| Phase 6: Hardening           | ✅ Completed   |
-| Phase 7: PromptWars Submit   | 🏗️ In Progress |
+### Fan Copilot
+
+A mobile-optimized, anonymous assistant designed to guide fans through their stadium journey.
+
+- **Smart Navigation & Wayfinding**: Provides step-by-step routing between stadium locations (gates, concessions, medical tents, restrooms) based on accessibility preferences (e.g., wheelchair-friendly paths).
+- **Live Concession Wait Times**: Fetches live queue wait times for points of interest securely without exposing underlying operational telemetry.
+- **Instant Answers**: Provides multilingual answers to common stadium FAQs and standard policies.
+- _[Screenshot Placeholder: Fan Copilot Chat Interface]_
+
+### Operations Command Center
+
+A desktop-optimized dashboard for venue managers and security coordinators to visualize real-time operations.
+
+- **Live Telemetry & Heatmaps**: Monitors simulated crowd densities, queue wait times, and active stadium metrics per zone.
+- **Incident Lifecycle Management**: Displays a prioritized list of active incidents, allowing managers to inspect, assign, resolve, and close incidents.
+- **AI Decision Support**: Recommends actionable mitigations and staff deployments for active incidents based on standard operating procedures (SOPs).
+- _[Screenshot Placeholder: Operations Dashboard & AI Recommendations]_
+
+### Volunteer Assistant
+
+A tailored mobile workspace for authenticated volunteers assisting fans on the ground.
+
+- **Policy Knowledge Base**: Provides rapid AI-assisted lookups of stadium policies, volunteer manuals, and standard procedures.
+- **Incident Reporting & Log**: Allows volunteers to view, report, and assign incidents, coordinating directly with the Operations Command Center.
+- _[Screenshot Placeholder: Volunteer Policy Lookup]_
+
+---
 
 ## Architecture
 
-- **Architecture Version:** 1.0 (Frozen)
-- **Current Phase:** Phase 6 — Hardening
-- **Application Version:** 0.3.0
+FIFACoOS is built as a server-first, modular monolith designed for type-safety, reliability, and security.
 
-### Security Philosophy
+- **Next.js App Router**: Utilizes the Next.js App Router to structure page routing, layouts, and data fetch lifecycle boundaries.
+- **React Server Components (RSC)**: Performs data fetching and authorization checks on the server, minimizing client bundles and optimizing render performance.
+- **Server Actions**: Implements secure RPC-style endpoints for client mutations with server-side validation.
+- **Prisma ORM**: Defines the type-safe domain model and query abstraction layer.
+- **Supabase**: Powers PostgreSQL storage, user authentication, and Row-Level Security (RLS).
+- **Google Gemini**: Powers natural language understanding, report summarization, and contextual recommendation synthesis.
+- **Vercel AI SDK**: Serves as a provider-agnostic gateway (`AIGateway`) to manage timeouts, retries, and streaming.
+- **Deterministic Retrieval**: Injects verified database records (SOPs, POIs, telemetry) into the AI prompt before execution, preventing hallucinations of critical information.
+- **Role-Based Access Control (RBAC)**: Segregates interfaces and API operations strictly based on user roles (`ops`, `volunteer`, `fan`).
+- **i18n (next-intl)**: Provides localized UI text and instructs the AI to respond in the user's selected language (supports EN, ES, FR, HI).
+- **Accessibility (WCAG 2.1 AA)**: Headless UI primitives (Radix UI) ensure keyboard navigability, focus management, and screen-reader compatibility.
 
-- **AI is advisory only**: AI cannot execute operational commands.
-- **Input Sanitization**: AI input is sanitized before prompt construction to prevent prompt injection and remove PII.
-- **Strict Boundaries**: Unauthorized requests fail before business logic.
-- **Graceful Failures**: Internal errors are never exposed to clients (e.g., stack traces, SQL errors).
+---
 
-### Performance Philosophy
+## Tech Stack
 
-- **Resilient AI**: All network-bound AI calls enforce strict timeouts (10-15s) with deterministic fallbacks to ensure dashboards never hang.
-- **Optimized Data Retrieval**: Dashboard metrics are grouped and cached to prevent N+1 queries and excessive database load during auto-refresh intervals.
-- **Deterministic Caching**: Cache invalidation is driven by business logic mutations rather than arbitrary time-to-live expirations.
+- **Framework**: Next.js 16 (App Router)
+- **Library**: React 19
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS v4
+- **Components**: shadcn/ui (Radix UI primitives)
+- **Database & Auth**: Supabase (PostgreSQL & GoTrue)
+- **ORM**: Prisma ORM
+- **AI Integration**: Vercel AI SDK & `@ai-sdk/google` (Google Gemini)
+- **Validation**: Zod
+- **Testing**: Vitest (Unit/Integration) & Playwright (E2E)
 
-## Technology Stack
+---
 
-| Technology      | Purpose         |
-| :-------------- | :-------------- |
-| Next.js 16      | Framework       |
-| TypeScript      | Language        |
-| Tailwind CSS v4 | Styling         |
-| shadcn/ui       | Components      |
-| Supabase        | Database & Auth |
-| Prisma          | ORM             |
-| Vercel AI SDK   | AI Gateway      |
-| Google Gemini   | LLM Provider    |
-| Zod             | Validation      |
-| Vitest          | Unit Testing    |
-| Playwright      | E2E Testing     |
+## AI Capabilities
 
-## Development
+- **Fan Assistant**: Parses natural language requests (including slang/typos), determines user intents (e.g. wayfinding, policy lookup), and maps them to deterministic services.
+- **Operations Copilot**: Synthesizes conflicting incident reports into a single cohesive summary and drafts staff deployment strategies.
+- **Volunteer Assistant**: Queries volunteer manuals and guides to answer policy questions in real-time.
+- **Unified Intelligence Engine (UIE)**: A centralized, stateless module that orchestrates all LLM prompts, structured outputs, and fallback triggers.
+- **Deterministic Knowledge Retrieval**: Integrates standard operating procedures and stadium spatial coordinates deterministically from Postgres into AI prompts, guaranteeing accurate facts.
+- **Safe AI Architecture**: Implements a strict input/output verification lifecycle:
+  1. Sanitizes input and strips PII.
+  2. Restricts database access (UIE operates on pre-fetched contexts only).
+  3. Validates AI JSON outputs against Zod schemas; triggers a polite deterministic fallback if validation fails.
+  4. Requires human approval before executing any AI-recommended actions.
 
-### Prerequisites
+---
 
-- **Node.js** ≥ 24 (see `.nvmrc`)
-- **pnpm** ≥ 11
+## Security
 
-### Getting Started
+- **Supabase Auth**: Manages secure sessions and custom user claims for roles.
+- **RBAC Enforcement**: Middleware and layout boundaries check authenticated roles before loading operational screens or processing requests.
+- **Prisma Schema Constraints**: Enforces data integrity at the database model level.
+- **Zod Validation**: Validates all incoming payloads at API and Server Action boundaries.
+- **Server Actions Security**: Actions enforce strict role check helpers (`requireOps()`, `requireVolunteer()`) before executing writes.
+- **RLS Strategy**: Supabase PostgreSQL Row-Level Security (RLS) acts as a defense-in-depth barrier, segregating user-specific data and completely denying anonymous fan access to operational telemetry or incidents.
+
+---
+
+## Running Locally
+
+### 1. Clone & Install
 
 ```bash
-# Clone the repository
 git clone https://github.com/KumarNayan11/fifa-coos.git
 cd fifa-coos
-
-# Install dependencies
 pnpm install
+```
 
-# Setup Database & Seed Auth Users
-# This creates Supabase accounts and maps them to Prisma:
-# - ops@example.com / password123
-# - security@example.com / password123
-# - volunteer@example.com / password123
+### 2. Environment Setup
+
+Create a `.env` file in the root directory based on `.env.example`:
+
+```env
+# Database Connections (Supabase PostgreSQL)
+DATABASE_URL="postgresql://postgres.[project-id]:[password]@aws-1-ap-south-1.pooler.supabase.com:6543/postgres?pgbouncer=true"
+DIRECT_URL="postgresql://postgres.[project-id]:[password]@aws-1-ap-south-1.pooler.supabase.com:5432/postgres"
+
+# Supabase Credentials
+NEXT_PUBLIC_SUPABASE_URL="https://[project-id].supabase.co"
+NEXT_PUBLIC_SUPABASE_ANON_KEY="your-anon-key"
+SUPABASE_SERVICE_ROLE_KEY="your-service-role-key"
+
+# AI Key & Model
+GOOGLE_GENERATIVE_AI_API_KEY="your-gemini-api-key"
+GEMINI_MODEL="gemini-2.5-flash"
+```
+
+### 3. Database Setup & Seeding
+
+Run Prisma migrations and seed the database with spatial metadata, standard operating procedures, mock incidents, and demo authentication accounts:
+
+```bash
+npx prisma db push
 pnpm db:seed
+```
 
-# Start the development server
+### 4. Run the Dev Server
+
+```bash
 pnpm dev
 ```
 
-### Available Commands
+Open [http://localhost:3000](http://localhost:3000) to view the application.
 
-| Command             | Description                      |
-| :------------------ | :------------------------------- |
-| `pnpm dev`          | Start Next.js development server |
-| `pnpm build`        | Create production build          |
-| `pnpm start`        | Start production server          |
-| `pnpm lint`         | Run ESLint                       |
-| `pnpm typecheck`    | Run TypeScript type checking     |
-| `pnpm format`       | Format all files with Prettier   |
-| `pnpm format:check` | Check formatting without writing |
-| `pnpm test`         | Run unit tests (Vitest)          |
-| `pnpm test:watch`   | Run tests in watch mode          |
-| `pnpm test:ui`      | Open Vitest UI                   |
-| `pnpm test:e2e`     | Run E2E tests (Playwright)       |
+---
 
-### Project Structure
+## Demo Accounts
 
-```
-src/
-├── app/                    # Next.js App Router (pages, layouts, error handling)
-├── components/
-│   ├── ui/                 # Reusable UI primitives (Button, Card, Badge, etc.)
-│   └── shared/             # Complex shared components
-├── config/                 # App config, navigation, constants, feature flags
-├── features/               # Domain-organized feature modules
-├── hooks/                  # Global React hooks
-├── lib/                    # Shared utilities (cn, helpers, metadata)
-├── services/               # Shared business logic
-├── styles/                 # Design tokens
-└── types/                  # Global TypeScript definitions
+The database seeding process creates three demo accounts linked to Supabase Auth:
+
+- **Operations Manager**:
+  - Email: `ops@example.com`
+  - Password: `password123`
+- **Volunteer**:
+  - Email: `volunteer@example.com`
+  - Password: `password123`
+- **Anonymous Fan**:
+  - No login required. Navigate directly to `/fan` or `/fan/copilot`.
+
+---
+
+## Testing
+
+Run the full automated unit and integration test suite:
+
+```bash
+pnpm test
 ```
 
-### Environment Variables
+- **Current Test Count**: **127 passed tests** across 34 test suites.
+- E2E tests can be executed via Playwright:
 
-Copy `.env.example` to `.env` and configure the required variables. See the `.env` file for documentation on each variable.
+```bash
+pnpm test:e2e
+```
 
-**AI Configuration:**
+---
 
-- `GOOGLE_GENERATIVE_AI_API_KEY`: Your Google Gemini API Key (required).
-- `GEMINI_MODEL`: (Optional) The specific Gemini model ID to use across all copilots (defaults to `gemini-flash-latest`).
+## Deployment
 
-### Documentation
+FIFACoOS is optimized for deployment on the Vercel Platform.
 
-- [Architecture](docs/architecture/ARCHITECTURE.md)
-- [System Design](docs/architecture/SYSTEM_DESIGN.md)
-- [AI Architecture](docs/architecture/AI_ARCHITECTURE.md)
-- [Developer Guide](docs/development/DEVELOPER_GUIDE.md)
-- [Implementation Plan](docs/planning/IMPLEMENTATION_PLAN.md)
-- [Technology Decisions](docs/planning/TECHNOLOGY_DECISIONS.md)
-- [Phase Checklists](docs/development/PHASE_CHECKLISTS.md)
-- [Changelog](docs/CHANGELOG.md)
+1. Connect your repository to Vercel.
+2. Add all env variables from `.env` in the Project Settings.
+3. Configure the build command as `next build` and install command as `pnpm install`.
+4. Ensure the database migrations are executed in your production database via `npx prisma db push`.
+
+---
+
+## Repository Structure
+
+```
+.
+├── docs/                   # System and architecture design documentation
+│   ├── architecture/       # ARCHITECTURE, AI_ARCHITECTURE, SYSTEM_DESIGN, SECURITY, etc.
+│   ├── development/        # DEVELOPER_GUIDE, PHASE_CHECKLISTS
+│   ├── planning/           # IMPLEMENTATION_PLAN, TECHNOLOGY_DECISIONS
+│   └── product/            # PRD, FEATURE_SPEC
+├── prisma/                 # Database schema and seed scripts
+├── public/                 # Static assets (icons, maps, images)
+├── src/
+│   ├── app/                # Next.js pages, layouts, and internationalized routing
+│   ├── components/         # Global reusable UI (components/ui, components/shared)
+│   ├── config/             # App configs, navigation, and constants
+│   ├── features/           # Domain-driven features (ai, fan, incident, telemetry, etc.)
+│   ├── hooks/              # Global React hooks
+│   ├── lib/                # Shared helper libraries (auth, prisma client, etc.)
+│   ├── services/           # Shared database and telemetry services
+│   └── types/              # Global TypeScript models
+└── vitest.config.ts        # Unit test configuration
+```
+
+---
+
+## Roadmap
+
+| Phase       | Description                                | Status       |
+| :---------- | :----------------------------------------- | :----------- |
+| **Phase 0** | Repository Initialization & CI Scaffolding | ✅ Completed |
+| **Phase 1** | Platform Foundation & DB Scaffolding       | ✅ Completed |
+| **Phase 2** | Fan Copilot Wayfinding & FAQ Slice         | ✅ Completed |
+| **Phase 3** | Operations Command Center & Dashboards     | ✅ Completed |
+| **Phase 4** | Volunteer Assistant Workspace              | ✅ Completed |
+| **Phase 5** | Accessibility Audit & i18n Localization    | ✅ Completed |
+| **Phase 6** | Quality Hardening & Red-Teaming            | ✅ Completed |
+| **Phase 7** | Submission Prep & Polish                   | ✅ Completed |

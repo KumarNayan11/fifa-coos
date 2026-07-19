@@ -41,7 +41,7 @@ const mockIncidents = [
 describe("IncidentAnalyticsPanel", () => {
   it("should render empty state correctly", () => {
     render(<IncidentAnalyticsPanel incidents={[]} />);
-    expect(screen.getByText("No incidents available for analytics.")).toBeDefined();
+    expect(screen.getByText("No incidents found")).toBeDefined();
   });
 
   it("should calculate and render analytics correctly", () => {
@@ -59,8 +59,8 @@ describe("IncidentAnalyticsPanel", () => {
     expect(screen.getByText("Critical")).toBeDefined();
     expect(screen.getByText("North")).toBeDefined();
 
-    // We expect 2 items in North zone
-    const northCounts = screen.getAllByText("2");
+    // We expect 2 items in North zone (2 out of 3 total = 67%)
+    const northCounts = screen.getAllByText("2 (67%)");
     expect(northCounts.length).toBeGreaterThan(0);
   });
 });

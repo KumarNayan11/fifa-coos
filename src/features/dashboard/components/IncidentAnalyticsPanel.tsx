@@ -2,6 +2,8 @@
 
 import { useMemo } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
+import { BarChart3 } from "lucide-react";
 
 // Matching the shape returned by IncidentService.listIncidents() (and IncidentDataTable)
 export interface IncidentDataAnalytics {
@@ -120,50 +122,154 @@ export function IncidentAnalyticsPanel({ incidents }: IncidentAnalyticsPanelProp
 
   if (incidents.length === 0) {
     return (
-      <div className="bg-white rounded-lg shadow-sm border p-8 text-center text-gray-500">
-        <p>No incidents available for analytics.</p>
-      </div>
+      <Card>
+        <CardContent className="pt-6">
+          <EmptyState
+            icon={<BarChart3 className="h-12 w-12" aria-hidden="true" />}
+            title="No incidents found"
+            description="There is no incident data for analytics."
+          />
+        </CardContent>
+      </Card>
     );
   }
 
-  const renderBarChart = (
-    title: string,
-    data: { label: string; count: number; color: string; width: number }[],
-  ) => (
-    <Card className="shadow-none border-none">
-      <CardHeader className="px-0 pt-0 pb-3">
-        <CardTitle className="text-sm font-semibold text-gray-500 uppercase tracking-wider">
-          {title}
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="px-0 pb-0 space-y-3">
-        {data.map((item) => (
-          <div key={item.label} className="space-y-1">
-            <div className="flex justify-between text-xs font-medium text-gray-700">
-              <span>{item.label}</span>
-              <span>{item.count}</span>
+  const renderSeverityStackedBar = () => {
+    const total = severityData.reduce((sum, item) => sum + item.count, 0);
+    return (
+      <div className="flex flex-col space-y-4">
+        <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">
+          By Severity
+        </h3>
+        {total === 0 ? (
+          <p className="text-xs text-gray-400 italic">No data</p>
+        ) : (
+          <div className="space-y-4">
+            <div className="w-full h-4 bg-gray-100 rounded-full flex overflow-hidden shadow-inner">
+              {severityData.map((item) => {
+                const pct = total > 0 ? (item.count / total) * 100 : 0;
+                if (pct === 0) return null;
+                return (
+                  <div
+                    key={item.label}
+                    className={`h-full ${item.color} transition-all duration-500`}
+                    style={{ width: `${pct}%` }}
+                    title={`${item.label}: ${item.count} (${Math.round(pct)}%)`}
+                    role="img"
+                    aria-label={`${item.label} incidents: ${item.count}`}
+                  />
+                );
+              })}
             </div>
-            <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
-              <div
-                className={`h-full ${item.color} rounded-full transition-all duration-500`}
-                style={{ width: `${item.count === 0 ? 0 : Math.max(item.width, 2)}%` }}
-              />
+            <div className="grid grid-cols-2 gap-3 text-xs">
+              {severityData.map((item) => {
+                const pct = total > 0 ? Math.round((item.count / total) * 100) : 0;
+                return (
+                  <div key={item.label} className="flex items-center gap-2">
+                    <span className={`w-3 h-3 rounded-full ${item.color} shrink-0`} />
+                    <span className="font-medium text-gray-700">{item.label}</span>
+                    <span className="text-gray-400 ml-auto font-mono font-semibold">
+                      {item.count} ({pct}%)
+                    </span>
+                  </div>
+                );
+              })}
             </div>
           </div>
-        ))}
-        {data.length === 0 && <p className="text-xs text-gray-400 italic">No data</p>}
-      </CardContent>
-    </Card>
-  );
+        )}
+      </div>
+    );
+  };
+
+  const renderStatusVerticalBarChart = () => {
+    const maxVal = Math.max(...statusData.map((d) => d.count), 1);
+    const total = statusData.reduce((sum, item) => sum + item.count, 0);
+    return (
+      <div className="flex flex-col space-y-4 h-full">
+        <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">By Status</h3>
+        {total === 0 ? (
+          <p className="text-xs text-gray-400 italic">No data</p>
+        ) : (
+          <div className="flex flex-col justify-between flex-1 min-h-[140px]">
+            <div className="flex items-end justify-between h-24 gap-2 px-2 mt-2">
+              {statusData.map((item) => {
+                const heightPct = (item.count / maxVal) * 80 + 10;
+                return (
+                  <div
+                    key={item.label}
+                    className="flex flex-col items-center flex-1 group relative h-full justify-end"
+                  >
+                    <div className="absolute -top-6 bg-gray-900 text-white text-[10px] px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none font-mono">
+                      {item.count}
+                    </div>
+                    <div
+                      className={`w-full rounded-t-md ${item.color} transition-all duration-500 ease-out origin-bottom`}
+                      style={{ height: `${item.count === 0 ? 0 : heightPct}%` }}
+                      role="img"
+                      aria-label={`${item.label} status count: ${item.count}`}
+                    />
+                    <span className="text-[10px] font-medium text-gray-500 uppercase mt-2 truncate w-full text-center">
+                      {item.label}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+            <div className="text-[10px] text-gray-400 text-center font-mono mt-2 select-none">
+              Total active incidents: {total}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const renderZonesHorizontalProgress = () => {
+    const total = zoneData.reduce((sum, item) => sum + item.count, 0);
+    return (
+      <div className="flex flex-col space-y-4">
+        <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Top Zones</h3>
+        {zoneData.length === 0 ? (
+          <p className="text-xs text-gray-400 italic">No data</p>
+        ) : (
+          <div className="space-y-3">
+            {zoneData.map((item) => {
+              const pct = total > 0 ? Math.round((item.count / total) * 100) : 0;
+              return (
+                <div key={item.label} className="space-y-1">
+                  <div className="flex justify-between text-xs font-semibold text-gray-700">
+                    <span className="truncate">{item.label}</span>
+                    <span className="font-mono">
+                      {item.count} ({pct}%)
+                    </span>
+                  </div>
+                  <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full ${item.color} rounded-full transition-all duration-500`}
+                      style={{ width: `${item.count === 0 ? 0 : Math.max(item.width, 4)}%` }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    );
+  };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
-      <h2 className="text-base font-bold text-gray-900 mb-5">Incident Distribution</h2>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        {renderBarChart("By Severity", severityData)}
-        {renderBarChart("By Status", statusData)}
-        {renderBarChart("Top Zones", zoneData)}
-      </div>
-    </div>
+    <Card>
+      <CardHeader>
+        <CardTitle>Incident Distribution</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {renderSeverityStackedBar()}
+          {renderStatusVerticalBarChart()}
+          {renderZonesHorizontalProgress()}
+        </div>
+      </CardContent>
+    </Card>
   );
 }

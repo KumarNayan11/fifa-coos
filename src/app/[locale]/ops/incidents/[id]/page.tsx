@@ -16,6 +16,7 @@ import { IncidentTimeline } from "@/features/incident/components/IncidentTimelin
 import { RelatedTelemetryPanel } from "@/features/incident/components/RelatedTelemetryPanel";
 import { AssignmentContextPanel } from "@/features/incident/components/AssignmentContextPanel";
 import { CopyIdButton } from "@/components/shared/CopyIdButton";
+import { StatusProgressBar } from "@/features/incident/components/StatusProgressBar";
 
 export default async function IncidentDetailsPage({
   params,
@@ -155,6 +156,12 @@ export default async function IncidentDetailsPage({
                     {incident.status.replace("_", " ")}
                   </Badge>
                 </div>
+              </div>
+
+              <div className="mb-6">
+                <StatusProgressBar
+                  status={incident.status as "reported" | "assigned" | "resolved" | "closed"}
+                />
               </div>
 
               <div className="prose prose-sm max-w-none text-gray-700">

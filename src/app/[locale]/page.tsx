@@ -34,7 +34,7 @@ import Link from "next/link";
 import { Container } from "@/components/ui/container";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { APP_CONFIG, ROUTES } from "@/config";
 import { getSession } from "@/lib/auth";
 import { cn } from "@/lib/utils";
@@ -238,14 +238,22 @@ export default async function HomePage() {
 
         <Container size="lg" className="relative">
           <div className="flex flex-col items-center py-20 text-center sm:py-28 lg:py-32">
-            {/* Event context badge */}
-            <Badge
-              variant="secondary"
-              className="mb-6 gap-1.5 px-4 py-1.5 text-sm font-medium shadow-sm"
-            >
-              <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
-              FIFA World Cup 2026™
-            </Badge>
+            {/* Event context & Demo badges */}
+            <div className="flex flex-wrap items-center justify-center gap-2.5 mb-6 select-none">
+              <Badge
+                variant="secondary"
+                className="gap-1.5 px-4 py-1.5 text-sm font-medium shadow-sm bg-indigo-50 text-indigo-700 border-indigo-200/50"
+              >
+                <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
+                FIFA World Cup 2026™
+              </Badge>
+              <Badge
+                variant="outline"
+                className="gap-1.5 px-4 py-1.5 text-xs font-extrabold shadow-sm border-blue-500 bg-blue-50 text-blue-700 animate-pulse uppercase tracking-wider"
+              >
+                Live Demonstration
+              </Badge>
+            </div>
 
             {/* Brand name */}
             <h1 className="text-5xl font-extrabold tracking-tight text-foreground sm:text-6xl lg:text-7xl">
@@ -268,7 +276,7 @@ export default async function HomePage() {
             </p>
 
             {/* CTAs */}
-            <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:gap-4">
+            <div className="mt-10 flex flex-wrap justify-center gap-3 sm:gap-4">
               <Link
                 href={ROUTES.fan.copilot}
                 className={cn(
@@ -289,7 +297,56 @@ export default async function HomePage() {
                 <LayoutDashboard className="h-5 w-5" aria-hidden="true" />
                 Operations Dashboard
               </Link>
+              <Link
+                href={ROUTES.volunteer.root}
+                className={cn(
+                  buttonVariants({ variant: "outline", size: "lg" }),
+                  "gap-2 px-8 shadow-sm transition-all hover:shadow-md border-emerald-300 bg-emerald-50/20 text-emerald-800 hover:bg-emerald-50",
+                )}
+              >
+                <HeartHandshake className="h-5 w-5 text-emerald-600" aria-hidden="true" />
+                Volunteer Assistant
+              </Link>
             </div>
+
+            {/* Demo Accounts Card */}
+            <Card className="mt-12 w-full max-w-lg border border-indigo-200 bg-indigo-50/20 shadow-sm text-left">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-extrabold uppercase tracking-wider text-indigo-900 flex items-center gap-2">
+                  <ShieldCheck className="h-4 w-4 text-indigo-600" />
+                  Sandbox Demonstration Accounts
+                </CardTitle>
+                <CardDescription className="text-xs text-indigo-700 font-medium">
+                  Use the credentials below to experience different role-based views.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="grid grid-cols-2 gap-4 text-xs pb-4">
+                <div className="bg-white p-3 rounded-lg border shadow-sm space-y-1">
+                  <span className="font-bold uppercase text-[9px] tracking-wider text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded">
+                    Operations View
+                  </span>
+                  <p className="font-semibold text-gray-700 mt-1">ops@example.com</p>
+                  <p className="font-mono text-gray-400 text-[10px]">Password: password123</p>
+                </div>
+                <div className="bg-white p-3 rounded-lg border shadow-sm space-y-1">
+                  <span className="font-bold uppercase text-[9px] tracking-wider text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded">
+                    Volunteer View
+                  </span>
+                  <p className="font-semibold text-gray-700 mt-1">volunteer@example.com</p>
+                  <p className="font-mono text-gray-400 text-[10px]">Password: password123</p>
+                </div>
+                <div className="col-span-2 text-center text-[10px] text-indigo-500 font-semibold mt-1">
+                  Fan Copilot supports <span className="underline">Anonymous Guest Access</span> (No
+                  login required).
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Simulation Notice */}
+            <p className="mt-5 text-[10px] text-gray-400 select-none font-semibold uppercase tracking-wider bg-gray-50 px-3.5 py-1.5 rounded-full border border-gray-150">
+              Note: Telemetry metrics, queue durations, and active incident streams are simulated
+              for testing and demonstration.
+            </p>
           </div>
         </Container>
       </section>
@@ -572,6 +629,16 @@ export default async function HomePage() {
                 >
                   <ShieldCheck className="h-5 w-5" aria-hidden="true" />
                   Operations Login
+                </Link>
+                <Link
+                  href={ROUTES.volunteer.root}
+                  className={cn(
+                    buttonVariants({ variant: "outline", size: "lg" }),
+                    "gap-2 border-emerald-500/20 px-8 text-emerald-300 transition-all hover:bg-emerald-900/50 hover:text-white hover:border-emerald-500/40",
+                  )}
+                >
+                  <HeartHandshake className="h-5 w-5 text-emerald-400" aria-hidden="true" />
+                  Volunteer Q&A
                 </Link>
               </div>
             </div>

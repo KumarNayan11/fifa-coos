@@ -11,12 +11,13 @@ import {
   CardContent,
   CardFooter,
 } from "@/components/ui/card";
+import { ShieldCheck } from "lucide-react";
 
 export default function LoginPage() {
   const [state, formAction, isPending] = useActionState(loginAction, null);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-4 space-y-6">
       <Card className="w-full max-w-md shadow-lg border-0">
         <CardHeader className="space-y-1 pb-6 text-center">
           <CardTitle className="text-2xl font-bold tracking-tight text-gray-900">
@@ -78,6 +79,30 @@ export default function LoginPage() {
           </CardFooter>
         </form>
       </Card>
+
+      {/* Demo Credentials Helper */}
+      <div className="w-full max-w-md bg-white border border-gray-200 rounded-xl p-5 shadow-md text-left space-y-3">
+        <h3 className="text-xs font-extrabold uppercase tracking-wider text-indigo-900 flex items-center gap-2 select-none">
+          <ShieldCheck className="h-4 w-4 text-indigo-600" />
+          Sandbox Demonstration Accounts
+        </h3>
+        <div className="grid grid-cols-2 gap-3.5 text-xs">
+          <div className="bg-indigo-50/30 p-3 rounded-lg border border-indigo-150 space-y-1">
+            <span className="font-bold uppercase text-[9px] tracking-wider text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded">
+              Operations
+            </span>
+            <p className="font-semibold text-gray-700 mt-1">ops@example.com</p>
+            <p className="font-mono text-gray-400 text-[10px]">Password: password123</p>
+          </div>
+          <div className="bg-emerald-50/30 p-3 rounded-lg border border-emerald-150 space-y-1">
+            <span className="font-bold uppercase text-[9px] tracking-wider text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded">
+              Volunteer
+            </span>
+            <p className="font-semibold text-gray-700 mt-1">volunteer@example.com</p>
+            <p className="font-mono text-gray-400 text-[10px]">Password: password123</p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

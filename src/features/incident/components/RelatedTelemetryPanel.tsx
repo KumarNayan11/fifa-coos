@@ -45,7 +45,25 @@ export function RelatedTelemetryPanel({
               <Users className="h-4 w-4" />
               <span className="text-xs font-semibold uppercase tracking-wider">Crowd Density</span>
             </div>
-            <div className="text-2xl font-bold text-gray-900">{zoneTelemetry.crowdDensity}%</div>
+            <div className="flex items-baseline justify-between">
+              <span className="text-2xl font-bold text-gray-900 font-mono">
+                {zoneTelemetry.crowdDensity}%
+              </span>
+            </div>
+            <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden mt-1.5">
+              <div
+                className={`h-full ${
+                  zoneTelemetry.crowdDensity > 75
+                    ? "bg-red-500"
+                    : zoneTelemetry.crowdDensity > 50
+                      ? "bg-amber-500"
+                      : "bg-green-500"
+                }`}
+                style={{ width: `${zoneTelemetry.crowdDensity}%` }}
+                role="img"
+                aria-label={`Crowd Density: ${zoneTelemetry.crowdDensity}%`}
+              />
+            </div>
             {renderTrend(zoneTelemetry.trend)}
           </div>
 
@@ -54,8 +72,24 @@ export function RelatedTelemetryPanel({
               <Activity className="h-4 w-4" />
               <span className="text-xs font-semibold uppercase tracking-wider">Incident Prob</span>
             </div>
-            <div className="text-2xl font-bold text-gray-900">
-              {zoneTelemetry.incidentProbability}%
+            <div className="flex items-baseline justify-between">
+              <span className="text-2xl font-bold text-gray-900 font-mono">
+                {zoneTelemetry.incidentProbability}%
+              </span>
+            </div>
+            <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden mt-1.5">
+              <div
+                className={`h-full ${
+                  zoneTelemetry.incidentProbability > 20
+                    ? "bg-red-500"
+                    : zoneTelemetry.incidentProbability > 10
+                      ? "bg-amber-500"
+                      : "bg-indigo-500"
+                }`}
+                style={{ width: `${zoneTelemetry.incidentProbability}%` }}
+                role="img"
+                aria-label={`Incident Probability: ${zoneTelemetry.incidentProbability}%`}
+              />
             </div>
           </div>
         </div>

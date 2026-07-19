@@ -9,7 +9,7 @@ import type { IncidentDataAnalytics } from "../IncidentAnalyticsPanel";
 describe("RecentActivityFeed", () => {
   it("should render empty state when no activity", () => {
     render(<RecentActivityFeed incidents={[]} />);
-    expect(screen.getByText("No recent activity.")).toBeDefined();
+    expect(screen.getByText("No recent activity")).toBeDefined();
   });
 
   it("should format and sort activities correctly", () => {

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Copy, Check, Search, Filter } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
 
 // We use any here because importing Prisma types into a client component
 // can sometimes cause issues if not done purely as a type.
@@ -134,7 +135,10 @@ export function IncidentDataTable({ incidents }: IncidentDataTableProps) {
       {/* Controls Bar */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center bg-white p-4 rounded-lg shadow-sm border border-gray-100">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Search
+            className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400"
+            aria-hidden="true"
+          />
           <input
             type="text"
             placeholder="Search by ID, title, or zone..."
@@ -321,29 +325,26 @@ export function IncidentDataTable({ incidents }: IncidentDataTableProps) {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={8} className="px-6 py-12 text-center">
-                    <div className="flex flex-col items-center justify-center text-gray-500">
-                      <Search className="h-8 w-8 text-gray-300 mb-3" />
-                      <p className="text-base font-medium text-gray-900">
-                        No incidents match your filters
-                      </p>
-                      <p className="text-sm mt-1">
-                        Try adjusting your search query or removing filters.
-                      </p>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="mt-4"
-                        onClick={() => {
-                          setSearchQuery("");
-                          setStatusFilter("all");
-                          setSeverityFilter("all");
-                          setZoneFilter("all");
-                        }}
-                      >
-                        Clear all filters
-                      </Button>
-                    </div>
+                  <td colSpan={8} className="px-6">
+                    <EmptyState
+                      icon={<Search className="h-12 w-12" aria-hidden="true" />}
+                      title="No results found"
+                      description="Try adjusting your search query or removing filters."
+                      action={
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setSearchQuery("");
+                            setStatusFilter("all");
+                            setSeverityFilter("all");
+                            setZoneFilter("all");
+                          }}
+                        >
+                          Clear all filters
+                        </Button>
+                      }
+                    />
                   </td>
                 </tr>
               )}

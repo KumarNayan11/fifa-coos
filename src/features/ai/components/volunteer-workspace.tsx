@@ -51,6 +51,48 @@ export function VolunteerCopilotWorkspace() {
   const { messages, isStreaming, sendMessage, clearConversation } = useVolunteerChat();
 
   const genericMessages: ChatMessageData[] = messages.map((msg) => {
+    // Group referenced articles by heuristic categories
+    const getArticleInfo = (slug: string) => {
+      const title = slug
+        .split("-")
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(" ");
+
+      let category = "General";
+      let icon = "📄";
+
+      if (slug.includes("medical") || slug.includes("emergency")) {
+        category = "Emergency";
+        icon = "🩺";
+      } else if (slug.includes("lost") || slug.includes("child") || slug.includes("guidance")) {
+        category = "Safety";
+        icon = "👶";
+      } else if (slug.includes("accessibility")) {
+        category = "Guest Services";
+        icon = "♿";
+      } else if (slug.includes("ticket") || slug.includes("entry") || slug.includes("gate")) {
+        category = "Entry";
+        icon = "🎫";
+      } else if (slug.includes("conduct") || slug.includes("volunteer")) {
+        category = "HR";
+        icon = "👤";
+      }
+
+      return { title, category, icon };
+    };
+
+    const groupedSources: Record<string, { slug: string; title: string; icon: string }[]> = {};
+
+    if (msg.referencedArticles) {
+      msg.referencedArticles.forEach((slug) => {
+        const { title, category, icon } = getArticleInfo(slug);
+        if (!groupedSources[category]) {
+          groupedSources[category] = [];
+        }
+        groupedSources[category].push({ slug, title, icon });
+      });
+    }
+
     return {
       id: msg.id,
       role: msg.role,
@@ -58,18 +100,37 @@ export function VolunteerCopilotWorkspace() {
       timestamp: msg.timestamp,
       footer:
         msg.referencedArticles && msg.referencedArticles.length > 0 ? (
-          <div className="mt-2 text-xs text-gray-500 border-t pt-2">
-            <p className="font-semibold mb-1">Sources</p>
-            <ul className="space-y-1">
-              {msg.referencedArticles.map((slug) => (
-                <li
-                  key={slug}
-                  className="flex items-center gap-1.5 before:content-['•'] before:text-gray-400"
-                >
-                  {slug}
-                </li>
+          <div className="mt-4 border-t pt-3 space-y-3">
+            <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider select-none">
+              Sources
+            </h4>
+            <div className="space-y-3">
+              {Object.entries(groupedSources).map(([category, articles]) => (
+                <div key={category} className="space-y-1.5">
+                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full select-none">
+                    {category}
+                  </span>
+                  <div className="grid gap-2 grid-cols-1 sm:grid-cols-2 mt-1">
+                    {articles.map((art) => (
+                      <div
+                        key={art.slug}
+                        className="flex items-center gap-2 p-2 bg-white rounded-lg border border-gray-150 shadow-sm text-xs"
+                      >
+                        <span className="text-base select-none" aria-hidden="true">
+                          {art.icon}
+                        </span>
+                        <div className="truncate min-w-0">
+                          <p className="font-semibold text-gray-800 truncate" title={art.title}>
+                            {art.title}
+                          </p>
+                          <p className="text-[10px] text-gray-400 truncate font-mono">{art.slug}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               ))}
-            </ul>
+            </div>
           </div>
         ) : undefined,
     };

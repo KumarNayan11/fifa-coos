@@ -6,7 +6,8 @@ import { KnowledgeSearchResult } from "../types";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Search, Loader2, ChevronLeft } from "lucide-react";
+import { Search, ChevronLeft } from "lucide-react";
+import { EmptyState } from "@/components/ui/empty-state";
 
 export function KnowledgeSearchPanel() {
   const [query, setQuery] = useState("");
@@ -34,11 +35,11 @@ export function KnowledgeSearchPanel() {
 
   if (selectedArticle) {
     return (
-      <Card className="w-full">
-        <CardHeader>
-          <div className="flex items-center space-x-2 mb-4">
+      <Card className="w-full h-full flex flex-col shadow-sm">
+        <CardHeader className="pb-4 border-b shrink-0">
+          <div className="flex items-center space-x-2 mb-2">
             <Button variant="ghost" size="sm" onClick={() => setSelectedArticle(null)}>
-              <ChevronLeft className="h-4 w-4 mr-1" />
+              <ChevronLeft className="h-4 w-4 mr-1" aria-hidden="true" />
               Back to Results
             </Button>
           </div>
@@ -48,7 +49,7 @@ export function KnowledgeSearchPanel() {
             Updated: {new Date(selectedArticle.updated_at).toLocaleDateString()}
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="flex-1 overflow-y-auto p-6">
           <div className="prose max-w-none dark:prose-invert">
             <pre className="whitespace-pre-wrap font-sans text-sm text-gray-800 bg-gray-50 p-4 rounded-md border">
               {selectedArticle.content_markdown}
@@ -60,12 +61,12 @@ export function KnowledgeSearchPanel() {
   }
 
   return (
-    <Card className="w-full">
-      <CardHeader>
+    <Card className="w-full h-full flex flex-col shadow-sm">
+      <CardHeader className="shrink-0 border-b pb-4">
         <CardTitle>Knowledge Search</CardTitle>
         <CardDescription>Search for policies, procedures, and SOPs.</CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="flex-1 overflow-y-auto p-6">
         <form onSubmit={handleSearch} className="flex space-x-2 mb-6">
           <Input
             type="text"
@@ -74,29 +75,31 @@ export function KnowledgeSearchPanel() {
             onChange={(e) => setQuery(e.target.value)}
             className="flex-1"
           />
-          <Button type="submit" disabled={loading}>
-            {loading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Search className="h-4 w-4 mr-2" />
-            )}
+          <Button type="submit" isLoading={loading}>
+            <Search className="h-4 w-4" aria-hidden="true" />
             Search
           </Button>
         </form>
 
-        {error && <div className="text-red-500 mb-4">{error}</div>}
+        {error && (
+          <div className="text-red-500 mb-4" role="alert">
+            {error}
+          </div>
+        )}
 
         <div className="space-y-4">
           {results.length === 0 && !loading && !error && (
-            <div className="text-center text-gray-500 py-8">
-              No results found. Enter a search term to begin.
-            </div>
+            <EmptyState
+              icon={<Search className="h-12 w-12" aria-hidden="true" />}
+              title="No knowledge articles found"
+              description="Enter a search term to begin."
+            />
           )}
 
           {results.map((result) => (
             <div
               key={result.id}
-              className="border rounded-lg p-4 hover:border-indigo-300 hover:shadow-sm cursor-pointer transition-all"
+              className="border rounded-lg p-4 hover:border-indigo-300 hover:shadow-sm cursor-pointer transition-all bg-white"
               onClick={() => setSelectedArticle(result)}
             >
               <h3 className="font-semibold text-lg text-indigo-700">{result.title}</h3>
